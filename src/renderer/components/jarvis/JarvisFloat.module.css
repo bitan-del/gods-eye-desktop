@@ -1,0 +1,223 @@
+/* Floating JARVIS orb — draggable, always-on-top widget */
+
+.floatContainer {
+  position: fixed;
+  z-index: 99999;
+  user-select: none;
+  transition: opacity 0.3s ease;
+}
+
+.floatContainer.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── Orb ── */
+
+.orb {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  cursor: grab;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.orb:active {
+  cursor: grabbing;
+}
+
+.orb:hover {
+  transform: scale(1.1);
+}
+
+.orbInner {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, rgba(100, 180, 255, 0.9), rgba(30, 80, 160, 0.95));
+  box-shadow:
+    0 0 12px rgba(60, 140, 255, 0.4),
+    0 0 24px rgba(60, 140, 255, 0.15),
+    inset 0 -2px 6px rgba(0, 0, 0, 0.2);
+  transition: background 0.4s ease, box-shadow 0.4s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Glass shine */
+.orbInner::before {
+  content: '';
+  position: absolute;
+  top: 6px;
+  left: 8px;
+  width: 16px;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 50%;
+  filter: blur(2px);
+}
+
+/* ── State variations ── */
+
+.orbSleeping .orbInner {
+  background: radial-gradient(circle at 35% 35%, rgba(120, 140, 160, 0.7), rgba(60, 70, 80, 0.8));
+  box-shadow:
+    0 0 8px rgba(100, 120, 140, 0.2),
+    inset 0 -2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.orbConnecting .orbInner {
+  background: radial-gradient(circle at 35% 35%, rgba(255, 200, 60, 0.9), rgba(200, 130, 20, 0.95));
+  box-shadow: 0 0 16px rgba(255, 180, 40, 0.5);
+  animation: orbPulseConnect 1s ease-in-out infinite;
+}
+
+.orbListening .orbInner {
+  background: radial-gradient(circle at 35% 35%, rgba(60, 200, 255, 0.95), rgba(20, 100, 200, 0.95));
+  box-shadow:
+    0 0 16px rgba(60, 180, 255, 0.5),
+    0 0 32px rgba(60, 180, 255, 0.2);
+}
+
+.orbSpeaking .orbInner {
+  background: radial-gradient(circle at 35% 35%, rgba(80, 255, 180, 0.9), rgba(20, 180, 120, 0.95));
+  box-shadow:
+    0 0 18px rgba(60, 255, 160, 0.5),
+    0 0 36px rgba(60, 255, 160, 0.2);
+  animation: orbPulseSpeaking 1.5s ease-in-out infinite;
+}
+
+/* Pulse ring for sleeping */
+.pulseRing {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(100, 160, 255, 0.3);
+  transform: translate(-50%, -50%);
+  animation: pulseExpand 3s ease-in-out infinite;
+}
+
+/* Audio ring for listening */
+.audioRing {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(60, 200, 255, 0.4);
+  transform: translate(-50%, -50%);
+  transition: transform 0.1s ease, opacity 0.1s ease;
+}
+
+/* ── Speech bubble ── */
+
+.bubble {
+  position: absolute;
+  bottom: 60px;
+  right: 0;
+  min-width: 200px;
+  max-width: 300px;
+  padding: 10px 14px;
+  background: rgba(20, 25, 35, 0.92);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(100, 160, 255, 0.2);
+  border-radius: 12px;
+  color: rgba(220, 230, 240, 0.95);
+  font-size: 13px;
+  line-height: 1.4;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  animation: bubbleIn 0.2s ease-out;
+  pointer-events: none;
+}
+
+.bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  right: 18px;
+  width: 12px;
+  height: 12px;
+  background: rgba(20, 25, 35, 0.92);
+  border-right: 1px solid rgba(100, 160, 255, 0.2);
+  border-bottom: 1px solid rgba(100, 160, 255, 0.2);
+  transform: rotate(45deg);
+}
+
+.bubbleTranscript {
+  color: rgba(160, 180, 200, 0.8);
+  font-style: italic;
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+
+.bubbleResponse {
+  color: rgba(100, 200, 255, 0.95);
+}
+
+.bubbleStatus {
+  color: rgba(160, 180, 200, 0.6);
+  font-size: 11px;
+}
+
+/* ── State indicator dot ── */
+
+.stateDot {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(20, 25, 35, 0.8);
+}
+
+.stateDotListening {
+  background: #3cc8ff;
+  box-shadow: 0 0 6px rgba(60, 200, 255, 0.6);
+}
+
+.stateDotSpeaking {
+  background: #50ffb4;
+  box-shadow: 0 0 6px rgba(80, 255, 180, 0.6);
+  animation: dotPulse 1s ease-in-out infinite;
+}
+
+.stateDotConnecting {
+  background: #ffc840;
+  animation: dotPulse 0.6s ease-in-out infinite;
+}
+
+/* ── Animations ── */
+
+@keyframes orbPulseConnect {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes orbPulseSpeaking {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+}
+
+@keyframes pulseExpand {
+  0% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+  100% { transform: translate(-50%, -50%) scale(1.8); opacity: 0; }
+}
+
+@keyframes bubbleIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes dotPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}

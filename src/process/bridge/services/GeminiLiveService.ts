@@ -134,6 +134,34 @@ const JARVIS_TOOLS: FunctionDeclaration[] = [
       properties: {},
     },
   },
+  {
+    name: 'get_conversation_messages',
+    description:
+      'Read the recent messages from a specific conversation. Use this to see what happened in a chat, check agent progress, or understand context before acting.',
+    parameters: {
+      type: Type.OBJECT,
+      properties: {
+        conversationId: {
+          type: Type.STRING,
+          description: 'The conversation ID to read messages from',
+        },
+        limit: {
+          type: Type.NUMBER,
+          description: 'Maximum number of messages to return (default 10, max 20)',
+        },
+      },
+      required: ['conversationId'],
+    },
+  },
+  {
+    name: 'open_new_conversation',
+    description:
+      'Open a new conversation in Gods Eye. Use this when the user asks to start a new chat or task.',
+    parameters: {
+      type: Type.OBJECT,
+      properties: {},
+    },
+  },
 ];
 
 // ── Base system instruction ──
@@ -166,6 +194,12 @@ export class GeminiLiveService {
   private static eventHandler: ((event: JarvisLiveEvent) => void) | null = null;
   private static sessionConfirmed = false;
 
+  // ── Caches for fast reconnection ──
+  private static cachedApiKey: string | null = null;
+  private static cachedInstruction: string | null = null;
+  private static cachedInstructionTime = 0;
+  private static readonly INSTRUCTION_CACHE_TTL = 60_000; // rebuild every 60s
+
   /** Register the event handler that forwards events to the renderer */
   static setEventHandler(handler: (event: JarvisLiveEvent) => void): void {
     this.eventHandler = handler;
@@ -181,18 +215,30 @@ export class GeminiLiveService {
     this.sessionConfirmed = false;
 
     try {
-      const apiKey = await this.resolveGeminiApiKey();
+      // Use cached API key for fast reconnect
+      const apiKey = this.cachedApiKey || (await this.resolveGeminiApiKey());
       if (!apiKey) {
         mainError(LOG_TAG, 'No Gemini API key found');
         this.emit({ type: 'error', message: 'No Gemini API key configured. Add one in Settings → Models.' });
         return { success: false };
       }
+      this.cachedApiKey = apiKey;
 
-      // Build system instruction with live context (max 5s total, then fallback to base)
-      mainLog(LOG_TAG, 'Building system instruction...');
-      const systemInstruction = request.systemInstruction ||
-        (await this.withTimeout(this.buildSystemInstruction(), 5000)) ||
-        BASE_SYSTEM_INSTRUCTION;
+      // Use cached system instruction (rebuild every 60s)
+      const now = Date.now();
+      let systemInstruction = request.systemInstruction;
+      if (!systemInstruction) {
+        if (this.cachedInstruction && now - this.cachedInstructionTime < this.INSTRUCTION_CACHE_TTL) {
+          systemInstruction = this.cachedInstruction;
+          mainLog(LOG_TAG, 'Using cached system instruction');
+        } else {
+          mainLog(LOG_TAG, 'Building system instruction...');
+          systemInstruction =
+            (await this.withTimeout(this.buildSystemInstruction(), 3000)) || BASE_SYSTEM_INSTRUCTION;
+          this.cachedInstruction = systemInstruction;
+          this.cachedInstructionTime = now;
+        }
+      }
       mainLog(LOG_TAG, `System instruction ready (${systemInstruction.length} chars)`);
 
       // Resolve model from user config
@@ -582,6 +628,30 @@ export class GeminiLiveService {
 
       case 'stop_all_tasks': {
         return { message: 'Task management is not available in this context. Please stop tasks manually from the conversation panel.' };
+      }
+
+      case 'get_conversation_messages': {
+        const convId = args.conversationId as string;
+        if (!convId) throw new Error('conversationId is required');
+        const msgLimit = Math.min(typeof args.limit === 'number' ? args.limit : 10, 20);
+        const repo = new SqliteConversationRepository();
+        const msgs = await repo.getMessages(convId, 1, msgLimit, 'DESC');
+        return msgs.data.map((m) => {
+          const pos = m.position === 'right' ? 'user' : m.position === 'left' ? 'assistant' : m.position ?? 'unknown';
+          let text = '[non-text]';
+          if (m.type === 'text' && m.content && typeof m.content === 'object' && 'text' in m.content) {
+            text = String((m.content as { text: string }).text).slice(0, 500);
+          }
+          return { role: pos, content: text, timestamp: m.createdAt ? new Date(m.createdAt).toLocaleString() : 'unknown' };
+        });
+      }
+
+      case 'open_new_conversation': {
+        this.emit({
+          type: 'action',
+          action: { name: 'open_new_conversation' },
+        });
+        return { success: true, message: 'Opening a new conversation' };
       }
 
       default:

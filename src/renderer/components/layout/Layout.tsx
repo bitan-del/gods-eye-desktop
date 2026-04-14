@@ -27,6 +27,8 @@ import { isElectronDesktop } from '@renderer/utils/platform';
 import { computeCssSyncDecision, resolveCssByActiveTheme } from '@renderer/utils/theme/themeCssSync';
 import '@renderer/styles/layout.css';
 
+const JarvisFloat = React.lazy(() => import('@renderer/components/jarvis/JarvisFloat'));
+
 const useDebug = () => {
   const [count, setCount] = useState(0);
   const timer = useRef<any>(null);
@@ -541,6 +543,9 @@ const Layout: React.FC<{
               <PwaPullToRefresh />
               <Suspense fallback={null}>
                 <UpdateModal />
+              </Suspense>
+              <Suspense fallback={null}>
+                <JarvisFloat />
               </Suspense>
             </ArcoLayout.Content>
           </ArcoLayout>

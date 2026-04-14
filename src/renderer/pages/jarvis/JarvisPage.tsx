@@ -333,6 +333,8 @@ const JarvisPage: React.FC = () => {
             const { name: actionName, params } = event.action;
             if (actionName === 'navigate_to_conversation' && params?.conversationId) {
               void navigate(`/conversation/${params.conversationId as string}`);
+            } else if (actionName === 'open_new_conversation') {
+              void navigate('/');
             }
           }
           break;
@@ -375,9 +377,6 @@ const JarvisPage: React.FC = () => {
     setResponse('');
     setMicWarning('');
 
-    // Give clap detection a tick to release the mic
-    await new Promise((r) => setTimeout(r, 200));
-
     const result = await ipcBridge.jarvisLive.connect.invoke({});
     if (!result.success) {
       updateState('sleeping');
@@ -390,25 +389,12 @@ const JarvisPage: React.FC = () => {
   }, [startMicStream, updateState]);
 
   const handleWakeUp = useCallback(async () => {
-    const currentState = jarvisStateRef.current;
-
-    // Only respond when sleeping
-    if (currentState !== 'sleeping') return;
-
-    if (!hasWokenRef.current) {
-      hasWokenRef.current = true;
-      updateState('waking');
-      setStatusText('Waking up...');
-
-      const activityData = await fetchActivity();
-      setActivity(activityData);
-
-      await new Promise((r) => setTimeout(r, 500));
-      await connectToGemini();
-    } else {
-      await connectToGemini();
-    }
-  }, [connectToGemini, fetchActivity, updateState]);
+    if (jarvisStateRef.current !== 'sleeping') return;
+    hasWokenRef.current = true;
+    // Go straight to connecting — no delay, no blocking fetchActivity
+    void fetchActivity().then(setActivity);
+    await connectToGemini();
+  }, [connectToGemini, fetchActivity]);
 
   // Keep ref current so handleLiveEvent (defined before handleWakeUp) can call it
   wakeUpRef.current = () => void handleWakeUp();
