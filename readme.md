@@ -1,139 +1,141 @@
-<p align="center">
-  <img src="https://img.shields.io/github/v/release/bitan-del/gods-eye-desktop?style=flat-square&color=32CD32" alt="Version">
-  &nbsp;
-  <img src="https://img.shields.io/badge/license-Apache--2.0-32CD32?style=flat-square&logo=apache&logoColor=white" alt="License">
-  &nbsp;
-  <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-6C757D?style=flat-square&logo=electron&logoColor=white" alt="Platform">
-</p>
+# Gods Eye Desktop
+
+> The official desktop client for the Gods Eye AI platform.
+
+[![Version](https://img.shields.io/badge/version-1.9.13-32CD32?style=flat-square)](https://github.com/bitan-del/gods-eye-desktop/releases)
+[![License](https://img.shields.io/badge/license-Apache--2.0-32CD32?style=flat-square)](./LICENSE)
+[![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-6C757D?style=flat-square)](https://github.com/bitan-del/gods-eye-desktop/releases)
 
 ---
 
-<h1 align="center">Gods Eye Desktop</h1>
+## About
 
-<p align="center">
-  <strong>The official desktop client for Gods Eye — your AI command center.</strong><br>
-  <em>Built with Electron + React + TypeScript</em>
-</p>
+Gods Eye Desktop is a cross-platform desktop application that serves as the primary interface to the Gods Eye AI gateway. It provides a unified workspace where you can interact with 100+ AI models, install community skills, and manage autonomous agents — all from one app.
 
-<p align="center">
-  <a href="https://github.com/bitan-del/gods-eye/releases">
-    <img src="https://img.shields.io/badge/Download-Latest%20Release-32CD32?style=for-the-badge&logo=github&logoColor=white" alt="Download" height="40">
-  </a>
-  &nbsp;
-  <a href="https://gods-eye.org">
-    <img src="https://img.shields.io/badge/Website-gods--eye.org-0078D4?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Website" height="40">
-  </a>
-</p>
+### Key Features
+
+- **100+ AI Models** — Google Gemini, DeepSeek, OpenAI, Anthropic, Mistral, Qwen, and many more. Switch models mid-conversation.
+- **55,000+ Skills** — Browse and install community-built skills from the built-in Skill Store.
+- **Agent Workspace** — AI agents that can read/write files, execute code, search the web, and automate tasks on your machine.
+- **Multi-Agent Support** — Run multiple AI agents simultaneously in separate sessions.
+- **Remote Access** — Connect to your AI workspace from anywhere through the gateway.
+- **Cross-Platform** — Native builds for macOS (Intel + Apple Silicon), Windows (x64), and Linux (amd64).
 
 ---
 
-## What is Gods Eye Desktop?
+## Download
 
-Gods Eye Desktop is a cross-platform Electron application that provides a modern chat interface to the [Gods Eye](https://github.com/bitan-del/gods-eye) AI gateway. It connects to your local or remote Gods Eye gateway and gives you:
+Get the latest release for your platform:
 
-- **Multi-model chat** — Switch between Google Gemini, DeepSeek, OpenAI, Anthropic, and 100+ more models
-- **Skill Store** — Browse and install from 55,000+ community skills
-- **Agent workspace** — File operations, code execution, web search, and automation
-- **Remote access** — Connect from anywhere via the gateway
-- **Cross-platform** — macOS (Intel + Apple Silicon), Windows, and Linux
+| Platform | Download |
+|----------|----------|
+| macOS (Apple Silicon) | [Gods Eye-mac-arm64.dmg](https://github.com/bitan-del/gods-eye/releases) |
+| macOS (Intel) | [Gods Eye-mac-x64.dmg](https://github.com/bitan-del/gods-eye/releases) |
+| Windows (x64) | [Gods Eye-win-x64.exe](https://github.com/bitan-del/gods-eye/releases) |
+| Linux (amd64) | [Gods Eye-linux-amd64.deb](https://github.com/bitan-del/gods-eye/releases) |
 
----
-
-## Quick Start
-
-### Install from Release
-
-Download the latest installer for your platform from [Releases](https://github.com/bitan-del/gods-eye/releases):
-
-| Platform | File |
-|----------|------|
-| macOS (Apple Silicon) | `Gods Eye-*-mac-arm64.dmg` |
-| macOS (Intel) | `Gods Eye-*-mac-x64.dmg` |
-| Windows | `Gods Eye-*-win-x64.exe` |
-| Linux | `Gods Eye-*-linux-amd64.deb` |
-
-### Build from Source
+Or install via the one-liner:
 
 ```bash
-# Clone the repo
+curl -fsSL https://gods-eye.org/install.sh | bash
+```
+
+---
+
+## Build from Source
+
+```bash
 git clone https://github.com/bitan-del/gods-eye-desktop.git
 cd gods-eye-desktop
 
 # Install dependencies
 npm install
 
-# Run in development mode
+# Development
 npm run dev
 
-# Build for production
+# Production build
 npm run build
-```
-
----
-
-## Architecture
-
-```
-gods-eye-desktop/
-  src/
-    renderer/       # React UI (chat, settings, skill store)
-    process/        # Electron main process
-    preload/        # Preload scripts for IPC
-    common/         # Shared types and utilities
-    server.ts       # Local web server for auth
-  resources/        # App icons and assets
-  tests/            # Unit and integration tests
-  electron-builder.yml  # Build configuration
 ```
 
 ---
 
 ## How It Works
 
-1. **Gods Eye Gateway** runs locally (or remotely) and manages AI model connections, plugins, and tools
-2. **Gods Eye Desktop** connects to the gateway via WebSocket on port `18789`
-3. You chat, switch models, install skills, and manage your AI workspace — all from one app
+Gods Eye Desktop connects to the Gods Eye gateway — a local (or remote) Node.js service that manages AI model routing, plugin loading, and tool execution.
 
 ```
-┌─────────────────┐     WebSocket      ┌──────────────────┐
-│  Gods Eye        │ ◄──────────────►  │  Gods Eye         │
-│  Desktop App     │    port 18789     │  Gateway          │
-│  (Electron)      │                   │  (Node.js)        │
-└─────────────────┘                    └──────────────────┘
-                                              │
-                                    ┌─────────┼─────────┐
-                                    ▼         ▼         ▼
-                                 Gemini    DeepSeek   OpenAI
-                                 Claude    Qwen       100+
++--------------------+          +--------------------+
+|                    |  WS/HTTP |                    |
+|   Gods Eye         |<-------->|   Gods Eye         |
+|   Desktop          |  :18789  |   Gateway          |
+|   (Electron)       |          |   (Node.js)        |
++--------------------+          +--------------------+
+                                         |
+                                +--------+--------+
+                                |        |        |
+                              Gemini  DeepSeek  OpenAI
+                              Claude  Qwen     100+ more
 ```
+
+1. Start the gateway: `godseye gateway run`
+2. Open Gods Eye Desktop — it auto-discovers the gateway on your network
+3. Chat, switch models, install skills, run agents
 
 ---
 
-## Configuration
+## Project Structure
 
-The desktop app auto-discovers the gateway via Bonjour/mDNS on your local network. You can also manually configure:
+```
+src/
+  renderer/        React UI — chat, settings, skill store, model picker
+  process/         Electron main process — window management, IPC
+  preload/         Preload scripts — secure bridge between main and renderer
+  common/          Shared types, constants, utilities
+  server.ts        Local auth server
 
-- **Gateway URL**: `ws://127.0.0.1:18789`
-- **Auth Token**: Set in Gods Eye gateway config (`~/.godseye/godseye.json`)
+resources/         App icons and platform assets
+tests/             Unit and integration tests
+scripts/           Build and packaging scripts
+```
 
 ---
 
 ## Tech Stack
 
-- **Electron** — Cross-platform desktop framework
-- **React** — UI components
-- **TypeScript** — Type-safe codebase
-- **Vite** — Fast build tooling
-- **electron-builder** — Packaging and distribution
-- **UnoCSS** — Utility-first CSS
-- **Vitest** — Testing framework
+| Layer | Technology |
+|-------|-----------|
+| Framework | Electron |
+| UI | React + TypeScript |
+| Build | Vite + electron-vite |
+| Styling | UnoCSS |
+| Packaging | electron-builder |
+| Testing | Vitest + Playwright |
 
 ---
 
-## Related Projects
+## Configuration
 
-- [Gods Eye](https://github.com/bitan-del/gods-eye) — The AI gateway and core runtime
-- [Gods Eye Website](https://gods-eye.org) — Download and documentation
+The app stores settings in your OS application data directory:
+
+- **macOS**: `~/Library/Application Support/Gods Eye/`
+- **Windows**: `%APPDATA%/Gods Eye/`
+- **Linux**: `~/.config/Gods Eye/`
+
+Gateway connection defaults to `ws://127.0.0.1:18789`. You can configure this in Settings.
+
+---
+
+## Related
+
+- [Gods Eye](https://github.com/bitan-del/gods-eye) — Core AI gateway and runtime
+- [gods-eye.org](https://gods-eye.org) — Official website and downloads
+
+---
+
+## Contributing
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
 ---
 
@@ -143,7 +145,4 @@ The desktop app auto-discovers the gateway via Bonjour/mDNS on your local networ
 
 ---
 
-<p align="center">
-  <strong>Gods Eye</strong> — See everything. Automate anything.<br>
-  <a href="https://gods-eye.org">gods-eye.org</a>
-</p>
+**Gods Eye** — See everything. Automate anything.
