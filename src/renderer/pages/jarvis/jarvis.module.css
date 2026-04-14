@@ -1,4 +1,4 @@
-/* Jarvis Mode — full-screen assistant wake screen */
+/* Jarvis Mode — Siri-like transparent floating orb assistant */
 
 .jarvisContainer {
   display: flex;
@@ -7,182 +7,373 @@
   width: 100%;
   height: 100%;
   min-height: 0;
-  background: radial-gradient(ellipse at center, #0a1628 0%, #050d1a 60%, #020810 100%);
-  overflow: auto;
+  background: transparent;
+  overflow: hidden;
   user-select: none;
+  position: relative;
+}
+
+/* Ambient background — subtle gradient that blends with the app */
+.jarvisContainer::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 40%, rgba(79, 195, 247, 0.04) 0%, transparent 70%);
+  pointer-events: none;
 }
 
 .jarvisContent {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 24px;
+  gap: 20px;
   padding: 40px 24px;
-  max-width: 520px;
+  max-width: 400px;
   width: 100%;
+  z-index: 1;
 }
 
-/* ──── Orb ──── */
+/* ──── Siri-style Glass Orb ──── */
 
 .orb {
   position: relative;
-  width: 160px;
-  height: 160px;
+  width: 180px;
+  height: 180px;
   cursor: pointer;
   outline: none;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
+/* Main glass sphere */
 .orbCore {
   position: absolute;
-  inset: 30%;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
-  background: radial-gradient(circle, #4fc3f7 0%, #0288d1 60%, #01579b 100%);
-  box-shadow: 0 0 40px 8px rgba(79, 195, 247, 0.4);
-  transition: transform 0.6s ease, box-shadow 0.6s ease;
+  background: radial-gradient(
+    circle at 35% 35%,
+    rgba(255, 255, 255, 0.15) 0%,
+    rgba(79, 195, 247, 0.08) 30%,
+    rgba(3, 169, 244, 0.12) 60%,
+    rgba(1, 87, 155, 0.15) 100%
+  );
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 0 40px 8px rgba(79, 195, 247, 0.15),
+    inset 0 -4px 12px rgba(0, 0, 0, 0.1),
+    inset 0 4px 8px rgba(255, 255, 255, 0.08);
+  transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
+/* Glass highlight reflection */
+.orbCore::before {
+  content: '';
+  position: absolute;
+  top: 8%;
+  left: 20%;
+  width: 35%;
+  height: 25%;
+  border-radius: 50%;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.25) 0%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  filter: blur(1px);
+}
+
+/* Inner color swirl — like Siri's colorful interior */
+.orbCore::after {
+  content: '';
+  position: absolute;
+  inset: 15%;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    rgba(79, 195, 247, 0.3),
+    rgba(156, 39, 176, 0.2),
+    rgba(233, 30, 99, 0.15),
+    rgba(255, 152, 0, 0.15),
+    rgba(76, 175, 80, 0.2),
+    rgba(79, 195, 247, 0.3)
+  );
+  animation: swirlRotate 8s linear infinite;
+  opacity: 0.4;
+  filter: blur(8px);
+  transition: opacity 0.6s ease;
+}
+
+/* Outer glow rings */
 .orbRing1,
 .orbRing2,
 .orbRing3 {
   position: absolute;
-  inset: 0;
   border-radius: 50%;
-  border: 1.5px solid rgba(79, 195, 247, 0.15);
-  transition: border-color 0.6s ease, transform 0.6s ease;
+  border: 1px solid transparent;
+  transition: all 0.6s ease;
 }
 
 .orbRing1 {
-  inset: 10%;
-  animation: orbRotate 12s linear infinite;
+  inset: 15%;
+  border-color: rgba(79, 195, 247, 0.08);
+  animation: orbFloat 6s ease-in-out infinite;
 }
 .orbRing2 {
-  inset: 5%;
-  animation: orbRotate 18s linear infinite reverse;
+  inset: 8%;
+  border-color: rgba(79, 195, 247, 0.05);
+  animation: orbFloat 8s ease-in-out infinite reverse;
 }
 .orbRing3 {
-  inset: 0;
-  animation: orbRotate 24s linear infinite;
+  inset: 2%;
+  border-color: rgba(79, 195, 247, 0.03);
+  animation: orbFloat 10s ease-in-out infinite;
 }
 
 .orbPulse {
   position: absolute;
-  inset: 20%;
+  inset: 10%;
   border-radius: 50%;
-  background: rgba(79, 195, 247, 0.08);
-  animation: orbPulseAnim 2.5s ease-in-out infinite;
+  background: rgba(79, 195, 247, 0.04);
+  animation: orbPulseAnim 3s ease-in-out infinite;
 }
 
-@keyframes orbRotate {
+@keyframes swirlRotate {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
 
+@keyframes orbFloat {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.03); opacity: 0.7; }
+}
+
 @keyframes orbPulseAnim {
   0%, 100% { transform: scale(1); opacity: 0.3; }
-  50% { transform: scale(1.3); opacity: 0.08; }
+  50% { transform: scale(1.15); opacity: 0.05; }
 }
 
 /* ── State: Sleeping ── */
 .orbSleeping .orbCore {
-  background: radial-gradient(circle, #37474f 0%, #263238 60%, #1a2327 100%);
-  box-shadow: 0 0 20px 4px rgba(55, 71, 79, 0.3);
+  background: radial-gradient(
+    circle at 35% 35%,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(100, 100, 100, 0.06) 40%,
+    rgba(50, 50, 50, 0.1) 100%
+  );
+  box-shadow:
+    0 0 20px 4px rgba(120, 120, 120, 0.08),
+    inset 0 -4px 12px rgba(0, 0, 0, 0.08),
+    inset 0 4px 8px rgba(255, 255, 255, 0.04);
 }
+
+.orbSleeping .orbCore::after {
+  opacity: 0.15;
+}
+
 .orbSleeping .orbRing1,
 .orbSleeping .orbRing2,
 .orbSleeping .orbRing3 {
-  border-color: rgba(96, 125, 139, 0.12);
+  border-color: rgba(150, 150, 150, 0.06);
 }
 
 /* ── State: Waking ── */
 .orbWaking .orbCore {
-  animation: orbWakeFlash 0.8s ease-out forwards;
+  animation: siriWake 1s ease-out forwards;
 }
-@keyframes orbWakeFlash {
-  0% {
-    background: radial-gradient(circle, #37474f 0%, #263238 60%, #1a2327 100%);
-    box-shadow: 0 0 20px 4px rgba(55, 71, 79, 0.3);
-    transform: scale(1);
-  }
-  50% {
-    background: radial-gradient(circle, #81d4fa 0%, #039be5 60%, #0277bd 100%);
-    box-shadow: 0 0 60px 16px rgba(79, 195, 247, 0.6);
-    transform: scale(1.15);
+
+@keyframes siriWake {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.2); }
+  60% {
+    box-shadow:
+      0 0 60px 16px rgba(79, 195, 247, 0.3),
+      0 0 120px 40px rgba(156, 39, 176, 0.1),
+      inset 0 0 20px rgba(79, 195, 247, 0.2);
   }
   100% {
-    background: radial-gradient(circle, #4fc3f7 0%, #0288d1 60%, #01579b 100%);
-    box-shadow: 0 0 40px 8px rgba(79, 195, 247, 0.4);
     transform: scale(1);
+    box-shadow:
+      0 0 40px 8px rgba(79, 195, 247, 0.2),
+      inset 0 -4px 12px rgba(0, 0, 0, 0.1),
+      inset 0 4px 8px rgba(255, 255, 255, 0.08);
   }
 }
+
+.orbWaking .orbCore::after {
+  opacity: 0.8;
+}
+
 .orbWaking .orbRing1,
 .orbWaking .orbRing2,
 .orbWaking .orbRing3 {
-  border-color: rgba(79, 195, 247, 0.3);
+  border-color: rgba(79, 195, 247, 0.2);
+}
+
+/* ── State: Listening (active mic) ── */
+.orbListening .orbCore {
+  box-shadow:
+    0 0 50px 12px rgba(79, 195, 247, 0.3),
+    0 0 80px 24px rgba(156, 39, 176, 0.08),
+    inset 0 0 15px rgba(79, 195, 247, 0.15);
+  animation: siriListen 2s ease-in-out infinite;
+}
+
+.orbListening .orbCore::after {
+  opacity: 0.9;
+  animation: swirlRotate 3s linear infinite;
+}
+
+@keyframes siriListen {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow:
+      0 0 50px 12px rgba(79, 195, 247, 0.3),
+      0 0 80px 24px rgba(156, 39, 176, 0.08);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow:
+      0 0 60px 16px rgba(79, 195, 247, 0.35),
+      0 0 100px 32px rgba(156, 39, 176, 0.12);
+  }
+}
+
+.orbListening .orbRing1 {
+  border-color: rgba(79, 195, 247, 0.25);
+  animation: orbFloat 3s ease-in-out infinite;
+}
+.orbListening .orbRing2 {
+  border-color: rgba(156, 39, 176, 0.15);
+  animation: orbFloat 4s ease-in-out infinite reverse;
+}
+.orbListening .orbRing3 {
+  border-color: rgba(233, 30, 99, 0.1);
+  animation: orbFloat 5s ease-in-out infinite;
 }
 
 /* ── State: Speaking ── */
 .orbSpeaking .orbCore {
-  animation: orbSpeak 1.2s ease-in-out infinite;
+  animation: siriSpeak 0.8s ease-in-out infinite;
 }
-@keyframes orbSpeak {
+
+.orbSpeaking .orbCore::after {
+  opacity: 1;
+  animation: swirlRotate 2s linear infinite;
+}
+
+@keyframes siriSpeak {
   0%, 100% {
-    box-shadow: 0 0 40px 8px rgba(79, 195, 247, 0.4);
     transform: scale(1);
+    box-shadow:
+      0 0 45px 10px rgba(79, 195, 247, 0.25),
+      0 0 80px 20px rgba(156, 39, 176, 0.08);
   }
-  50% {
-    box-shadow: 0 0 60px 16px rgba(79, 195, 247, 0.55);
-    transform: scale(1.08);
+  25% {
+    transform: scale(1.06);
+    box-shadow:
+      0 0 55px 14px rgba(233, 30, 99, 0.2),
+      0 0 90px 28px rgba(79, 195, 247, 0.1);
+  }
+  75% {
+    transform: scale(1.03);
+    box-shadow:
+      0 0 50px 12px rgba(76, 175, 80, 0.2),
+      0 0 85px 24px rgba(255, 152, 0, 0.08);
   }
 }
+
 .orbSpeaking .orbRing1,
 .orbSpeaking .orbRing2,
 .orbSpeaking .orbRing3 {
-  border-color: rgba(79, 195, 247, 0.35);
+  border-color: rgba(79, 195, 247, 0.2);
 }
 
-/* ── State: Active ── */
+/* ── State: Active (idle but awake) ── */
 .orbActive .orbCore {
-  box-shadow: 0 0 50px 12px rgba(79, 195, 247, 0.45);
+  box-shadow:
+    0 0 40px 8px rgba(79, 195, 247, 0.2),
+    inset 0 -4px 12px rgba(0, 0, 0, 0.1),
+    inset 0 4px 8px rgba(255, 255, 255, 0.08);
 }
+
+.orbActive .orbCore::after {
+  opacity: 0.6;
+}
+
 .orbActive .orbRing1,
 .orbActive .orbRing2,
 .orbActive .orbRing3 {
-  border-color: rgba(79, 195, 247, 0.25);
+  border-color: rgba(79, 195, 247, 0.12);
 }
 
 /* ──── Text ──── */
 
 .jarvisTitle {
   margin: 0;
-  font-size: 32px;
-  font-weight: 700;
-  letter-spacing: 6px;
-  color: #b3e5fc;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 4px;
+  color: var(--text-primary, #1d2129);
   text-align: center;
   text-transform: uppercase;
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
 }
 
 .statusText {
   margin: 0;
-  font-size: 16px;
-  color: rgba(179, 229, 252, 0.7);
+  font-size: 14px;
+  color: var(--text-secondary, #8494a7);
   text-align: center;
-  min-height: 24px;
+  min-height: 20px;
   transition: opacity 0.3s ease;
+  max-width: 320px;
 }
 
 .hintText {
   margin: 0;
-  font-size: 13px;
-  color: rgba(144, 164, 174, 0.6);
+  font-size: 12px;
+  color: var(--text-disabled, #c9d5e4);
   text-align: center;
   animation: hintFade 3s ease-in-out infinite;
 }
 
 @keyframes hintFade {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.9; }
+}
+
+/* ──── Transcript display ──── */
+
+.transcript {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-primary, #1d2129);
+  text-align: center;
+  max-width: 360px;
+  min-height: 24px;
+  opacity: 0.9;
+}
+
+.response {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-secondary, #8494a7);
+  text-align: center;
+  max-width: 360px;
+  line-height: 1.6;
+  animation: fadeInUp 0.4s ease-out;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* ──── Activity Panel ──── */
@@ -191,28 +382,23 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  animation: panelSlideIn 0.5s ease-out;
-}
-
-@keyframes panelSlideIn {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
+  gap: 12px;
+  animation: fadeInUp 0.5s ease-out;
 }
 
 .activityHeader {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
-  letter-spacing: 3px;
+  letter-spacing: 2px;
   text-transform: uppercase;
-  color: rgba(79, 195, 247, 0.6);
+  color: var(--text-disabled, #c9d5e4);
   text-align: center;
 }
 
 .activityGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 10px;
 }
 
 .activityCard {
@@ -220,61 +406,110 @@
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  padding: 16px 12px;
+  padding: 14px 10px;
   border-radius: 12px;
-  background: rgba(79, 195, 247, 0.06);
-  border: 1px solid rgba(79, 195, 247, 0.12);
+  background: var(--color-fill-1, rgba(0, 0, 0, 0.03));
+  border: 1px solid var(--border-base, rgba(0, 0, 0, 0.06));
   backdrop-filter: blur(8px);
 }
 
 .activityValue {
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 700;
-  color: #4fc3f7;
+  color: var(--primary, #4f8cff);
   line-height: 1;
 }
 
 .activityLabel {
-  font-size: 12px;
-  color: rgba(179, 229, 252, 0.5);
+  font-size: 11px;
+  color: var(--text-disabled, #c9d5e4);
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
-.summaryLines {
+/* ──── Mic indicator ──── */
+
+.micIndicator {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: 6px;
+  font-size: 11px;
+  color: var(--color-success-6, #00b42a);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  animation: fadeInUp 0.3s ease-out;
 }
 
-.summaryLine {
+.micDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-success-6, #00b42a);
+  animation: micPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes micPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
+}
+
+/* ──── Audio level visualizer ──── */
+
+.audioRing {
+  position: absolute;
+  inset: -5%;
+  border-radius: 50%;
+  border: 2px solid rgba(79, 195, 247, 0.4);
+  pointer-events: none;
+  transition: transform 0.08s ease-out, opacity 0.08s ease-out;
+}
+
+.audioRing2 {
+  position: absolute;
+  inset: -12%;
+  border-radius: 50%;
+  border: 1px solid rgba(156, 39, 176, 0.3);
+  pointer-events: none;
+  transition: transform 0.08s ease-out, opacity 0.08s ease-out;
+}
+
+.audioLevelContainer {
+  width: 200px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-fill-2, rgba(0, 0, 0, 0.06));
+  overflow: hidden;
+  position: relative;
+}
+
+.audioLevelBar {
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, rgba(79, 195, 247, 0.6), rgba(79, 195, 247, 1));
+  transition: width 0.08s ease-out;
+  min-width: 4px;
+}
+
+/* Dynamic orb scale driven by audio level CSS vars */
+.orbListening .orbCore {
+  transform: scale(var(--jarvis-audio-scale, 1));
+  box-shadow:
+    0 0 calc(var(--jarvis-glow-intensity, 20) * 1px) calc(var(--jarvis-glow-spread, 8) * 1px) rgba(79, 195, 247, 0.3),
+    0 0 80px 24px rgba(156, 39, 176, 0.08),
+    inset 0 0 15px rgba(79, 195, 247, 0.15);
+}
+
+/* ──── Mic warning ──── */
+
+.micWarning {
   margin: 0;
-  font-size: 14px;
-  color: rgba(179, 229, 252, 0.65);
+  font-size: 12px;
+  color: var(--warning, #ff7d00);
   text-align: center;
+  max-width: 340px;
   line-height: 1.5;
-}
-
-.startChatButton {
-  align-self: center;
-  padding: 10px 28px;
+  padding: 8px 12px;
   border-radius: 8px;
-  border: 1px solid rgba(79, 195, 247, 0.3);
-  background: rgba(79, 195, 247, 0.1);
-  color: #4fc3f7;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  letter-spacing: 0.5px;
-}
-
-.startChatButton:hover {
-  background: rgba(79, 195, 247, 0.18);
-  border-color: rgba(79, 195, 247, 0.45);
-  box-shadow: 0 0 16px 2px rgba(79, 195, 247, 0.15);
-}
-
-.startChatButton:active {
-  transform: scale(0.97);
+  background: rgba(255, 125, 0, 0.08);
+  border: 1px solid rgba(255, 125, 0, 0.2);
 }

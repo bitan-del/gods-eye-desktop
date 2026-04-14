@@ -42,6 +42,7 @@ import { initWeixinLoginBridge } from './weixinLoginBridge';
 import { initWorkspaceSnapshotBridge } from './workspaceSnapshotBridge';
 import { initRemoteAgentBridge } from './remoteAgentBridge';
 import { initHubBridge } from './hubBridge';
+import { initJarvisLiveBridge } from './jarvisLiveBridge';
 import { initTeamBridge } from './teamBridge';
 import { initCliInstallerBridge } from './cliInstallerBridge';
 import type { TeamSessionService } from '@process/team/TeamSessionService';
@@ -88,6 +89,7 @@ export function initAllBridges(deps: BridgeDependencies): void {
   initTaskBridge(deps.workerTaskManager);
   initStarOfficeBridge();
   initSpeechToTextBridge();
+  initJarvisLiveBridge();
   initWeixinLoginBridge();
   initWorkspaceSnapshotBridge();
   initRemoteAgentBridge();
@@ -125,6 +127,7 @@ export {
   initFsBridge,
   initGeminiBridge,
   initGeminiConversationBridge,
+  initJarvisLiveBridge,
   initMcpBridge,
   initModelBridge,
   initNotificationBridge,

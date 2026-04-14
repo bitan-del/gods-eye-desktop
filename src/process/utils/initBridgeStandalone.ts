@@ -42,6 +42,7 @@ import { initNotificationBridge } from '@process/bridge/notificationBridge';
 import { initSystemSettingsBridge } from '@process/bridge/systemSettingsBridge';
 import { initTaskBridge } from '@process/bridge/taskBridge';
 import { initSpeechToTextBridge } from '@process/bridge/speechToTextBridge';
+import { initJarvisLiveBridge } from '@process/bridge/jarvisLiveBridge';
 import { initHubBridge } from '@process/bridge/hubBridge';
 
 logger.config({ print: true });
@@ -79,6 +80,7 @@ export async function initBridgeStandalone(): Promise<void> {
   initTaskBridge(workerTaskManager);
   initStarOfficeBridge();
   initSpeechToTextBridge();
+  initJarvisLiveBridge();
   initHubBridge();
 
   // Initialize ACP detector to scan for installed CLI agents (claude, codex, etc.)

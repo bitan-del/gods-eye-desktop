@@ -70,7 +70,26 @@ export const useClapDetection = ({
     cleanup();
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // Pick a real hardware microphone — skip virtual devices like BlackHole
+      let audioConstraints: MediaStreamConstraints['audio'] = true;
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const mics = devices.filter((d) => d.kind === 'audioinput');
+        const realMic = mics.find(
+          (d) =>
+            d.label &&
+            !d.label.toLowerCase().includes('blackhole') &&
+            !d.label.toLowerCase().includes('virtual') &&
+            !d.label.toLowerCase().includes('soundflower'),
+        );
+        if (realMic) {
+          audioConstraints = { deviceId: { exact: realMic.deviceId } };
+        }
+      } catch {
+        /* fall back to default device */
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints });
       streamRef.current = stream;
 
       const ctx = new AudioContext();

@@ -21,7 +21,15 @@ import type {
   AutoUpdateStatus,
 } from '../update/updateTypes';
 import type { ProtocolDetectionRequest, ProtocolDetectionResponse } from '../utils/protocolDetector';
-import type { SpeechToTextRequest, SpeechToTextResult } from '../types/speech';
+import type {
+  JarvisLiveAudioChunk,
+  JarvisLiveEvent,
+  JarvisLiveRequest,
+  SpeechToTextRequest,
+  SpeechToTextResult,
+  WakeWordCheckRequest,
+  WakeWordCheckResult,
+} from '../types/speech';
 
 export const shell = {
   openFile: bridge.buildProvider<void, string>('open-file'), // 使用系统默认程序打开文件
@@ -312,6 +320,11 @@ export const fs = {
     'add-custom-external-path'
   ),
   removeCustomExternalPath: bridge.buildProvider<IBridgeResponse, { path: string }>('remove-custom-external-path'),
+  // Download and install a skill from a URL (GitHub tar archive)
+  downloadSkill: bridge.buildProvider<
+    IBridgeResponse<{ skillName: string }>,
+    { url: string; name: string }
+  >('download-skill'),
   // Skills Market: inject/remove the godseye-skills builtin skill
   enableSkillsMarket: bridge.buildProvider<IBridgeResponse, void>('enable-skills-market'),
   disableSkillsMarket: bridge.buildProvider<IBridgeResponse, void>('disable-skills-market'),
@@ -319,6 +332,14 @@ export const fs = {
 
 export const speechToText = {
   transcribe: bridge.buildProvider<SpeechToTextResult, SpeechToTextRequest>('speech-to-text.transcribe'),
+};
+
+export const jarvisLive = {
+  connect: bridge.buildProvider<{ success: boolean }, JarvisLiveRequest>('jarvis-live.connect'),
+  sendAudio: bridge.buildProvider<void, JarvisLiveAudioChunk>('jarvis-live.send-audio'),
+  disconnect: bridge.buildProvider<void, void>('jarvis-live.disconnect'),
+  event: bridge.buildEmitter<JarvisLiveEvent>('jarvis-live.event'),
+  checkWakeWord: bridge.buildProvider<WakeWordCheckResult, WakeWordCheckRequest>('jarvis-live.check-wake-word'),
 };
 
 export const fileWatch = {
