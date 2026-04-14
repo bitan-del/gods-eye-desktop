@@ -7,6 +7,7 @@
 import { ipcBridge } from '@/common';
 import type { ICronJob } from '@/common/adapter/ipcBridge';
 import type { JarvisLiveEvent } from '@/common/types/speech';
+import { handleJarvisAction } from '@/renderer/components/jarvis/jarvisActions';
 import { useClapDetection } from '@/renderer/hooks/system/useClapDetection';
 import { useWakeWord } from '@/renderer/hooks/system/useWakeWord';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -330,12 +331,7 @@ const JarvisPage: React.FC = () => {
 
         case 'action':
           if (event.action) {
-            const { name: actionName, params } = event.action;
-            if (actionName === 'navigate_to_conversation' && params?.conversationId) {
-              void navigate(`/conversation/${params.conversationId as string}`);
-            } else if (actionName === 'open_new_conversation') {
-              void navigate('/');
-            }
+            void handleJarvisAction(event.action, navigate);
           }
           break;
 

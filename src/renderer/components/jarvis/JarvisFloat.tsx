@@ -17,6 +17,7 @@ import type { JarvisLiveEvent } from '@/common/types/speech';
 import { useWakeWord } from '@/renderer/hooks/system/useWakeWord';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { handleJarvisAction } from './jarvisActions';
 import styles from './JarvisFloat.module.css';
 
 type FloatState = 'sleeping' | 'connecting' | 'listening' | 'speaking';
@@ -190,12 +191,7 @@ const JarvisFloat: React.FC = () => {
         break;
       case 'action':
         if (event.action) {
-          const { name: actionName, params } = event.action;
-          if (actionName === 'navigate_to_conversation' && params?.conversationId) {
-            void navigate(`/conversation/${params.conversationId as string}`);
-          } else if (actionName === 'open_new_conversation') {
-            void navigate('/');
-          }
+          void handleJarvisAction(event.action, navigate);
         }
         break;
       case 'error':

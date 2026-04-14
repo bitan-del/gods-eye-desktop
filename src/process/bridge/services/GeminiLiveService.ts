@@ -162,6 +162,44 @@ const JARVIS_TOOLS: FunctionDeclaration[] = [
       properties: {},
     },
   },
+  {
+    name: 'create_task',
+    description:
+      'Create a brand new AI conversation and immediately send a prompt to it. Use this when the user asks you to write something, build something, create code, do research, or perform any task. This is the primary way to DO WORK for the user — you create a conversation with an AI agent and send it instructions.',
+    parameters: {
+      type: Type.OBJECT,
+      properties: {
+        prompt: {
+          type: Type.STRING,
+          description: 'The detailed task instruction to send to the AI agent. Be specific and comprehensive — expand on what the user asked for.',
+        },
+        title: {
+          type: Type.STRING,
+          description: 'A short title for the conversation (e.g. "Python Web Scraper", "Landing Page Design")',
+        },
+      },
+      required: ['prompt'],
+    },
+  },
+  {
+    name: 'send_to_conversation',
+    description:
+      'Send a follow-up message to an existing conversation. Use this when the user wants to continue a previous chat, give additional instructions to a running agent, or ask a question in an existing thread.',
+    parameters: {
+      type: Type.OBJECT,
+      properties: {
+        conversationId: {
+          type: Type.STRING,
+          description: 'The conversation ID to send the message to',
+        },
+        message: {
+          type: Type.STRING,
+          description: 'The message to send to the conversation',
+        },
+      },
+      required: ['conversationId', 'message'],
+    },
+  },
 ];
 
 // ── Base system instruction ──
@@ -652,6 +690,28 @@ export class GeminiLiveService {
           action: { name: 'open_new_conversation' },
         });
         return { success: true, message: 'Opening a new conversation' };
+      }
+
+      case 'create_task': {
+        const prompt = args.prompt as string;
+        if (!prompt) throw new Error('prompt is required');
+        const title = (args.title as string) || 'JARVIS Task';
+        this.emit({
+          type: 'action',
+          action: { name: 'create_task', params: { prompt, title } },
+        });
+        return { success: true, message: `Creating task: "${title}"` };
+      }
+
+      case 'send_to_conversation': {
+        const targetId = args.conversationId as string;
+        const msg = args.message as string;
+        if (!targetId || !msg) throw new Error('conversationId and message are required');
+        this.emit({
+          type: 'action',
+          action: { name: 'send_to_conversation', params: { conversationId: targetId, message: msg } },
+        });
+        return { success: true, message: `Message sent to conversation ${targetId}` };
       }
 
       default:
