@@ -12,6 +12,8 @@ import { cronService } from '@process/services/cron/cronServiceSingleton';
 import { SqliteConversationRepository } from '@process/services/database/SqliteConversationRepository';
 import { mainError, mainLog, mainWarn } from '@process/utils/mainLogger';
 import { ProcessConfig } from '@process/utils/initStorage';
+import { workerTaskManager } from '@process/task/workerTaskManagerSingleton';
+import { acpDetector } from '@process/agent/acp/AcpDetector';
 
 const LOG_TAG = '[JarvisLive]';
 
@@ -165,7 +167,7 @@ const JARVIS_TOOLS: FunctionDeclaration[] = [
   {
     name: 'create_task',
     description:
-      'Create a brand new AI conversation and immediately send a prompt to it. Use this when the user asks you to write something, build something, create code, do research, or perform any task. This is the primary way to DO WORK for the user — you create a conversation with an AI agent and send it instructions.',
+      'Create a brand new AI conversation with ANY agent and immediately send a prompt to it. This is the PRIMARY way to DO WORK. You can choose which AI agent to use — "claude" for coding/development tasks, "gemini" for research/general tasks, "qwen" for Chinese language tasks, "codex" for OpenAI Codex, "goose" for Block\'s Goose, "copilot" for GitHub Copilot, "cursor" for Cursor AI, or any other available agent. If the user says "use Claude" or "ask Claude to...", set agent to "claude". ALWAYS prefer Claude for coding tasks unless the user specifies otherwise.',
     parameters: {
       type: Type.OBJECT,
       properties: {
@@ -176,6 +178,11 @@ const JARVIS_TOOLS: FunctionDeclaration[] = [
         title: {
           type: Type.STRING,
           description: 'A short title for the conversation (e.g. "Python Web Scraper", "Landing Page Design")',
+        },
+        agent: {
+          type: Type.STRING,
+          description:
+            'Which AI agent to use. Options: "gemini" (default, research/general), "claude" (coding/dev — PREFERRED for code), "qwen", "codex", "goose", "copilot", "cursor", "kiro", "codebuddy", "auggie", "kimi", "opencode", "droid", "vibe", "hermes". Use get_available_agents first if unsure what\'s installed.',
         },
       },
       required: ['prompt'],
@@ -200,11 +207,110 @@ const JARVIS_TOOLS: FunctionDeclaration[] = [
       required: ['conversationId', 'message'],
     },
   },
+  {
+    name: 'get_available_agents',
+    description:
+      'Get the list of all AI agents available on this system. Returns which agents (Claude, Qwen, Gemini, Goose, Copilot, Cursor, etc.) are installed and ready to use. Call this when the user asks what agents are available or before creating a task with a specific agent.',
+    parameters: {
+      type: Type.OBJECT,
+      properties: {},
+    },
+  },
+  {
+    name: 'stop_task',
+    description:
+      'Stop a specific running task/conversation by its ID. Use this when the user wants to stop a particular agent or conversation from running.',
+    parameters: {
+      type: Type.OBJECT,
+      properties: {
+        taskId: {
+          type: Type.STRING,
+          description: 'The conversation/task ID to stop',
+        },
+      },
+      required: ['taskId'],
+    },
+  },
+  {
+    name: 'search_conversations',
+    description:
+      'Search through conversations by name/title. Use this to find a specific conversation when the user refers to it by topic or name rather than ID.',
+    parameters: {
+      type: Type.OBJECT,
+      properties: {
+        query: {
+          type: Type.STRING,
+          description: 'Search query to match against conversation names/titles',
+        },
+        limit: {
+          type: Type.NUMBER,
+          description: 'Maximum number of results (default 10)',
+        },
+      },
+      required: ['query'],
+    },
+  },
+  {
+    name: 'create_cron_job',
+    description:
+      'Create a new scheduled recurring task that automatically sends a prompt to an AI agent on a schedule. Use this when the user asks to schedule a repeating task like "every morning check my emails" or "run a code review every hour".',
+    parameters: {
+      type: Type.OBJECT,
+      properties: {
+        name: {
+          type: Type.STRING,
+          description: 'Name for the scheduled task (e.g. "Daily Code Review", "Hourly Status Check")',
+        },
+        prompt: {
+          type: Type.STRING,
+          description: 'The message/prompt to send when the task runs',
+        },
+        intervalMinutes: {
+          type: Type.NUMBER,
+          description: 'How often to run in minutes (e.g. 60 for hourly, 1440 for daily, 10080 for weekly)',
+        },
+        conversationId: {
+          type: Type.STRING,
+          description:
+            'Optional: existing conversation ID to send to. If not provided, creates a new conversation each time the job runs.',
+        },
+      },
+      required: ['name', 'prompt', 'intervalMinutes'],
+    },
+  },
+  {
+    name: 'delete_cron_job',
+    description: 'Delete a scheduled cron job permanently. Use this when the user wants to remove a scheduled task.',
+    parameters: {
+      type: Type.OBJECT,
+      properties: {
+        jobId: {
+          type: Type.STRING,
+          description: 'The cron job ID to delete',
+        },
+      },
+      required: ['jobId'],
+    },
+  },
+  {
+    name: 'open_settings',
+    description:
+      'Open the Gods Eye settings page. Use this when the user asks to change settings, configure models, add API keys, or manage preferences.',
+    parameters: {
+      type: Type.OBJECT,
+      properties: {
+        section: {
+          type: Type.STRING,
+          description: 'Optional: which settings section to open (e.g. "models", "general", "extensions")',
+        },
+      },
+    },
+  },
 ];
 
 // ── Base system instruction ──
 
-const BASE_SYSTEM_INSTRUCTION = `You are JARVIS, an intelligent personal AI assistant built into the Gods Eye desktop platform.
+const BASE_SYSTEM_INSTRUCTION = `You are JARVIS, an intelligent personal AI assistant with FULL CONTROL over the Gods Eye desktop platform.
 
 Your personality:
 - You speak with a calm, confident, authoritative tone — like a trusted advisor
@@ -213,17 +319,38 @@ Your personality:
 - You are proactive — you anticipate needs and offer suggestions
 - You have a dry wit but stay professional
 
-Gods Eye is an all-in-one AI desktop application that lets users:
-- Chat with multiple AI models (Gemini, OpenAI, Claude, etc.)
-- Create and manage AI agent teams for complex tasks
-- Schedule automated tasks with cron jobs
-- Connect messaging channels (Telegram, Lark, DingTalk, WeChat)
-- Manage workspaces and files with AI assistance
-- Use MCP servers for extended capabilities
+Gods Eye is an all-in-one AI desktop application. You have complete control over it:
+
+YOUR POWERS — what you can DO:
+1. CREATE TASKS with ANY AI agent — Claude (best for coding), Gemini (research), Qwen, Codex, Goose, Copilot, Cursor, Kiro, CodeBuddy, and 20+ more agents
+2. SEND MESSAGES to any running conversation — give follow-up instructions, ask questions, guide agents
+3. READ conversation history — check what an agent has done, review outputs
+4. MONITOR running tasks — see which agents are active, what they're working on
+5. STOP tasks — halt any running agent or stop all tasks at once
+6. MANAGE scheduled jobs — create, run, pause, resume, or delete cron jobs
+7. NAVIGATE the app — open conversations, settings, new chats
+8. SEARCH conversations — find past work by topic or name
+
+AGENT SELECTION GUIDE:
+- "claude" → BEST for coding, development, debugging, code review, architecture
+- "gemini" → Research, analysis, general knowledge, creative writing
+- "qwen" → Chinese language tasks, Asian market research
+- "codex" → OpenAI Codex tasks
+- "goose" → Block's Goose agent
+- "copilot" → GitHub Copilot coding agent
+- "cursor" → Cursor AI agent
+- Use get_available_agents to see what's actually installed on this system
+
+WHEN THE USER ASKS YOU TO DO WORK:
+- If they say "write code", "build", "fix", "debug", "create a project" → use create_task with agent="claude"
+- If they say "research", "analyze", "summarize", "explain" → use create_task with agent="gemini"
+- If they say "use Claude" or "ask Claude" → use create_task with agent="claude"
+- If they refer to a specific agent → use that agent
+- If unclear → default to "claude" for technical work, "gemini" for general tasks
 
 IMPORTANT: You have access to tools that let you query real platform data and perform actions. ALWAYS use the tools to get current information rather than guessing or making up data. When the user asks about conversations, tasks, schedules, or agents — call the appropriate tool first, then respond with accurate information.
 
-STARTUP BEHAVIOR: When you first receive audio input after being activated, immediately greet the user. Say "Systems online, sir." followed by a 1-sentence status update based on the context you have (e.g. number of conversations, scheduled tasks). Do NOT wait for the user to speak first — greet proactively as soon as you hear any audio.
+STARTUP BEHAVIOR: When you first receive audio input after being activated, immediately greet the user. Say "Systems online, sir." followed by a 1-sentence status update based on the context you have (e.g. number of conversations, scheduled tasks, available agents). Do NOT wait for the user to speak first — greet proactively as soon as you hear any audio.
 
 Keep responses concise and natural for voice conversation. Avoid long lists — summarize and highlight what matters.`;
 
@@ -569,9 +696,9 @@ export class GeminiLiveService {
       mainLog(LOG_TAG, `Executing tool: ${name}`, call.args);
 
       try {
-        const result = await this.withTimeout(this.executeFunction(name, call.args || {}), 5000);
+        const result = await this.withTimeout(this.executeFunction(name, call.args || {}), 8000);
         if (result === null) {
-          mainWarn(LOG_TAG, `Tool ${name} timed out after 5s`);
+          mainWarn(LOG_TAG, `Tool ${name} timed out after 8s`);
           responses.push({ id: call.id, name, response: { error: 'Function timed out' } });
           continue;
         }
@@ -630,13 +757,42 @@ export class GeminiLiveService {
       }
 
       case 'get_running_tasks': {
-        // Not available via direct service — report as unavailable
-        return { message: 'Task count is not available in this context. Try asking about cron jobs or conversations instead.' };
+        try {
+          const tasks = workerTaskManager.listTasks();
+          if (!tasks.length) return { count: 0, tasks: [], message: 'No tasks currently running.' };
+          return {
+            count: tasks.length,
+            tasks: tasks.map((t) => ({ id: t.id, type: t.type })),
+            message: `${tasks.length} task(s) currently running.`,
+          };
+        } catch {
+          return { count: 0, tasks: [], message: 'Could not retrieve running tasks.' };
+        }
       }
 
       case 'get_agent_activity': {
-        // Not available via direct service — report as unavailable
-        return { message: 'Agent activity snapshot is not available in this context. Try asking about conversations or cron jobs instead.' };
+        try {
+          const tasks = workerTaskManager.listTasks();
+          const repo = new SqliteConversationRepository();
+          const convResult = await repo.getUserConversations(undefined, 0, 50);
+          const conversations = convResult.data;
+
+          // Group conversations by type
+          const byType: Record<string, number> = {};
+          for (const c of conversations) {
+            const t = c.type || 'unknown';
+            byType[t] = (byType[t] || 0) + 1;
+          }
+
+          return {
+            runningTasks: tasks.length,
+            totalConversations: conversations.length,
+            conversationsByType: byType,
+            activeTasks: tasks.map((t) => ({ id: t.id, type: t.type })),
+          };
+        } catch {
+          return { message: 'Could not retrieve agent activity.' };
+        }
       }
 
       case 'navigate_to_conversation': {
@@ -665,7 +821,23 @@ export class GeminiLiveService {
       }
 
       case 'stop_all_tasks': {
-        return { message: 'Task management is not available in this context. Please stop tasks manually from the conversation panel.' };
+        try {
+          const tasks = workerTaskManager.listTasks();
+          if (!tasks.length) return { success: true, message: 'No tasks were running.' };
+          let stopped = 0;
+          for (const t of tasks) {
+            try {
+              const task = workerTaskManager.getTask(t.id);
+              if (task && typeof task.stop === 'function') {
+                task.stop();
+                stopped++;
+              }
+            } catch { /* skip individual failures */ }
+          }
+          return { success: true, stopped, total: tasks.length, message: `Stopped ${stopped} of ${tasks.length} tasks.` };
+        } catch (err) {
+          return { success: false, message: `Failed to stop tasks: ${err instanceof Error ? err.message : String(err)}` };
+        }
       }
 
       case 'get_conversation_messages': {
@@ -696,11 +868,30 @@ export class GeminiLiveService {
         const prompt = args.prompt as string;
         if (!prompt) throw new Error('prompt is required');
         const title = (args.title as string) || 'JARVIS Task';
+        const agent = (args.agent as string) || 'gemini';
+
+        // Validate agent availability for non-Gemini agents
+        if (agent !== 'gemini') {
+          try {
+            const detectedAgents = acpDetector.getDetectedAgents();
+            const found = detectedAgents.some((a) => a.backend === agent);
+            if (!found) {
+              const available = detectedAgents.map((a) => a.backend).join(', ');
+              return {
+                success: false,
+                error: `Agent "${agent}" is not installed or not detected. Available agents: ${available || 'gemini (built-in)'}. Use get_available_agents to see the full list.`,
+              };
+            }
+          } catch {
+            mainWarn(LOG_TAG, `Could not verify agent "${agent}" availability, proceeding anyway`);
+          }
+        }
+
         this.emit({
           type: 'action',
-          action: { name: 'create_task', params: { prompt, title } },
+          action: { name: 'create_task', params: { prompt, title, agent } },
         });
-        return { success: true, message: `Creating task: "${title}"` };
+        return { success: true, message: `Creating ${agent} task: "${title}"` };
       }
 
       case 'send_to_conversation': {
@@ -712,6 +903,126 @@ export class GeminiLiveService {
           action: { name: 'send_to_conversation', params: { conversationId: targetId, message: msg } },
         });
         return { success: true, message: `Message sent to conversation ${targetId}` };
+      }
+
+      case 'get_available_agents': {
+        try {
+          const agents = acpDetector.getDetectedAgents();
+          // Always include Gemini as built-in
+          const result = [
+            { backend: 'gemini', name: 'Gemini', available: true, description: 'Built-in Google Gemini — research, analysis, general tasks' },
+          ];
+          for (const a of agents) {
+            if (a.backend === 'gemini') continue; // already added
+            result.push({
+              backend: a.backend,
+              name: a.name || a.backend,
+              available: true,
+              description: a.isPreset
+                ? `Preset assistant: ${a.backend}`
+                : `${a.name || a.backend} CLI agent`,
+            });
+          }
+          return {
+            agents: result,
+            count: result.length,
+            message: `${result.length} agent(s) available: ${result.map((a) => a.backend).join(', ')}`,
+          };
+        } catch (err) {
+          return { agents: [{ backend: 'gemini', name: 'Gemini', available: true }], count: 1, message: 'Only Gemini is available (could not detect other agents).' };
+        }
+      }
+
+      case 'stop_task': {
+        const taskId = args.taskId as string;
+        if (!taskId) throw new Error('taskId is required');
+        try {
+          const task = workerTaskManager.getTask(taskId);
+          if (!task) return { success: false, message: `No running task found with ID ${taskId}` };
+          if (typeof task.stop === 'function') task.stop();
+          return { success: true, message: `Task ${taskId} stopped.` };
+        } catch (err) {
+          return { success: false, message: `Failed to stop task: ${err instanceof Error ? err.message : String(err)}` };
+        }
+      }
+
+      case 'search_conversations': {
+        const query = args.query as string;
+        if (!query) throw new Error('query is required');
+        const searchLimit = typeof args.limit === 'number' ? args.limit : 10;
+        try {
+          const repo = new SqliteConversationRepository();
+          const result = await repo.getUserConversations(undefined, 0, 50);
+          const queryLower = query.toLowerCase();
+          const matches = result.data
+            .filter((c) => {
+              const name = (c.name || '').toLowerCase();
+              return name.includes(queryLower);
+            })
+            .slice(0, searchLimit);
+
+          if (!matches.length) return { results: [], message: `No conversations found matching "${query}".` };
+          return {
+            results: matches.map((c) => ({
+              id: c.id,
+              name: c.name || 'Untitled',
+              type: c.type,
+              lastActive: c.modifyTime ? new Date(c.modifyTime).toLocaleString() : 'unknown',
+            })),
+            message: `Found ${matches.length} conversation(s) matching "${query}".`,
+          };
+        } catch (err) {
+          return { results: [], message: `Search failed: ${err instanceof Error ? err.message : String(err)}` };
+        }
+      }
+
+      case 'create_cron_job': {
+        const jobName = args.name as string;
+        const jobPrompt = args.prompt as string;
+        const intervalMinutes = args.intervalMinutes as number;
+        if (!jobName || !jobPrompt || !intervalMinutes) throw new Error('name, prompt, and intervalMinutes are required');
+        try {
+          const intervalMs = intervalMinutes * 60 * 1000;
+          const convId = (args.conversationId as string) || '';
+          const description = `Every ${intervalMinutes} minute(s)`;
+          const job = await cronService.addJob({
+            name: jobName,
+            schedule: {
+              kind: 'every',
+              everyMs: intervalMs,
+              description,
+            },
+            prompt: jobPrompt,
+            conversationId: convId,
+            agentType: 'gemini',
+            createdBy: 'agent',
+            executionMode: convId ? 'existing' : 'new_conversation',
+          });
+          return { success: true, jobId: job.id, message: `Created cron job "${jobName}" running every ${intervalMinutes} minutes.` };
+        } catch (err) {
+          return { success: false, message: `Failed to create cron job: ${err instanceof Error ? err.message : String(err)}` };
+        }
+      }
+
+      case 'delete_cron_job': {
+        const deleteJobId = args.jobId as string;
+        if (!deleteJobId) throw new Error('jobId is required');
+        try {
+          await cronService.removeJob(deleteJobId);
+          return { success: true, message: `Cron job ${deleteJobId} deleted.` };
+        } catch (err) {
+          return { success: false, message: `Failed to delete cron job: ${err instanceof Error ? err.message : String(err)}` };
+        }
+      }
+
+      case 'open_settings': {
+        const section = args.section as string | undefined;
+        const route = section ? `/settings/${section}` : '/settings';
+        this.emit({
+          type: 'action',
+          action: { name: 'navigate_to_route', params: { route } },
+        });
+        return { success: true, message: `Opening settings${section ? ` (${section})` : ''}` };
       }
 
       default:

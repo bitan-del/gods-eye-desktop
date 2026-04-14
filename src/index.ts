@@ -217,12 +217,16 @@ const createWindow = ({ showOnReady = true }: { showOnReady?: boolean } = {}): v
   let devIcon: Electron.NativeImage | undefined;
   if (!app.isPackaged) {
     try {
-      // Windows: app.ico (no dev version), Linux: app_dev.png (with padding)
+      // Windows: app.ico (no dev version), Linux/macOS: app_dev.png (with padding)
       const iconFile = process.platform === 'win32' ? 'app.ico' : 'app_dev.png';
       const iconPath = path.join(process.cwd(), 'resources', iconFile);
       if (fs.existsSync(iconPath)) {
         devIcon = nativeImage.createFromPath(iconPath);
         if (devIcon.isEmpty()) devIcon = undefined;
+      }
+      // macOS: set Dock icon explicitly in dev mode (BrowserWindow icon doesn't affect Dock)
+      if (process.platform === 'darwin' && devIcon && app.dock) {
+        app.dock.setIcon(devIcon);
       }
     } catch {
       // Ignore icon loading errors in development
