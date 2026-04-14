@@ -1,0 +1,280 @@
+/* Jarvis Mode — full-screen assistant wake screen */
+
+.jarvisContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  background: radial-gradient(ellipse at center, #0a1628 0%, #050d1a 60%, #020810 100%);
+  overflow: auto;
+  user-select: none;
+}
+
+.jarvisContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 40px 24px;
+  max-width: 520px;
+  width: 100%;
+}
+
+/* ──── Orb ──── */
+
+.orb {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  cursor: pointer;
+  outline: none;
+  flex-shrink: 0;
+}
+
+.orbCore {
+  position: absolute;
+  inset: 30%;
+  border-radius: 50%;
+  background: radial-gradient(circle, #4fc3f7 0%, #0288d1 60%, #01579b 100%);
+  box-shadow: 0 0 40px 8px rgba(79, 195, 247, 0.4);
+  transition: transform 0.6s ease, box-shadow 0.6s ease;
+}
+
+.orbRing1,
+.orbRing2,
+.orbRing3 {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid rgba(79, 195, 247, 0.15);
+  transition: border-color 0.6s ease, transform 0.6s ease;
+}
+
+.orbRing1 {
+  inset: 10%;
+  animation: orbRotate 12s linear infinite;
+}
+.orbRing2 {
+  inset: 5%;
+  animation: orbRotate 18s linear infinite reverse;
+}
+.orbRing3 {
+  inset: 0;
+  animation: orbRotate 24s linear infinite;
+}
+
+.orbPulse {
+  position: absolute;
+  inset: 20%;
+  border-radius: 50%;
+  background: rgba(79, 195, 247, 0.08);
+  animation: orbPulseAnim 2.5s ease-in-out infinite;
+}
+
+@keyframes orbRotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes orbPulseAnim {
+  0%, 100% { transform: scale(1); opacity: 0.3; }
+  50% { transform: scale(1.3); opacity: 0.08; }
+}
+
+/* ── State: Sleeping ── */
+.orbSleeping .orbCore {
+  background: radial-gradient(circle, #37474f 0%, #263238 60%, #1a2327 100%);
+  box-shadow: 0 0 20px 4px rgba(55, 71, 79, 0.3);
+}
+.orbSleeping .orbRing1,
+.orbSleeping .orbRing2,
+.orbSleeping .orbRing3 {
+  border-color: rgba(96, 125, 139, 0.12);
+}
+
+/* ── State: Waking ── */
+.orbWaking .orbCore {
+  animation: orbWakeFlash 0.8s ease-out forwards;
+}
+@keyframes orbWakeFlash {
+  0% {
+    background: radial-gradient(circle, #37474f 0%, #263238 60%, #1a2327 100%);
+    box-shadow: 0 0 20px 4px rgba(55, 71, 79, 0.3);
+    transform: scale(1);
+  }
+  50% {
+    background: radial-gradient(circle, #81d4fa 0%, #039be5 60%, #0277bd 100%);
+    box-shadow: 0 0 60px 16px rgba(79, 195, 247, 0.6);
+    transform: scale(1.15);
+  }
+  100% {
+    background: radial-gradient(circle, #4fc3f7 0%, #0288d1 60%, #01579b 100%);
+    box-shadow: 0 0 40px 8px rgba(79, 195, 247, 0.4);
+    transform: scale(1);
+  }
+}
+.orbWaking .orbRing1,
+.orbWaking .orbRing2,
+.orbWaking .orbRing3 {
+  border-color: rgba(79, 195, 247, 0.3);
+}
+
+/* ── State: Speaking ── */
+.orbSpeaking .orbCore {
+  animation: orbSpeak 1.2s ease-in-out infinite;
+}
+@keyframes orbSpeak {
+  0%, 100% {
+    box-shadow: 0 0 40px 8px rgba(79, 195, 247, 0.4);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 60px 16px rgba(79, 195, 247, 0.55);
+    transform: scale(1.08);
+  }
+}
+.orbSpeaking .orbRing1,
+.orbSpeaking .orbRing2,
+.orbSpeaking .orbRing3 {
+  border-color: rgba(79, 195, 247, 0.35);
+}
+
+/* ── State: Active ── */
+.orbActive .orbCore {
+  box-shadow: 0 0 50px 12px rgba(79, 195, 247, 0.45);
+}
+.orbActive .orbRing1,
+.orbActive .orbRing2,
+.orbActive .orbRing3 {
+  border-color: rgba(79, 195, 247, 0.25);
+}
+
+/* ──── Text ──── */
+
+.jarvisTitle {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: 6px;
+  color: #b3e5fc;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.statusText {
+  margin: 0;
+  font-size: 16px;
+  color: rgba(179, 229, 252, 0.7);
+  text-align: center;
+  min-height: 24px;
+  transition: opacity 0.3s ease;
+}
+
+.hintText {
+  margin: 0;
+  font-size: 13px;
+  color: rgba(144, 164, 174, 0.6);
+  text-align: center;
+  animation: hintFade 3s ease-in-out infinite;
+}
+
+@keyframes hintFade {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+/* ──── Activity Panel ──── */
+
+.activityPanel {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: panelSlideIn 0.5s ease-out;
+}
+
+@keyframes panelSlideIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.activityHeader {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(79, 195, 247, 0.6);
+  text-align: center;
+}
+
+.activityGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.activityCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 16px 12px;
+  border-radius: 12px;
+  background: rgba(79, 195, 247, 0.06);
+  border: 1px solid rgba(79, 195, 247, 0.12);
+  backdrop-filter: blur(8px);
+}
+
+.activityValue {
+  font-size: 28px;
+  font-weight: 700;
+  color: #4fc3f7;
+  line-height: 1;
+}
+
+.activityLabel {
+  font-size: 12px;
+  color: rgba(179, 229, 252, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.summaryLines {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.summaryLine {
+  margin: 0;
+  font-size: 14px;
+  color: rgba(179, 229, 252, 0.65);
+  text-align: center;
+  line-height: 1.5;
+}
+
+.startChatButton {
+  align-self: center;
+  padding: 10px 28px;
+  border-radius: 8px;
+  border: 1px solid rgba(79, 195, 247, 0.3);
+  background: rgba(79, 195, 247, 0.1);
+  color: #4fc3f7;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  letter-spacing: 0.5px;
+}
+
+.startChatButton:hover {
+  background: rgba(79, 195, 247, 0.18);
+  border-color: rgba(79, 195, 247, 0.45);
+  box-shadow: 0 0 16px 2px rgba(79, 195, 247, 0.15);
+}
+
+.startChatButton:active {
+  transform: scale(0.97);
+}

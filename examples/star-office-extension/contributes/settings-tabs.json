@@ -1,0 +1,26 @@
+[
+  {
+    "id": "star-office",
+    "name": "Star Office",
+    "entryPoint": "settings/star-office.html",
+    "icon": "assets/star-office-icon.svg",
+    "position": { "anchor": "display", "placement": "after" },
+    "order": 70
+  },
+  {
+    "id": "godseye-home",
+    "name": "Gods Eye Home",
+    "entryPoint": "https://gods-eye.org/",
+    "icon": "assets/star-office-icon.svg",
+    "position": { "anchor": "display", "placement": "after" },
+    "order": 80
+  },
+  {
+    "id": "godseye-issues",
+    "name": "Gods Eye Issues",
+    "entryPoint": "https://github.com/Gods Eye/Gods Eye/issues",
+    "icon": "assets/star-office-icon.svg",
+    "position": { "anchor": "display", "placement": "after" },
+    "order": 81
+  }
+]

@@ -1,0 +1,9 @@
+{
+  "displayName": "星辰办公扩展",
+  "description": "Star Office 风格的全 Agent 活动可视化面板。",
+  "settingsTabs": {
+    "star-office": { "name": "星辰办公" },
+    "godseye-home": { "name": "Gods Eye 主页" },
+    "godseye-issues": { "name": "Gods Eye 问题" }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "displayName": "Star Office 拡張",
+  "description": "すべてのエージェントのアクティビティを可視化するStar Officeスタイルのタブ。",
+  "settingsTabs": {
+    "star-office": { "name": "Star Office" },
+    "godseye-home": { "name": "Gods Eye ホーム" },
+    "godseye-issues": { "name": "Gods Eye 課題" }
+  }
+}
