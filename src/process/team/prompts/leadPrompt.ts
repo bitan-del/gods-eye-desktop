@@ -46,7 +46,9 @@ export function buildLeadPrompt(params: LeadPromptParams): string {
           .map((t) => {
             const formerly = renamedAgents?.get(t.slotId);
             const formerlyNote = formerly ? ` [formerly: ${formerly}]` : '';
-            return `- ${t.agentName} (${t.agentType}, status: ${t.status})${formerlyNote}`;
+            const skillsNote = t.skills && t.skills.length > 0 ? ` | skills: ${t.skills.join(', ')}` : '';
+            const promptNote = t.systemPrompt ? ' | has custom instructions' : '';
+            return `- ${t.agentName} (${t.agentType}, status: ${t.status})${formerlyNote}${skillsNote}${promptNote}`;
           })
           .join('\n');
 

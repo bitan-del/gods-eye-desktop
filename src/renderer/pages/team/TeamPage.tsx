@@ -19,6 +19,7 @@ import { useAionrsModelSelection } from '@/renderer/pages/conversation/platforms
 import TeamTabs from './components/TeamTabs';
 import TeamChatView from './components/TeamChatView';
 import TeamAgentIdentity from './components/TeamAgentIdentity';
+import AgentOfficeView from './components/AgentOfficeView';
 import { agentFromKey, resolveConversationType, resolveTeamAgentType } from './components/agentSelectUtils';
 import { TeamTabsProvider, useTeamTabs } from './hooks/TeamTabsContext';
 import { TeamPermissionProvider } from './hooks/TeamPermissionContext';
@@ -31,7 +32,7 @@ type Props = {
 
 type TeamPageContentProps = {
   team: TTeam;
-  onAddAgent: (data: { agentName: string; agentKey: string }) => void;
+  onAddAgent: (data: { agentName: string; agentKey: string; systemPrompt?: string; skills?: string[] }) => void;
   onRenameTeam: (newName: string) => Promise<boolean>;
 };
 
@@ -188,6 +189,7 @@ const TeamPageContent: React.FC<TeamPageContentProps> = ({ team, onAddAgent, onR
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(false);
   const [fullscreenSlotId, setFullscreenSlotId] = useState<string | null>(null);
+  const [showOfficeView, setShowOfficeView] = useState(false);
 
   const activeAgent = agents.find((a) => a.slotId === activeSlotId);
   const leadAgent = agents.find((a) => a.role === 'lead');
@@ -321,9 +323,30 @@ const TeamPageContent: React.FC<TeamPageContentProps> = ({ team, onAddAgent, onR
     }
   }, []); // empty deps = only on mount
 
+  const handleToggleOfficeView = useCallback(() => {
+    setShowOfficeView((prev) => !prev);
+    if (fullscreenSlotId) setFullscreenSlotId(null);
+  }, [fullscreenSlotId]);
+
+  const handleOfficeAgentClick = useCallback(
+    (slotId: string) => {
+      switchTab(slotId);
+      setShowOfficeView(false);
+    },
+    [switchTab]
+  );
+
   const tabsSlot = useMemo(
-    () => <TeamTabs onAddAgent={onAddAgent} onTabClick={handleTabClick} />,
-    [onAddAgent, handleTabClick]
+    () => (
+      <TeamTabs
+        onAddAgent={onAddAgent}
+        onTabClick={handleTabClick}
+        onRemoveAgent={handleRemoveAgent}
+        officeViewActive={showOfficeView}
+        onToggleOfficeView={handleToggleOfficeView}
+      />
+    ),
+    [onAddAgent, handleTabClick, handleRemoveAgent, showOfficeView, handleToggleOfficeView]
   );
 
   return (
@@ -347,7 +370,15 @@ const TeamPageContent: React.FC<TeamPageContentProps> = ({ team, onAddAgent, onR
         onRenameTitle={onRenameTeam}
       >
         <div className='relative flex h-full'>
-          {fullscreenSlotId ? (
+          {showOfficeView ? (
+            <div className='flex-1 h-full'>
+              <AgentOfficeView
+                agents={agents}
+                statusMap={statusMap}
+                onAgentClick={handleOfficeAgentClick}
+              />
+            </div>
+          ) : fullscreenSlotId ? (
             // Fullscreen: single agent fills the entire content area
             (() => {
               const agent = agents.find((a) => a.slotId === fullscreenSlotId);
@@ -447,7 +478,7 @@ const TeamPage: React.FC<Props> = ({ team }) => {
   const defaultSlotId = team.agents[0]?.slotId ?? '';
 
   const handleAddAgent = useCallback(
-    async (data: { agentName: string; agentKey: string }) => {
+    async (data: { agentName: string; agentKey: string; systemPrompt?: string; skills?: string[] }) => {
       const allAgents = [...cliAgents, ...presetAssistants];
       const agent = agentFromKey(data.agentKey, allAgents);
       const backend = resolveTeamAgentType(agent, 'claude');
@@ -460,6 +491,8 @@ const TeamPage: React.FC<Props> = ({ team }) => {
         conversationType: resolveConversationType(backend),
         cliPath: agent?.cliPath,
         customAgentId: agent?.customAgentId,
+        systemPrompt: data.systemPrompt,
+        skills: data.skills,
       });
     },
     [addAgent, cliAgents, presetAssistants]

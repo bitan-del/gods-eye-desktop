@@ -29,6 +29,10 @@ export type TeamAgent = {
   status: TeammateStatus;
   cliPath?: string;
   customAgentId?: string;
+  /** Custom system prompt to specialise this agent's behaviour */
+  systemPrompt?: string;
+  /** Skill tags describing this agent's specialisation (e.g. "copywriting", "data analysis") */
+  skills?: string[];
 };
 
 /** Persisted team record (stored in SQLite `teams` table) */

@@ -9,8 +9,9 @@ import type { AcpBackend } from '@/common/types/acpTypes';
 import FlexFullContainer from '@renderer/components/layout/FlexFullContainer';
 import MessageList from '@renderer/pages/conversation/Messages/MessageList';
 import { MessageListProvider, useMessageLstCache } from '@renderer/pages/conversation/Messages/hooks';
+import LocalImageView from '@renderer/components/media/LocalImageView';
 import HOC from '@renderer/utils/ui/HOC';
-import React from 'react';
+import React, { useEffect } from 'react';
 import ConversationChatConfirm from '../../components/ConversationChatConfirm';
 import AcpSendBox from './AcpSendBox';
 import TeamChatEmptyState from '@renderer/pages/team/components/TeamChatEmptyState';
@@ -39,6 +40,10 @@ const AcpChat: React.FC<{
   agentSlotId,
 }) => {
   useMessageLstCache(conversation_id);
+  const updateLocalImage = LocalImageView.useUpdateLocalImage();
+  useEffect(() => {
+    updateLocalImage({ root: workspace ?? '' });
+  }, [workspace, updateLocalImage]);
 
   return (
     <ConversationProvider value={{ conversationId: conversation_id, workspace, type: 'acp', cronJobId, hideSendBox }}>
@@ -77,4 +82,4 @@ const AcpChat: React.FC<{
   );
 };
 
-export default HOC(MessageListProvider)(AcpChat);
+export default HOC.Wrapper(MessageListProvider, LocalImageView.Provider)(AcpChat);

@@ -534,7 +534,19 @@ const ToolsModalContent: React.FC = () => {
     // Filter models that support image generation
     const isImageModel = (modelName: string) => {
       const name = modelName.toLowerCase();
-      return name.includes('image') || name.includes('banana') || name.includes('imagine');
+      return (
+        name.includes('image') ||
+        name.includes('banana') ||
+        name.includes('imagine') ||
+        name.includes('flux') ||
+        name.includes('diffusion') ||
+        name.includes('imagen') ||
+        name.includes('dall-e') ||
+        name.includes('dalle') ||
+        name.includes('midjourney') ||
+        name.includes('ideogram') ||
+        name.includes('recraft')
+      );
     };
     return (data || [])
       .filter((v) => {

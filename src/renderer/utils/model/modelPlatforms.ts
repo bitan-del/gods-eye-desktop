@@ -37,12 +37,13 @@ import MiniMaxLogo from '@/renderer/assets/logos/ai-china/minimax.png';
 import NewApiLogo from '@/renderer/assets/logos/ai-cloud/newapi.svg';
 import NovitaLogo from '@/renderer/assets/logos/ai-cloud/novita.svg';
 import PPIOLogo from '@/renderer/assets/logos/ai-cloud/ppio.svg';
+import FalLogo from '@/renderer/assets/logos/ai-cloud/fal.svg';
 
 /**
  * 平台类型
  * Platform type
  */
-export type PlatformType = 'gemini' | 'gemini-vertex-ai' | 'anthropic' | 'custom' | 'new-api' | 'bedrock';
+export type PlatformType = 'gemini' | 'gemini-vertex-ai' | 'anthropic' | 'custom' | 'new-api' | 'bedrock' | 'fal';
 
 /**
  * 模型平台配置接口
@@ -79,6 +80,9 @@ export const MODEL_PLATFORMS: PlatformConfig[] = [
 
   // New API 多模型网关 / New API multi-model gateway
   { name: 'New API', value: 'new-api', logo: NewApiLogo, platform: 'new-api', i18nKey: 'settings.platformNewApi' },
+
+  // fal.ai - Dedicated image generation platform (Imagen, FLUX, SD, etc.)
+  { name: 'fal.ai', value: 'fal', logo: FalLogo, platform: 'fal', baseUrl: 'https://fal.run' },
 
   // 官方 Gemini 平台
   {

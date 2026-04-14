@@ -20,12 +20,14 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import SkillsHubSettings from './SkillsHubSettings';
+import SkillStoreSettings from './SkillStoreSettings';
 import ToolsModalContent from '@/renderer/components/settings/SettingsModal/contents/ToolsModalContent';
 import SettingsPageWrapper from './components/SettingsPageWrapper';
 
-type CapabilitiesTab = 'skills' | 'tools';
+type CapabilitiesTab = 'skills' | 'store' | 'tools';
 
-const isCapabilitiesTab = (value: string | null): value is CapabilitiesTab => value === 'skills' || value === 'tools';
+const isCapabilitiesTab = (value: string | null): value is CapabilitiesTab =>
+  value === 'skills' || value === 'store' || value === 'tools';
 
 const CapabilitiesSettings: React.FC = () => {
   const { t } = useTranslation();
@@ -62,8 +64,11 @@ const CapabilitiesSettings: React.FC = () => {
         type='line'
         className='flex flex-col flex-1 min-h-0 [&>.arco-tabs-content]:pt-0'
       >
-        <Tabs.TabPane key='skills' title={t('settings.capabilitiesTab.skills', { defaultValue: 'Skills' })}>
+        <Tabs.TabPane key='skills' title={t('settings.capabilitiesTab.skills', { defaultValue: 'My Skills' })}>
           <SkillsHubSettings withWrapper={false} />
+        </Tabs.TabPane>
+        <Tabs.TabPane key='store' title={t('settings.capabilitiesTab.store', { defaultValue: 'Skill Store' })}>
+          <SkillStoreSettings />
         </Tabs.TabPane>
         <Tabs.TabPane key='tools' title={t('settings.capabilitiesTab.tools', { defaultValue: 'MCP & Voice' })}>
           <ToolsModalContent />

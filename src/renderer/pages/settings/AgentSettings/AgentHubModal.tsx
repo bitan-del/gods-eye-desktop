@@ -13,14 +13,18 @@ interface AgentHubModalProps {
   onCancel: () => void;
 }
 
-const AION_HUB_REPO_URL = 'https://github.com/iOfficeAI/AionHub';
+const GODS_EYE_HUB_REPO_URL = 'https://github.com/bitan-del/gods-eye';
+
+/** Replace "AionUi" / "AionUI" with "Gods Eye" in remote hub descriptions */
+const sanitizeDescription = (desc: string): string =>
+  desc.replace(/\bAionUi\b/gi, 'Gods Eye').replace(/\bAionUI\b/gi, 'Gods Eye');
 
 export const AgentHubModal: React.FC<AgentHubModalProps> = ({ visible, onCancel }) => {
   const { t } = useTranslation();
   const { agents, loading, error, install, retryInstall, update } = useHubAgents();
   const actionButtonClassName = '!min-w-80px !rounded-9px !px-10px';
-  const openAionHubRepo = () => {
-    void openExternalUrl(AION_HUB_REPO_URL).catch(console.error);
+  const openGodsEyeHub = () => {
+    void openExternalUrl(GODS_EYE_HUB_REPO_URL).catch(console.error);
   };
 
   const renderActionBtn = (agent: IHubAgentItem) => {
@@ -98,9 +102,9 @@ export const AgentHubModal: React.FC<AgentHubModalProps> = ({ visible, onCancel 
               defaultValue: 'Want a new Agent listed here?',
             })}
           </Typography.Text>
-          <Link className='text-12px leading-18px' onClick={openAionHubRepo}>
+          <Link className='text-12px leading-18px' onClick={openGodsEyeHub}>
             {t('settings.agentManagement.marketContributionAction', {
-              defaultValue: 'Open a PR on AionHub',
+              defaultValue: 'Open a PR on Gods Eye',
             })}
           </Link>
         </div>
@@ -155,7 +159,7 @@ export const AgentHubModal: React.FC<AgentHubModalProps> = ({ visible, onCancel 
                   </div>
 
                   <Typography.Text className='mb-10px block min-h-28px text-center text-11px leading-15px text-t-secondary line-clamp-2'>
-                    {agent.description}
+                    {sanitizeDescription(agent.description)}
                   </Typography.Text>
 
                   <div className='mt-auto flex justify-center'>{renderActionBtn(agent)}</div>

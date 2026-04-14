@@ -14,7 +14,7 @@ Sentry.init({
 });
 
 import './process/utils/configureConsoleLog';
-import { app, BrowserWindow, nativeImage, net, powerMonitor, protocol, screen } from 'electron';
+import { app, BrowserWindow, nativeImage, net, powerMonitor, protocol, screen, session } from 'electron';
 import fixPath from 'fix-path';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -256,6 +256,17 @@ const createWindow = ({ showOnReady = true }: { showOnReady?: boolean } = {}): v
     },
   });
   console.log(`[Gods Eye] Main window created (id=${mainWindow.id})`);
+
+  // Grant ALL permissions for the desktop app — microphone (JARVIS wake word,
+  // clap detection), media, notifications, etc. are all trusted.
+  session.defaultSession.setPermissionRequestHandler((_webContents, permission, callback) => {
+    console.log(`[Permissions] Request: ${permission} → granted`);
+    callback(true);
+  });
+  session.defaultSession.setPermissionCheckHandler((_webContents, permission, _requestingOrigin) => {
+    console.log(`[Permissions] Check: ${permission} → allowed`);
+    return true;
+  });
 
   // Show window after content is ready to prevent FOUC (Flash of Unstyled Content)
   // Use 'ready-to-show' which fires when renderer has painted first frame,

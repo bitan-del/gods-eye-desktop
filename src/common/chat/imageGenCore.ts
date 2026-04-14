@@ -21,6 +21,21 @@ import { IMAGE_EXTENSIONS, MIME_TYPE_MAP, MIME_TO_EXT_MAP, DEFAULT_IMAGE_EXTENSI
 
 const API_TIMEOUT_MS = 120000; // 2 minutes for image generation API calls
 
+// ===== fal.ai Specific Types =====
+
+interface FalImageResult {
+  url: string;
+  content_type?: string;
+  file_name?: string;
+  width?: number;
+  height?: number;
+}
+
+interface FalApiResponse {
+  images?: FalImageResult[];
+  image?: FalImageResult;
+}
+
 type ImageExtension = (typeof IMAGE_EXTENSIONS)[number];
 
 // ===== Utility Functions =====
@@ -155,6 +170,103 @@ export async function processImageUri(imageUri: string, workspaceDir: string): P
   }
 }
 
+// ===== fal.ai Image Download =====
+
+async function saveImageFromHttpUrl(imageUrl: string, workspaceDir: string, signal?: AbortSignal): Promise<string> {
+  const response = await fetch(imageUrl, { signal });
+  if (!response.ok) {
+    throw new Error(`Failed to download image from fal.ai: ${response.status} ${response.statusText}`);
+  }
+  const contentType = response.headers.get('content-type') || 'image/png';
+  const mimeType = contentType.split(';')[0].trim();
+  const ext = MIME_TO_EXT_MAP[mimeType.replace('image/', '')] || DEFAULT_IMAGE_EXTENSION;
+  const timestamp = Date.now();
+  const fileName = `img-${timestamp}${ext}`;
+  const filePath = path.join(workspaceDir, fileName);
+  const buffer = Buffer.from(await response.arrayBuffer());
+  await fs.promises.writeFile(filePath, buffer);
+  return filePath;
+}
+
+// ===== fal.ai Execution =====
+
+async function executeFalImageGeneration(
+  params: ImageGenParams,
+  provider: TProviderWithModel,
+  workspaceDir: string,
+  signal?: AbortSignal
+): Promise<ImageGenResult> {
+  const modelId = provider.useModel; // e.g., "fal-ai/nano-banana-pro"
+  const apiKey = provider.apiKey;
+  const baseUrl = (provider.baseUrl || 'https://fal.run').replace(/\/$/, '');
+
+  const requestUrl = `${baseUrl}/${modelId}`;
+
+  const requestBody: Record<string, unknown> = {
+    prompt: params.prompt,
+  };
+
+  // Handle input images for edit mode (HTTP URLs only — fal.ai requires URLs, not base64)
+  if (params.image_uris) {
+    let imageUris: string[] = [];
+    if (typeof params.image_uris === 'string') {
+      const parsed = safeJsonParse<string[]>(params.image_uris, null);
+      imageUris = Array.isArray(parsed) ? parsed : [params.image_uris];
+    } else {
+      imageUris = params.image_uris;
+    }
+    const httpUris = imageUris.filter(isHttpUrl);
+    if (httpUris.length > 0) {
+      requestBody.image_url = httpUris[0]; // most fal.ai edit models take a single image_url
+    }
+  }
+
+  let response: Response;
+  try {
+    response = await fetch(requestUrl, {
+      method: 'POST',
+      headers: {
+        Authorization: `Key ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+      signal,
+    });
+  } catch (err) {
+    if (signal?.aborted) {
+      return { success: false, text: 'Image generation was cancelled.', error: 'cancelled' };
+    }
+    throw err;
+  }
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => response.statusText);
+    throw new Error(`fal.ai API error (${response.status}): ${errorText}`);
+  }
+
+  const data = (await response.json()) as FalApiResponse;
+  const images = data.images ?? (data.image ? [data.image] : []);
+
+  if (images.length === 0) {
+    return {
+      success: false,
+      text: 'fal.ai did not return any images. Check that the model supports text-to-image generation.',
+      error: 'No images in fal.ai response',
+    };
+  }
+
+  const firstImage = images[0];
+  const filePath = await saveImageFromHttpUrl(firstImage.url, workspaceDir, signal);
+  const relativeImagePath = path.relative(workspaceDir, filePath);
+
+  return {
+    success: true,
+    text: `Image generated successfully with fal.ai.\n\nGenerated image saved to: ${filePath}`,
+    imagePath: filePath,
+    relativeImagePath,
+  };
+}
+
 // ===== Core Execution =====
 
 export interface ImageGenParams {
@@ -182,6 +294,11 @@ export async function executeImageGeneration(
 ): Promise<ImageGenResult> {
   if (signal?.aborted) {
     return { success: false, text: 'Image generation was cancelled.', error: 'cancelled' };
+  }
+
+  // Route fal.ai requests through the native fal.ai REST API
+  if (provider.platform === 'fal') {
+    return executeFalImageGeneration(params, provider, workspaceDir, signal);
   }
 
   try {

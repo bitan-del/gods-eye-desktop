@@ -62,7 +62,7 @@
   --inverse: #ffffff; /* inverse color */
 
   /* Custom Colors - Light Mode */
-  --dialog-fill-0: #ffffff; /* dialog fill */
+  --dialog-fill-0: #f1f5fb; /* dialog fill — matches app bg-2 */
   --text-0: #000000; /* pure black text */
   --text-white: #ffffff; /* pure white text */
   --fill-0: #ffffff; /* fill 0 */

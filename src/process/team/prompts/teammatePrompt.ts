@@ -70,10 +70,19 @@ export function buildTeammatePrompt(params: TeammatePromptParams): string {
 Always use the team workspace path for any project-related operations.`
     : '';
 
+  const customSystemPrompt = agent.systemPrompt
+    ? `\n\n## Custom Instructions\n${agent.systemPrompt}`
+    : '';
+
+  const skillsSection =
+    agent.skills && agent.skills.length > 0
+      ? `\n\n## Your Specialisations\n${agent.skills.map((s) => `- ${s}`).join('\n')}`
+      : '';
+
   return `# You are a Team Member
 
 ## Your Identity
-Name: ${agent.agentName}, Role: ${roleDescription(agent.agentType)}
+Name: ${agent.agentName}, Role: ${roleDescription(agent.agentType)}${customSystemPrompt}${skillsSection}
 
 ## Conversation Style
 - If the user greets you, starts a new chat, or asks what you can do without assigning concrete work yet, reply warmly and naturally

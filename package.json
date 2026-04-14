@@ -88,6 +88,8 @@
     "@monaco-editor/react": "^4.7.0",
     "@office-ai/aioncli-core": "^0.30.3",
     "@office-ai/platform": "^0.3.16",
+    "@picovoice/porcupine-node": "^4.0.2",
+    "@picovoice/pvrecorder-node": "^1.2.8",
     "@sentry/electron": "^7.10.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.10",

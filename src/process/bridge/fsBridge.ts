@@ -1605,6 +1605,63 @@ export function initFsBridge(): void {
     }
   });
 
+  // Download and install a skill from a URL
+  ipcBridge.fs.downloadSkill.provider(async ({ url, name }) => {
+    try {
+      const userSkillsDir = getSkillsDir();
+      const skillDir = path.join(userSkillsDir, name);
+
+      // Check if already exists
+      try {
+        await fs.access(skillDir);
+        return { success: false, msg: `Skill "${name}" already exists` };
+      } catch {
+        // Does not exist, proceed
+      }
+
+      await fs.mkdir(skillDir, { recursive: true });
+
+      // Fetch the SKILL.md content from the URL
+      const content = await new Promise<string>((resolve, reject) => {
+        const protocol = url.startsWith('https') ? https : http;
+        const request = (reqUrl: string, redirectCount = 0) => {
+          if (redirectCount > 5) {
+            reject(new Error('Too many redirects'));
+            return;
+          }
+          protocol.get(reqUrl, (res) => {
+            if (res.statusCode && res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+              request(res.headers.location, redirectCount + 1);
+              return;
+            }
+            if (res.statusCode !== 200) {
+              reject(new Error(`HTTP ${res.statusCode}`));
+              return;
+            }
+            let data = '';
+            res.on('data', (chunk: string) => (data += chunk));
+            res.on('end', () => resolve(data));
+            res.on('error', reject);
+          }).on('error', reject);
+        };
+        request(url);
+      });
+
+      await fs.writeFile(path.join(skillDir, 'SKILL.md'), content, 'utf-8');
+      console.log(`[fsBridge] Downloaded skill "${name}" from ${url}`);
+      return { success: true, data: { skillName: name }, msg: `Skill "${name}" downloaded successfully` };
+    } catch (error) {
+      // Clean up on failure
+      const skillDir = path.join(getSkillsDir(), name);
+      await fs.rm(skillDir, { recursive: true, force: true }).catch(() => {});
+      console.error('[fsBridge] Failed to download skill:', error);
+      return {
+        success: false,
+        msg: `Failed to download skill: ${error instanceof Error ? error.message : String(error)}`,
+      };
+    }
+  });
+
   // Skills Market: inject the godseye-skills builtin skill
   ipcBridge.fs.enableSkillsMarket.provider(async () => {
     try {

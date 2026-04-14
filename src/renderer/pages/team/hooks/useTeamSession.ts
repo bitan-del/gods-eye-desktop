@@ -12,7 +12,7 @@ import type {
 import { useCallback, useEffect, useState } from 'react';
 import useSWR from 'swr';
 
-type AgentStatusInfo = {
+export type AgentStatusInfo = {
   slotId: string;
   status: TeammateStatus;
   lastMessage?: string;

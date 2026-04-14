@@ -64,7 +64,15 @@ const LocalImageView: React.FC<{
         <span>{alt}</span>
       </span>
     );
-  return <img src={url} alt={alt} className={className} />;
+  return (
+    <img
+      src={url}
+      alt={alt}
+      className={className}
+      style={{ maxWidth: '360px', maxHeight: '360px', borderRadius: '8px', objectFit: 'contain', cursor: 'pointer' }}
+      onClick={() => window.open(url, '_blank')}
+    />
+  );
 };
 
 LocalImageView.Provider = LocalImageProvider;

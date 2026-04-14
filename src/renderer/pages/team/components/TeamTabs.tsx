@@ -1,4 +1,4 @@
-import { Edit, Plus } from '@icon-park/react';
+import { CloseSmall, Edit, GridNine, Plus } from '@icon-park/react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { iconColors } from '@/renderer/styles/colors';
 import type { TeammateStatus } from '@/common/types/teamTypes';
@@ -20,6 +20,7 @@ type TeamTabViewProps = {
   isLead: boolean;
   onSwitch: (slotId: string) => void;
   onRename?: (slotId: string, newName: string) => void;
+  onRemove?: (slotId: string) => void;
   onDragStart: (slotId: string) => void;
   onDragOver: (slotId: string) => void;
   onDrop: () => void;
@@ -35,6 +36,7 @@ const TeamTabView: React.FC<TeamTabViewProps> = ({
   isLead,
   onSwitch,
   onRename,
+  onRemove,
   onDragStart,
   onDragOver,
   onDrop,
@@ -130,7 +132,30 @@ const TeamTabView: React.FC<TeamTabViewProps> = ({
         />
       )}
       <AgentStatusBadge status={status} />
-      {!editing && onRename && (
+      {!editing && !isLead && (
+        <div className='flex items-center gap-2px opacity-0 group-hover:opacity-60 transition-opacity duration-150 shrink-0'>
+          {onRename && (
+            <span
+              className='hover:!opacity-100 flex items-center p-2px rd-2px hover:bg-[var(--fill-3)] cursor-pointer'
+              onClick={startEditing}
+            >
+              <Edit theme='outline' size='12' fill='currentColor' />
+            </span>
+          )}
+          {onRemove && (
+            <span
+              className='hover:!opacity-100 flex items-center p-2px rd-2px hover:bg-[var(--color-danger-1)] hover:text-[var(--color-danger-6)] cursor-pointer'
+              onClick={(e) => {
+                e.stopPropagation();
+                onRemove(slotId);
+              }}
+            >
+              <CloseSmall theme='outline' size='14' fill='currentColor' />
+            </span>
+          )}
+        </div>
+      )}
+      {!editing && isLead && onRename && (
         <span
           className='opacity-0 group-hover:opacity-60 hover:!opacity-100 transition-opacity duration-150 shrink-0 flex items-center'
           onClick={startEditing}
@@ -143,7 +168,7 @@ const TeamTabView: React.FC<TeamTabViewProps> = ({
 };
 
 type AddAgentTriggerProps = {
-  onAddAgent: (data: { agentName: string; agentKey: string }) => void;
+  onAddAgent: (data: { agentName: string; agentKey: string; systemPrompt?: string; skills?: string[] }) => void;
 };
 
 const AddAgentTrigger: React.FC<AddAgentTriggerProps> = ({ onAddAgent }) => {
@@ -163,16 +188,39 @@ const AddAgentTrigger: React.FC<AddAgentTriggerProps> = ({ onAddAgent }) => {
   );
 };
 
+type OfficeViewToggleProps = {
+  isActive: boolean;
+  onToggle: () => void;
+};
+
+const OfficeViewToggle: React.FC<OfficeViewToggleProps> = ({ isActive, onToggle }) => (
+  <div
+    className={`flex items-center justify-center w-40px h-40px shrink-0 cursor-pointer transition-colors duration-200 ${
+      isActive
+        ? 'bg-[var(--color-primary-1)] text-[var(--color-primary-6)]'
+        : 'hover:bg-[var(--fill-2)] text-[var(--color-text-3)]'
+    }`}
+    style={{ borderLeft: '1px solid var(--border-base)' }}
+    onClick={onToggle}
+    title='Agent Office View'
+  >
+    <GridNine theme={isActive ? 'filled' : 'outline'} size='16' fill='currentColor' />
+  </div>
+);
+
 type TeamTabsProps = {
-  onAddAgent: (data: { agentName: string; agentKey: string }) => void;
+  onAddAgent: (data: { agentName: string; agentKey: string; systemPrompt?: string; skills?: string[] }) => void;
   onTabClick?: (slotId: string) => void;
+  onRemoveAgent?: (slotId: string) => void;
+  officeViewActive?: boolean;
+  onToggleOfficeView?: () => void;
 };
 
 /**
  * Tab bar for team mode showing agent tabs with status badges.
  * Supports scroll overflow with fade indicators and add-agent dropdown.
  */
-const TeamTabs: React.FC<TeamTabsProps> = ({ onAddAgent, onTabClick }) => {
+const TeamTabs: React.FC<TeamTabsProps> = ({ onAddAgent, onTabClick, onRemoveAgent, officeViewActive, onToggleOfficeView }) => {
   const { agents, activeSlotId, statusMap, switchTab, renameAgent, reorderAgents } = useTeamTabs();
   const tabsContainerRef = useRef<HTMLDivElement>(null);
   const [showLeftFade, setShowLeftFade] = useState(false);
@@ -252,6 +300,7 @@ const TeamTabs: React.FC<TeamTabsProps> = ({ onAddAgent, onTabClick }) => {
                   onTabClick?.(slotId);
                 }}
                 onRename={renameAgent ? (sid, name) => void renameAgent(sid, name) : undefined}
+                onRemove={onRemoveAgent}
                 onDragStart={handleDragStart}
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
@@ -260,7 +309,10 @@ const TeamTabs: React.FC<TeamTabsProps> = ({ onAddAgent, onTabClick }) => {
             );
           })}
         </div>
-        {/* AddAgentTrigger hidden — agents are created by the leader via MCP tools */}
+        {onToggleOfficeView && (
+          <OfficeViewToggle isActive={officeViewActive ?? false} onToggle={onToggleOfficeView} />
+        )}
+        <AddAgentTrigger onAddAgent={onAddAgent} />
         {showLeftFade && (
           <div
             className='pointer-events-none absolute left-0 top-0 bottom-0 w-32px z-10'
