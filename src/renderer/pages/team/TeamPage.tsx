@@ -73,6 +73,13 @@ const AgentChatSlot: React.FC<{
   const isAcpLike = agent.conversationType === 'acp' || agent.conversationType === 'codex';
   const isGemini = agent.conversationType === 'gemini';
 
+  // Derive the effective agent type from the live conversation's backend.
+  // TeamAgent.agentType is frozen at creation time and may become stale when
+  // the underlying preset or model configuration changes.
+  const effectiveAgentType =
+    (conversation?.type === 'acp' ? (conversation.extra as { backend?: string })?.backend : undefined) ||
+    agent.agentType;
+
   const geminiOnSelectModel = useCallback(
     async (_provider: IProvider, modelName: string) => {
       if (!conversation) return false;
@@ -110,7 +117,7 @@ const AgentChatSlot: React.FC<{
       >
         <TeamAgentIdentity
           agentName={agent.agentName}
-          agentType={agent.agentType}
+          agentType={effectiveAgentType}
           isLead={isLead}
           className='min-w-0'
           nameClassName='text-13px text-[color:var(--color-text-2)] font-medium'
@@ -121,7 +128,7 @@ const AgentChatSlot: React.FC<{
               <AcpModelSelector
                 key={agent.conversationId}
                 conversationId={agent.conversationId}
-                backend={agent.agentType}
+                backend={effectiveAgentType}
                 initialModelId={initialModelId}
               />
             </div>
@@ -155,7 +162,7 @@ const AgentChatSlot: React.FC<{
             teamId={teamId}
             agentSlotId={isLead ? undefined : agent.slotId}
             agentName={agent.agentName}
-            agentType={agent.agentType}
+            agentType={effectiveAgentType}
           />
         ) : (
           <div className='flex flex-1 items-center justify-center'>
