@@ -502,9 +502,18 @@ ${collectedResponses.join('\n')}`;
    * Resolve CLI config for a built-in backend (claude, qwen, codex, etc.).
    * Also handles yoloMode migration and codex sandbox mode.
    */
+  /** Map backend name → env var that the CLI reads for its API key. */
+  private static readonly AUTH_ENV_VARS: Partial<Record<string, string>> = {
+    claude: 'ANTHROPIC_API_KEY',
+    codex: 'OPENAI_API_KEY',
+    gemini: 'GOOGLE_API_KEY',
+    qwen: 'DASHSCOPE_API_KEY',
+  };
+
   private async resolveBuiltinBackendConfig(data: AcpAgentManagerData): Promise<{
     cliPath?: string;
     customArgs?: string[];
+    customEnv?: Record<string, string>;
     yoloMode?: boolean;
   }> {
     const config = await ProcessConfig.get('acp.config');
@@ -513,6 +522,16 @@ ${collectedResponses.join('\n')}`;
     let cliPath = data.cliPath;
     if (!cliPath && config?.[data.backend]?.cliPath) {
       cliPath = config[data.backend].cliPath;
+    }
+
+    // Pass the stored authToken as an env var so the CLI process picks it up.
+    let customEnv: Record<string, string> | undefined;
+    const authToken = config?.[data.backend]?.authToken;
+    if (authToken) {
+      const envVar = AcpAgentManager.AUTH_ENV_VARS[data.backend];
+      if (envVar) {
+        customEnv = { [envVar]: authToken };
+      }
     }
 
     // yoloMode priority: data.yoloMode (from CronService) > config setting
@@ -563,7 +582,7 @@ ${collectedResponses.join('\n')}`;
       data.sandboxMode = sandboxMode;
     }
 
-    return { cliPath, customArgs, yoloMode };
+    return { cliPath, customArgs, customEnv, yoloMode };
   }
 
   // ── initAgent callback handlers ──────────────────────────────────────

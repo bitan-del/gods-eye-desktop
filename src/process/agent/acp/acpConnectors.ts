@@ -136,12 +136,13 @@ export async function prepareCleanEnv(): Promise<Record<string, string | undefin
   // Remove CLAUDECODE env var to prevent claude-agent-sdk from detecting
   // a nested session when Gods Eye itself is launched from Claude Code.
   delete merged.CLAUDECODE;
-  // Strip npm lifecycle vars inherited from parent `npm start` process.
-  // These (npm_config_*, npm_lifecycle_*, npm_package_*) can cause npx to
-  // behave as if running inside an npm script, interfering with package
-  // resolution and child process startup.
+  // When Gods Eye itself runs inside Claude Desktop / Claude Code agent mode,
+  // env vars like CLAUDE_CODE_ENTRYPOINT, CLAUDE_AGENT_SDK_VERSION, and
+  // CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST leak into child processes. These
+  // confuse child CLIs into thinking their auth is host-managed. Strip them
+  // so every ACP backend can authenticate independently.
   for (const key of Object.keys(merged)) {
-    if (key.startsWith('npm_')) {
+    if (key.startsWith('npm_') || key.startsWith('CLAUDE_CODE_') || key.startsWith('CLAUDE_AGENT_')) {
       delete merged[key];
     }
   }
@@ -358,6 +359,37 @@ export function spawnNpxBackend(
 /** Prepare clean env + resolve npx for Claude ACP bridge. */
 async function prepareClaude(): Promise<NpxPrepareResult> {
   const cleanEnv = await prepareCleanEnv();
+
+  // When Gods Eye is launched from Claude Desktop (or Claude Code agent mode),
+  // the child process inherits env vars that hijack Claude CLI's auth flow:
+  //   - ANTHROPIC_API_KEY="" (empty) → SDK sends an empty key → 401
+  //   - CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST=1 → SDK skips its own OAuth
+  //   - CLAUDE_CODE_OAUTH_TOKEN=… → parent session token, may be expired
+  //   - CLAUDE_CODE_ENTRYPOINT → misleads the child about its runtime
+  //   - CLAUDE_AGENT_SDK_VERSION → version leak from parent
+  // Strip all of these so the spawned Claude ACP bridge falls through to its
+  // own ~/.claude.json OAuth credentials and authenticates independently.
+  for (const key of Object.keys(cleanEnv)) {
+    if (key.startsWith('CLAUDE_CODE_') || key.startsWith('CLAUDE_AGENT_')) {
+      delete cleanEnv[key];
+    }
+  }
+  // An empty ANTHROPIC_API_KEY overrides the OAuth path. Delete it so the
+  // CLI falls through to its own stored credentials. A real (non-empty) key
+  // is intentional and we preserve it.
+  if (!cleanEnv.ANTHROPIC_API_KEY) {
+    delete cleanEnv.ANTHROPIC_API_KEY;
+  }
+  // Remove ANTHROPIC_BASE_URL inherited from parent unless user explicitly
+  // set it (loadFullShellEnvironment would have it from .zshrc). If the
+  // value matches the default Anthropic URL we can safely drop it.
+  if (
+    cleanEnv.ANTHROPIC_BASE_URL === 'https://api.anthropic.com' ||
+    !cleanEnv.ANTHROPIC_BASE_URL
+  ) {
+    delete cleanEnv.ANTHROPIC_BASE_URL;
+  }
+
   ensureMinNodeVersion(cleanEnv, 20, 10, 'Claude ACP bridge');
   return { cleanEnv, npxCommand: resolveNpxPath(cleanEnv), directInvoke: resolveNpxDirect(cleanEnv) ?? undefined };
 }
@@ -581,11 +613,20 @@ async function connectNpxBackend(config: {
 // ── Exported per-backend connect functions ───────────────────────────
 
 /** Connect to Claude ACP bridge via npx. */
-export function connectClaude(workingDir: string, hooks: NpxConnectHooks): Promise<void> {
+export function connectClaude(
+  workingDir: string,
+  hooks: NpxConnectHooks,
+  customEnv?: Record<string, string>
+): Promise<void> {
   return connectNpxBackend({
     backend: 'claude',
     npxPackage: CLAUDE_ACP_NPX_PACKAGE,
-    prepareFn: prepareClaude,
+    prepareFn: async () => {
+      const result = await prepareClaude();
+      // Merge caller-supplied env (e.g. authToken → ANTHROPIC_API_KEY) on top.
+      if (customEnv) Object.assign(result.cleanEnv, customEnv);
+      return result;
+    },
     workingDir,
     ...hooks,
     detached: process.platform !== 'win32',
