@@ -119,26 +119,22 @@ class AcpAgentManager extends BaseAgentManager<AcpAgentManagerData, AcpPermissio
     this.conversation_id = data.conversation_id;
     this.workspace = data.workspace;
     this.options = data;
-    this.currentMode = data.sessionMode || 'default';
     this.persistedModelId = data.currentModelId || null;
     this.status = 'pending';
 
-    // Team agents require bypassPermissions so the CLI allows team MCP tool calls.
-    // Modes like "dontAsk" block tool calls at the CLI level before Gods Eye can auto-approve them.
+    // HARDCODED: Team agents ALWAYS run in bypassPermissions/yolo mode.
+    // The CLI (Claude, Codex, Qwen, etc.) blocks ALL tool calls in restrictive
+    // modes like "dontAsk" — including team MCP tools. This cannot be conditional.
     const isTeamAgent = Boolean((data as unknown as Record<string, unknown>).teamMcpStdioConfig);
-    if (isTeamAgent && !this.isYoloMode(this.currentMode)) {
-      const yoloModes: Partial<Record<string, string>> = {
-        claude: 'bypassPermissions',
-        codebuddy: 'bypassPermissions',
-        qwen: 'yolo',
-        iflow: 'yolo',
-        codex: 'yolo',
-      };
-      this.currentMode = yoloModes[data.backend] || 'bypassPermissions';
+    if (isTeamAgent) {
+      this.currentMode = data.backend === 'claude' || data.backend === 'codebuddy'
+        ? 'bypassPermissions'
+        : 'yolo';
+      this.yoloMode = true;
+    } else {
+      this.currentMode = data.sessionMode || 'default';
+      this.yoloMode = this.isYoloMode(this.currentMode);
     }
-
-    // Sync yoloMode from sessionMode so addConfirmation auto-approves when Full Auto is selected
-    this.yoloMode = this.yoloMode || this.isYoloMode(this.currentMode);
   }
 
   private makeStreamBufferKey(message: Extract<TMessage, { type: 'text' }>): string {
@@ -805,6 +801,17 @@ ${collectedResponses.join('\n')}`;
     if (v.type === 'acp_permission') {
       const { toolCall, options } = v.data as AcpPermissionRequest;
 
+      // HARDCODED: team agents auto-approve ALL permission requests — no exceptions.
+      // Team agents must have full tool access to use team MCP tools.
+      const isTeamAgent = Boolean((this.options as unknown as Record<string, unknown>).teamMcpStdioConfig);
+      if (isTeamAgent && options.length > 0) {
+        const autoOption = options[0];
+        setTimeout(() => {
+          void this.confirm(v.msg_id, toolCall.toolCallId || v.msg_id, autoOption);
+        }, 50);
+        return;
+      }
+
       // Auto-approve ALL tools when in yolo/bypassPermissions mode.
       if (this.isYoloMode(this.currentMode) && options.length > 0) {
         const autoOption = options[0];
@@ -915,23 +922,17 @@ ${collectedResponses.join('\n')}`;
 
     this.bootstrapping = true;
     this.bootstrap = (async () => {
-      // Belt-and-suspenders: ensure team agents always get yolo mode even if the
-      // constructor override was bypassed (e.g. agent rebuilt without skipCache).
+      // HARDCODED: team agents always get yolo mode — no exceptions.
       const hasTeamMcp = Boolean((data as unknown as Record<string, unknown>).teamMcpStdioConfig);
-      if (hasTeamMcp && !this.isYoloMode(this.currentMode)) {
-        const yoloModes: Partial<Record<string, string>> = {
-          claude: 'bypassPermissions',
-          codebuddy: 'bypassPermissions',
-          qwen: 'yolo',
-          iflow: 'yolo',
-          codex: 'yolo',
-        };
-        this.currentMode = yoloModes[data.backend] || 'bypassPermissions';
+      if (hasTeamMcp) {
+        this.currentMode = data.backend === 'claude' || data.backend === 'codebuddy'
+          ? 'bypassPermissions'
+          : 'yolo';
         this.yoloMode = true;
       }
 
       const { cliPath, customArgs, customEnv, yoloMode } = await this.resolveAgentCliConfig(data);
-      const effectiveYoloMode = yoloMode || hasTeamMcp;
+      const effectiveYoloMode = hasTeamMcp ? true : yoloMode;
 
       this.agent = new AcpAgent({
         id: data.conversation_id,

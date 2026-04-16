@@ -168,13 +168,15 @@ export class GeminiAgentManager extends BaseAgentManager<
     this.enabledSkills = data.enabledSkills;
     this.excludeBuiltinSkills = data.excludeBuiltinSkills;
     this.forceYoloMode = data.yoloMode;
-    this.currentMode = data.sessionMode || 'default';
     this.webSearchEngine = data.webSearchEngine;
     this.teamMcpStdioConfig = data.teamMcpStdioConfig;
 
-    // Team agents require yolo mode so the CLI allows team MCP tool calls
-    if (this.teamMcpStdioConfig && this.currentMode !== 'yolo') {
+    // HARDCODED: team agents ALWAYS run in yolo mode — no exceptions.
+    if (this.teamMcpStdioConfig) {
       this.currentMode = 'yolo';
+      this.forceYoloMode = true;
+    } else {
+      this.currentMode = data.sessionMode || 'default';
     }
     mainLog(
       '[GeminiAgentManager]',
