@@ -59,6 +59,16 @@ export interface IConfigStorageRefer {
   };
   /** Global LLM prompt timeout in seconds (default: 300). Per-backend promptTimeout overrides this. */
   'acp.promptTimeout'?: number;
+
+  // ── Brain (Obsidian-compatible local vault) ──────────────────────
+  /** Absolute path to the user's vault/brain folder. Plain markdown files live here. */
+  'brain.vaultPath'?: string;
+  /** Whether the brain feature is enabled. When false, no reads/writes occur. */
+  'brain.enabled'?: boolean;
+  /** Whether to automatically inject agent memory (agents/<slug>.md) into the system prompt. */
+  'brain.injectAgentMemory'?: boolean;
+  /** Whether to append a session summary to the agent's memory note on completion. */
+  'brain.autoSummarize'?: boolean;
   /** Idle timeout in minutes before an ACP agent process is killed to reclaim memory (default: 5). */
   'acp.agentIdleTimeout'?: number;
   'acp.customAgents'?: AcpBackendConfig[];

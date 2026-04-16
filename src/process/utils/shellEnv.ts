@@ -371,6 +371,20 @@ function getPosixExtraToolPaths(): string[] {
     path.join(homeDir, '.deno', 'bin'),
     // local bin (pip, pipx, etc.)
     path.join(homeDir, '.local', 'bin'),
+    // npm global prefix variants — these are typically set in ~/.zshrc / ~/.bashrc,
+    // which are NOT sourced by login shells (-l), so they're missing when the app
+    // launches from Finder/Dock. Users install CLIs like `codex`, `gemini`,
+    // `@anthropic-ai/claude-code` here via `npm i -g`.
+    path.join(homeDir, '.npm-global', 'bin'),
+    path.join(homeDir, '.npm', 'bin'),
+    path.join(homeDir, '.node', 'bin'),
+    path.join(homeDir, 'node_modules', '.bin'),
+    // Homebrew node common prefixes (macOS arm64 + intel)
+    '/opt/homebrew/bin',
+    '/usr/local/bin',
+    // pnpm global bin
+    path.join(homeDir, 'Library', 'pnpm'),
+    path.join(homeDir, '.local', 'share', 'pnpm'),
   ];
 
   return candidates.filter((p) => existsSync(p) && !currentPath.includes(p));

@@ -13,6 +13,7 @@ import { cronService } from '@process/services/cron/cronServiceSingleton';
 import { workerTaskManager } from '@process/task/workerTaskManagerSingleton';
 import { TeamSessionService, SqliteTeamRepository } from '@process/team';
 import { initAionMcpService } from '@process/services/mcpServices/godseyeMcpServiceSingleton';
+import { brainService } from '@process/services/brain/BrainService';
 
 logger.config({ print: true });
 
@@ -39,4 +40,9 @@ void cronService.init().catch((error) => {
 // Start in-process GodsEye MCP server for team-guide tools (godseye_create_team, godseye_navigate)
 void initAionMcpService(teamSessionService).catch((error) => {
   console.error('[initBridge] Failed to initialize AionMcpService:', error);
+});
+
+// Initialize the Brain vault (markdown-based persistent memory). Safe no-op when disabled.
+void brainService.initialize().catch((error) => {
+  console.error('[initBridge] Failed to initialize BrainService:', error);
 });

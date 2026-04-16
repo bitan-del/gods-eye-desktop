@@ -45,6 +45,7 @@ import { initHubBridge } from './hubBridge';
 import { initJarvisLiveBridge } from './jarvisLiveBridge';
 import { initTeamBridge } from './teamBridge';
 import { initCliInstallerBridge } from './cliInstallerBridge';
+import { initBrainBridge } from './brainBridge';
 import type { TeamSessionService } from '@process/team/TeamSessionService';
 
 export interface BridgeDependencies {
@@ -96,6 +97,7 @@ export function initAllBridges(deps: BridgeDependencies): void {
   initHubBridge();
   initTeamBridge(deps.teamSessionService);
   initCliInstallerBridge();
+  initBrainBridge();
 }
 
 /**
@@ -116,6 +118,7 @@ export {
   initApplicationBridge,
   initAuthBridge,
   initBedrockBridge,
+  initBrainBridge,
   initChannelBridge,
   initCliInstallerBridge,
   initConversationBridge,

@@ -11,12 +11,13 @@ import { isElectronDesktop, resolveExtensionAssetUrl } from '@/renderer/utils/pl
 import { extensions as extensionsIpc, type IExtensionSettingsTab } from '@/common/adapter/ipcBridge';
 import { useExtI18n } from '@/renderer/hooks/system/useExtI18n';
 import { Tabs } from '@arco-design/web-react';
-import { Computer, Earth, Gemini, Info, LinkCloud, Puzzle, Toolkit } from '@icon-park/react';
+import { Brain, Computer, Earth, Gemini, Info, LinkCloud, Puzzle, Toolkit } from '@icon-park/react';
 import classNames from 'classnames';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import AboutModalContent from './contents/AboutModalContent';
 import AgentModalContent from './contents/AgentModalContent';
+import BrainModalContent from './contents/BrainModalContent';
 import ExtensionSettingsTabContent from './contents/ExtensionSettingsTabContent';
 import GeminiModalContent from './contents/GeminiModalContent';
 import ModelModalContent from './contents/ModelModalContent';
@@ -54,7 +55,7 @@ const RESIZE_DEBOUNCE_DELAY = 150;
 /**
  * 内置设置标签页类型 / Built-in settings tab type
  */
-export type BuiltinSettingTab = 'gemini' | 'model' | 'agent' | 'tools' | 'webui' | 'system' | 'about';
+export type BuiltinSettingTab = 'gemini' | 'model' | 'agent' | 'tools' | 'webui' | 'brain' | 'system' | 'about';
 
 /**
  * 设置标签页类型（内置 + 扩展）/ Settings tab type (built-in + extension)
@@ -227,6 +228,12 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ visible, onCancel, defaul
       });
     }
 
+    builtinItems.push({
+      key: 'brain',
+      label: t('settings.brain'),
+      icon: <Brain theme='outline' size='20' fill={iconColors.secondary} />,
+    });
+
     builtinItems.push(
       {
         key: 'system',
@@ -322,6 +329,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ visible, onCancel, defaul
         return <ToolsModalContent />;
       case 'webui':
         return <WebuiModalContent />;
+      case 'brain':
+        return <BrainModalContent />;
       case 'system':
         return <SystemModalContent />;
       case 'about':

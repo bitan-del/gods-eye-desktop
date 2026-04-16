@@ -38,6 +38,11 @@ export type BuildPayloadParams = {
   availableAgentTypes?: Array<{ type: string; name: string }>;
   renamedAgents?: Map<string, string>;
   teamWorkspace?: string;
+  /**
+   * Persistent agent memory pulled from the Brain vault (markdown body of
+   * `agents/<AgentName>.md`). Prepended to the teammate role prompt when present.
+   */
+  agentMemory?: string;
 };
 
 /** Unified adapter interface for cross-platform agent communication */

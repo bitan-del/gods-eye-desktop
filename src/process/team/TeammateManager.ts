@@ -12,6 +12,7 @@ import type { TaskManager } from './TaskManager';
 import type { AgentResponse } from './adapters/PlatformAdapter';
 import { createPlatformAdapter } from './adapters/PlatformAdapter';
 import { acpDetector } from '@process/agent/acp/AcpDetector';
+import { brainService } from '@process/services/brain/BrainService';
 
 type SpawnAgentFn = (agentName: string, agentType?: string) => Promise<TeamAgent>;
 
@@ -185,6 +186,10 @@ export class TeammateManager extends EventEmitter {
         .filter((a) => TEAM_SUPPORTED_BACKENDS.has(a.backend))
         .map((a) => ({ type: a.backend, name: a.name }));
 
+      // Load persistent memory from the Brain vault (best-effort; null when
+      // brain is disabled / no note exists / injection preference is off).
+      const agentMemory = (await brainService.loadAgentMemory(agent.agentName)) ?? undefined;
+
       const payload = adapter.buildPayload({
         agent,
         mailboxMessages,
@@ -193,6 +198,7 @@ export class TeammateManager extends EventEmitter {
         availableAgentTypes,
         renamedAgents: this.renamedAgents,
         teamWorkspace: this.teamWorkspace,
+        agentMemory,
       });
 
       // Clear previous buffer for this conversation

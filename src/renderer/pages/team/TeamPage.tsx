@@ -20,6 +20,7 @@ import TeamTabs from './components/TeamTabs';
 import TeamChatView from './components/TeamChatView';
 import TeamAgentIdentity from './components/TeamAgentIdentity';
 import AgentOfficeView from './components/AgentOfficeView';
+import PixelOfficeView from './components/PixelOfficeView';
 import { agentFromKey, resolveConversationType, resolveTeamAgentType } from './components/agentSelectUtils';
 import { TeamTabsProvider, useTeamTabs } from './hooks/TeamTabsContext';
 import { TeamPermissionProvider } from './hooks/TeamPermissionContext';
@@ -189,7 +190,10 @@ const TeamPageContent: React.FC<TeamPageContentProps> = ({ team, onAddAgent, onR
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(false);
   const [fullscreenSlotId, setFullscreenSlotId] = useState<string | null>(null);
-  const [showOfficeView, setShowOfficeView] = useState(false);
+  type TeamViewMode = 'chat' | 'office' | 'pixel';
+  const [viewMode, setViewMode] = useState<TeamViewMode>('chat');
+  const showOfficeView = viewMode === 'office';
+  const showPixelView = viewMode === 'pixel';
 
   const activeAgent = agents.find((a) => a.slotId === activeSlotId);
   const leadAgent = agents.find((a) => a.role === 'lead');
@@ -324,14 +328,19 @@ const TeamPageContent: React.FC<TeamPageContentProps> = ({ team, onAddAgent, onR
   }, []); // empty deps = only on mount
 
   const handleToggleOfficeView = useCallback(() => {
-    setShowOfficeView((prev) => !prev);
+    setViewMode((prev) => (prev === 'office' ? 'chat' : 'office'));
+    if (fullscreenSlotId) setFullscreenSlotId(null);
+  }, [fullscreenSlotId]);
+
+  const handleTogglePixelView = useCallback(() => {
+    setViewMode((prev) => (prev === 'pixel' ? 'chat' : 'pixel'));
     if (fullscreenSlotId) setFullscreenSlotId(null);
   }, [fullscreenSlotId]);
 
   const handleOfficeAgentClick = useCallback(
     (slotId: string) => {
       switchTab(slotId);
-      setShowOfficeView(false);
+      setViewMode('chat');
     },
     [switchTab]
   );
@@ -343,10 +352,20 @@ const TeamPageContent: React.FC<TeamPageContentProps> = ({ team, onAddAgent, onR
         onTabClick={handleTabClick}
         onRemoveAgent={handleRemoveAgent}
         officeViewActive={showOfficeView}
+        pixelViewActive={showPixelView}
         onToggleOfficeView={handleToggleOfficeView}
+        onTogglePixelView={handleTogglePixelView}
       />
     ),
-    [onAddAgent, handleTabClick, handleRemoveAgent, showOfficeView, handleToggleOfficeView]
+    [
+      onAddAgent,
+      handleTabClick,
+      handleRemoveAgent,
+      showOfficeView,
+      showPixelView,
+      handleToggleOfficeView,
+      handleTogglePixelView,
+    ]
   );
 
   return (
@@ -373,6 +392,14 @@ const TeamPageContent: React.FC<TeamPageContentProps> = ({ team, onAddAgent, onR
           {showOfficeView ? (
             <div className='flex-1 h-full'>
               <AgentOfficeView
+                agents={agents}
+                statusMap={statusMap}
+                onAgentClick={handleOfficeAgentClick}
+              />
+            </div>
+          ) : showPixelView ? (
+            <div className='flex-1 h-full'>
+              <PixelOfficeView
                 agents={agents}
                 statusMap={statusMap}
                 onAgentClick={handleOfficeAgentClick}

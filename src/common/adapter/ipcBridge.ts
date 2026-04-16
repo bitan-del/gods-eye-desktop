@@ -30,6 +30,16 @@ import type {
   WakeWordCheckRequest,
   WakeWordCheckResult,
 } from '../types/speech';
+import type {
+  BrainFileChangeEvent,
+  BrainFolderEntry,
+  BrainFrontmatter,
+  BrainGraph,
+  BrainNote,
+  BrainNoteRef,
+  BrainSearchHit,
+  BrainStatus,
+} from '../types/brain';
 
 export const shell = {
   openFile: bridge.buildProvider<void, string>('open-file'), // 使用系统默认程序打开文件
@@ -321,10 +331,9 @@ export const fs = {
   ),
   removeCustomExternalPath: bridge.buildProvider<IBridgeResponse, { path: string }>('remove-custom-external-path'),
   // Download and install a skill from a URL (GitHub tar archive)
-  downloadSkill: bridge.buildProvider<
-    IBridgeResponse<{ skillName: string }>,
-    { url: string; name: string }
-  >('download-skill'),
+  downloadSkill: bridge.buildProvider<IBridgeResponse<{ skillName: string }>, { url: string; name: string }>(
+    'download-skill'
+  ),
   // Skills Market: inject/remove the godseye-skills builtin skill
   enableSkillsMarket: bridge.buildProvider<IBridgeResponse, void>('enable-skills-market'),
   disableSkillsMarket: bridge.buildProvider<IBridgeResponse, void>('disable-skills-market'),
@@ -1388,8 +1397,44 @@ export const cliInstaller = {
   /** Dismiss the wizard (user chose to skip) */
   dismiss: bridge.buildProvider<void, void>('cli-installer.dismiss'),
   /** Restart the gateway (kill stale process, start fresh with current config) */
-  restartGateway: bridge.buildProvider<
-    IBridgeResponse<{ success: boolean; message?: string }>,
-    void
-  >('cli-installer.restart-gateway'),
+  restartGateway: bridge.buildProvider<IBridgeResponse<{ success: boolean; message?: string }>, void>(
+    'cli-installer.restart-gateway'
+  ),
+};
+
+// Brain — Obsidian-compatible local markdown vault used as persistent agent memory.
+// Brain — 与 Obsidian 兼容的本地 markdown 笔记库，用作持久化的 agent 记忆。
+export const brain = {
+  /** Get the current vault status (exists, writable, note count). */
+  getStatus: bridge.buildProvider<BrainStatus, void>('brain.get-status'),
+  /** Get the configured vault path, or null when unset. */
+  getVaultPath: bridge.buildProvider<string | null, void>('brain.get-vault-path'),
+  /** Suggested default vault path (e.g. `~/Documents/Gods Eye Vault`). */
+  defaultVaultPath: bridge.buildProvider<string, void>('brain.default-vault-path'),
+  /** Apply a new vault path — creates structure, restarts watcher. */
+  setVaultPath: bridge.buildProvider<void, { vaultPath: string }>('brain.set-vault-path'),
+  /** Enable / disable the brain feature. */
+  setEnabled: bridge.buildProvider<void, { enabled: boolean }>('brain.set-enabled'),
+  /** Open a folder picker and return the chosen path (or null when cancelled). */
+  pickVaultFolder: bridge.buildProvider<string | null, void>('brain.pick-vault-folder'),
+  /** Ensure the default vault path exists on disk — creates it if needed. */
+  ensureVault: bridge.buildProvider<string, { vaultPath?: string }>('brain.ensure-vault'),
+  /** List direct children of a vault folder. */
+  listFolder: bridge.buildProvider<BrainFolderEntry[], { path?: string }>('brain.list-folder'),
+  /** Read a note (returns null when missing). */
+  readNote: bridge.buildProvider<BrainNote | null, { path: string }>('brain.read-note'),
+  /** Write (or create) a note. */
+  writeNote: bridge.buildProvider<BrainNoteRef, { path: string; frontmatter: BrainFrontmatter; body: string }>(
+    'brain.write-note'
+  ),
+  /** Append markdown to an existing note (creates it when missing). */
+  appendToNote: bridge.buildProvider<BrainNoteRef, { path: string; markdown: string }>('brain.append-to-note'),
+  /** Delete a note. */
+  deleteNote: bridge.buildProvider<boolean, { path: string }>('brain.delete-note'),
+  /** Case-insensitive substring search across the vault. */
+  search: bridge.buildProvider<BrainSearchHit[], { query: string; limit?: number }>('brain.search'),
+  /** Build the note→note link graph (wiki + relative markdown links). */
+  getGraph: bridge.buildProvider<BrainGraph, void>('brain.get-graph'),
+  /** File change notifications from the watcher. */
+  fileChanged: bridge.buildEmitter<BrainFileChangeEvent>('brain.file-changed'),
 };

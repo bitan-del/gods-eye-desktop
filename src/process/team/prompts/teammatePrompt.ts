@@ -10,6 +10,8 @@ export type TeammatePromptParams = {
   unreadMessages: MailboxMessage[];
   renamedAgents?: Map<string, string>;
   teamWorkspace?: string;
+  /** Optional persistent memory from the Brain vault (markdown body). */
+  agentMemory?: string;
 };
 
 function roleDescription(agentType: string): string {
@@ -50,7 +52,7 @@ function formatMessages(messages: MailboxMessage[], allAgents: TeamAgent[]): str
  * assignments via mailbox and uses MCP tools to communicate results back.
  */
 export function buildTeammatePrompt(params: TeammatePromptParams): string {
-  const { agent, lead, teammates, assignedTasks, unreadMessages, renamedAgents, teamWorkspace } = params;
+  const { agent, lead, teammates, assignedTasks, unreadMessages, renamedAgents, teamWorkspace, agentMemory } = params;
 
   const teammateNames =
     teammates.length === 0
@@ -70,19 +72,25 @@ export function buildTeammatePrompt(params: TeammatePromptParams): string {
 Always use the team workspace path for any project-related operations.`
     : '';
 
-  const customSystemPrompt = agent.systemPrompt
-    ? `\n\n## Custom Instructions\n${agent.systemPrompt}`
-    : '';
+  const customSystemPrompt = agent.systemPrompt ? `\n\n## Custom Instructions\n${agent.systemPrompt}` : '';
 
   const skillsSection =
     agent.skills && agent.skills.length > 0
       ? `\n\n## Your Specialisations\n${agent.skills.map((s) => `- ${s}`).join('\n')}`
       : '';
 
+  const memorySection =
+    agentMemory && agentMemory.trim().length > 0
+      ? `\n\n## Your Persistent Memory (from Brain vault)
+Notes you have kept about yourself, past projects, and lessons learned. Treat as authoritative context; update via \`brain_append_to_note\` when you learn something worth remembering.
+
+${agentMemory.trim()}`
+      : '';
+
   return `# You are a Team Member
 
 ## Your Identity
-Name: ${agent.agentName}, Role: ${roleDescription(agent.agentType)}${customSystemPrompt}${skillsSection}
+Name: ${agent.agentName}, Role: ${roleDescription(agent.agentType)}${customSystemPrompt}${skillsSection}${memorySection}
 
 ## Conversation Style
 - If the user greets you, starts a new chat, or asks what you can do without assigning concrete work yet, reply warmly and naturally

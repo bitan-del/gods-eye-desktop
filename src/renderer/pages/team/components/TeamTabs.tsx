@@ -1,4 +1,4 @@
-import { CloseSmall, Edit, GridNine, Plus } from '@icon-park/react';
+import { CloseSmall, Edit, GameConsole, GridNine, Plus } from '@icon-park/react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { iconColors } from '@/renderer/styles/colors';
 import type { TeammateStatus } from '@/common/types/teamTypes';
@@ -188,12 +188,14 @@ const AddAgentTrigger: React.FC<AddAgentTriggerProps> = ({ onAddAgent }) => {
   );
 };
 
-type OfficeViewToggleProps = {
+type ViewToggleProps = {
   isActive: boolean;
   onToggle: () => void;
+  icon: 'office' | 'pixel';
+  title: string;
 };
 
-const OfficeViewToggle: React.FC<OfficeViewToggleProps> = ({ isActive, onToggle }) => (
+const ViewToggle: React.FC<ViewToggleProps> = ({ isActive, onToggle, icon, title }) => (
   <div
     className={`flex items-center justify-center w-40px h-40px shrink-0 cursor-pointer transition-colors duration-200 ${
       isActive
@@ -202,9 +204,13 @@ const OfficeViewToggle: React.FC<OfficeViewToggleProps> = ({ isActive, onToggle 
     }`}
     style={{ borderLeft: '1px solid var(--border-base)' }}
     onClick={onToggle}
-    title='Agent Office View'
+    title={title}
   >
-    <GridNine theme={isActive ? 'filled' : 'outline'} size='16' fill='currentColor' />
+    {icon === 'office' ? (
+      <GridNine theme={isActive ? 'filled' : 'outline'} size='16' fill='currentColor' />
+    ) : (
+      <GameConsole theme={isActive ? 'filled' : 'outline'} size='16' fill='currentColor' />
+    )}
   </div>
 );
 
@@ -213,14 +219,24 @@ type TeamTabsProps = {
   onTabClick?: (slotId: string) => void;
   onRemoveAgent?: (slotId: string) => void;
   officeViewActive?: boolean;
+  pixelViewActive?: boolean;
   onToggleOfficeView?: () => void;
+  onTogglePixelView?: () => void;
 };
 
 /**
  * Tab bar for team mode showing agent tabs with status badges.
  * Supports scroll overflow with fade indicators and add-agent dropdown.
  */
-const TeamTabs: React.FC<TeamTabsProps> = ({ onAddAgent, onTabClick, onRemoveAgent, officeViewActive, onToggleOfficeView }) => {
+const TeamTabs: React.FC<TeamTabsProps> = ({
+  onAddAgent,
+  onTabClick,
+  onRemoveAgent,
+  officeViewActive,
+  pixelViewActive,
+  onToggleOfficeView,
+  onTogglePixelView,
+}) => {
   const { agents, activeSlotId, statusMap, switchTab, renameAgent, reorderAgents } = useTeamTabs();
   const tabsContainerRef = useRef<HTMLDivElement>(null);
   const [showLeftFade, setShowLeftFade] = useState(false);
@@ -310,7 +326,20 @@ const TeamTabs: React.FC<TeamTabsProps> = ({ onAddAgent, onTabClick, onRemoveAge
           })}
         </div>
         {onToggleOfficeView && (
-          <OfficeViewToggle isActive={officeViewActive ?? false} onToggle={onToggleOfficeView} />
+          <ViewToggle
+            isActive={officeViewActive ?? false}
+            onToggle={onToggleOfficeView}
+            icon='office'
+            title='Agent Office View'
+          />
+        )}
+        {onTogglePixelView && (
+          <ViewToggle
+            isActive={pixelViewActive ?? false}
+            onToggle={onTogglePixelView}
+            icon='pixel'
+            title='Pixel Office View'
+          />
         )}
         <AddAgentTrigger onAddAgent={onAddAgent} />
         {showLeftFade && (

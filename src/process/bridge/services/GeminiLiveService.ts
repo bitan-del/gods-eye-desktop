@@ -14,6 +14,8 @@ import { mainError, mainLog, mainWarn } from '@process/utils/mainLogger';
 import { ProcessConfig } from '@process/utils/initStorage';
 import { workerTaskManager } from '@process/task/workerTaskManagerSingleton';
 import { acpDetector } from '@process/agent/acp/AcpDetector';
+import { brainService } from '@process/services/brain/BrainService';
+import type { BrainFrontmatter } from '@/common/types/brain';
 
 const LOG_TAG = '[JarvisLive]';
 
@@ -157,8 +159,7 @@ const JARVIS_TOOLS: FunctionDeclaration[] = [
   },
   {
     name: 'open_new_conversation',
-    description:
-      'Open a new conversation in Gods Eye. Use this when the user asks to start a new chat or task.',
+    description: 'Open a new conversation in Gods Eye. Use this when the user asks to start a new chat or task.',
     parameters: {
       type: Type.OBJECT,
       properties: {},
@@ -173,7 +174,8 @@ const JARVIS_TOOLS: FunctionDeclaration[] = [
       properties: {
         prompt: {
           type: Type.STRING,
-          description: 'The detailed task instruction to send to the AI agent. Be specific and comprehensive — expand on what the user asked for.',
+          description:
+            'The detailed task instruction to send to the AI agent. Be specific and comprehensive — expand on what the user asked for.',
         },
         title: {
           type: Type.STRING,
@@ -306,6 +308,73 @@ const JARVIS_TOOLS: FunctionDeclaration[] = [
       },
     },
   },
+  {
+    name: 'create_note',
+    description:
+      'Create or overwrite a markdown note in the Brain vault (an Obsidian-compatible folder of notes). Use this when the user asks you to remember something, write it down, capture a thought, or save a draft. Subfolders like `daily/`, `people/`, `tasks/`, or `agents/` organise notes — include the subfolder in the path when it is relevant.',
+    parameters: {
+      type: Type.OBJECT,
+      properties: {
+        path: {
+          type: Type.STRING,
+          description:
+            'Vault-relative path, ending in `.md`. Examples: "daily/2026-04-15.md", "people/Bitan.md", "tasks/Rewrite auth.md". Use forward slashes.',
+        },
+        body: {
+          type: Type.STRING,
+          description: 'Markdown body of the note. Plain text or markdown — headings, lists, and links all work.',
+        },
+        title: {
+          type: Type.STRING,
+          description: 'Optional title — stored in YAML frontmatter as `title`.',
+        },
+        tags: {
+          type: Type.ARRAY,
+          description: 'Optional list of tags — stored in frontmatter as `tags`. Plain lowercase words work best.',
+          items: { type: Type.STRING },
+        },
+      },
+      required: ['path', 'body'],
+    },
+  },
+  {
+    name: 'append_to_note',
+    description:
+      'Append a markdown block to an existing note in the Brain vault (creates the note when missing). Use this for journaling, logging incremental updates, or adding items to a running list.',
+    parameters: {
+      type: Type.OBJECT,
+      properties: {
+        path: {
+          type: Type.STRING,
+          description: 'Vault-relative path of the note to append to, ending in `.md`.',
+        },
+        markdown: {
+          type: Type.STRING,
+          description: 'Markdown text to append. A timestamped heading is usually useful — include one yourself.',
+        },
+      },
+      required: ['path', 'markdown'],
+    },
+  },
+  {
+    name: 'search_brain',
+    description:
+      "Search the user's Brain vault (Obsidian-compatible markdown notes) for a phrase. Returns matching notes with snippets. Use this before answering questions about personal context, past decisions, or notes the user has taken.",
+    parameters: {
+      type: Type.OBJECT,
+      properties: {
+        query: {
+          type: Type.STRING,
+          description: 'Phrase to search for. Case-insensitive substring match across all notes.',
+        },
+        limit: {
+          type: Type.NUMBER,
+          description: 'Maximum number of results to return (default 10).',
+        },
+      },
+      required: ['query'],
+    },
+  },
 ];
 
 // ── Base system instruction ──
@@ -330,6 +399,7 @@ YOUR POWERS — what you can DO:
 6. MANAGE scheduled jobs — create, run, pause, resume, or delete cron jobs
 7. NAVIGATE the app — open conversations, settings, new chats
 8. SEARCH conversations — find past work by topic or name
+9. WRITE TO THE BRAIN — save notes into the user's Obsidian-compatible local vault (create_note, append_to_note, search_brain). Use it as persistent memory: capture daily logs, remember facts about the user, draft plans, and retrieve past context before answering questions.
 
 AGENT SELECTION GUIDE:
 - "claude" → BEST for coding, development, debugging, code review, architecture
@@ -398,8 +468,7 @@ export class GeminiLiveService {
           mainLog(LOG_TAG, 'Using cached system instruction');
         } else {
           mainLog(LOG_TAG, 'Building system instruction...');
-          systemInstruction =
-            (await this.withTimeout(this.buildSystemInstruction(), 3000)) || BASE_SYSTEM_INSTRUCTION;
+          systemInstruction = (await this.withTimeout(this.buildSystemInstruction(), 3000)) || BASE_SYSTEM_INSTRUCTION;
           this.cachedInstruction = systemInstruction;
           this.cachedInstructionTime = now;
         }
@@ -539,7 +608,11 @@ export class GeminiLiveService {
 
   private static disconnectSession(): void {
     if (this.session) {
-      try { this.session.close(); } catch { /* */ }
+      try {
+        this.session.close();
+      } catch {
+        /* */
+      }
       this.session = null;
       this.sessionConfirmed = false;
       mainLog(LOG_TAG, 'Session disconnected');
@@ -550,10 +623,7 @@ export class GeminiLiveService {
 
   /** Race a promise against a timeout — resolves to null on timeout */
   private static withTimeout<T>(promise: Promise<T>, ms: number): Promise<T | null> {
-    return Promise.race([
-      promise,
-      new Promise<null>((resolve) => setTimeout(() => resolve(null), ms)),
-    ]);
+    return Promise.race([promise, new Promise<null>((resolve) => setTimeout(() => resolve(null), ms))]);
   }
 
   private static async buildSystemInstruction(): Promise<string> {
@@ -687,7 +757,7 @@ export class GeminiLiveService {
   // ── Execute tool calls and send responses ──
 
   private static async handleToolCalls(
-    calls: Array<{ id?: string; name?: string; args?: Record<string, unknown> }>,
+    calls: Array<{ id?: string; name?: string; args?: Record<string, unknown> }>
   ): Promise<void> {
     const responses: FunctionResponseItem[] = [];
 
@@ -832,11 +902,21 @@ export class GeminiLiveService {
                 task.stop();
                 stopped++;
               }
-            } catch { /* skip individual failures */ }
+            } catch {
+              /* skip individual failures */
+            }
           }
-          return { success: true, stopped, total: tasks.length, message: `Stopped ${stopped} of ${tasks.length} tasks.` };
+          return {
+            success: true,
+            stopped,
+            total: tasks.length,
+            message: `Stopped ${stopped} of ${tasks.length} tasks.`,
+          };
         } catch (err) {
-          return { success: false, message: `Failed to stop tasks: ${err instanceof Error ? err.message : String(err)}` };
+          return {
+            success: false,
+            message: `Failed to stop tasks: ${err instanceof Error ? err.message : String(err)}`,
+          };
         }
       }
 
@@ -847,12 +927,16 @@ export class GeminiLiveService {
         const repo = new SqliteConversationRepository();
         const msgs = await repo.getMessages(convId, 1, msgLimit, 'DESC');
         return msgs.data.map((m) => {
-          const pos = m.position === 'right' ? 'user' : m.position === 'left' ? 'assistant' : m.position ?? 'unknown';
+          const pos = m.position === 'right' ? 'user' : m.position === 'left' ? 'assistant' : (m.position ?? 'unknown');
           let text = '[non-text]';
           if (m.type === 'text' && m.content && typeof m.content === 'object' && 'text' in m.content) {
             text = String((m.content as { text: string }).text).slice(0, 500);
           }
-          return { role: pos, content: text, timestamp: m.createdAt ? new Date(m.createdAt).toLocaleString() : 'unknown' };
+          return {
+            role: pos,
+            content: text,
+            timestamp: m.createdAt ? new Date(m.createdAt).toLocaleString() : 'unknown',
+          };
         });
       }
 
@@ -910,7 +994,12 @@ export class GeminiLiveService {
           const agents = acpDetector.getDetectedAgents();
           // Always include Gemini as built-in
           const result = [
-            { backend: 'gemini', name: 'Gemini', available: true, description: 'Built-in Google Gemini — research, analysis, general tasks' },
+            {
+              backend: 'gemini',
+              name: 'Gemini',
+              available: true,
+              description: 'Built-in Google Gemini — research, analysis, general tasks',
+            },
           ];
           for (const a of agents) {
             if (a.backend === 'gemini') continue; // already added
@@ -918,9 +1007,7 @@ export class GeminiLiveService {
               backend: a.backend,
               name: a.name || a.backend,
               available: true,
-              description: a.isPreset
-                ? `Preset assistant: ${a.backend}`
-                : `${a.name || a.backend} CLI agent`,
+              description: a.isPreset ? `Preset assistant: ${a.backend}` : `${a.name || a.backend} CLI agent`,
             });
           }
           return {
@@ -929,7 +1016,11 @@ export class GeminiLiveService {
             message: `${result.length} agent(s) available: ${result.map((a) => a.backend).join(', ')}`,
           };
         } catch (err) {
-          return { agents: [{ backend: 'gemini', name: 'Gemini', available: true }], count: 1, message: 'Only Gemini is available (could not detect other agents).' };
+          return {
+            agents: [{ backend: 'gemini', name: 'Gemini', available: true }],
+            count: 1,
+            message: 'Only Gemini is available (could not detect other agents).',
+          };
         }
       }
 
@@ -942,7 +1033,10 @@ export class GeminiLiveService {
           if (typeof task.stop === 'function') task.stop();
           return { success: true, message: `Task ${taskId} stopped.` };
         } catch (err) {
-          return { success: false, message: `Failed to stop task: ${err instanceof Error ? err.message : String(err)}` };
+          return {
+            success: false,
+            message: `Failed to stop task: ${err instanceof Error ? err.message : String(err)}`,
+          };
         }
       }
 
@@ -980,7 +1074,8 @@ export class GeminiLiveService {
         const jobName = args.name as string;
         const jobPrompt = args.prompt as string;
         const intervalMinutes = args.intervalMinutes as number;
-        if (!jobName || !jobPrompt || !intervalMinutes) throw new Error('name, prompt, and intervalMinutes are required');
+        if (!jobName || !jobPrompt || !intervalMinutes)
+          throw new Error('name, prompt, and intervalMinutes are required');
         try {
           const intervalMs = intervalMinutes * 60 * 1000;
           const convId = (args.conversationId as string) || '';
@@ -998,9 +1093,16 @@ export class GeminiLiveService {
             createdBy: 'agent',
             executionMode: convId ? 'existing' : 'new_conversation',
           });
-          return { success: true, jobId: job.id, message: `Created cron job "${jobName}" running every ${intervalMinutes} minutes.` };
+          return {
+            success: true,
+            jobId: job.id,
+            message: `Created cron job "${jobName}" running every ${intervalMinutes} minutes.`,
+          };
         } catch (err) {
-          return { success: false, message: `Failed to create cron job: ${err instanceof Error ? err.message : String(err)}` };
+          return {
+            success: false,
+            message: `Failed to create cron job: ${err instanceof Error ? err.message : String(err)}`,
+          };
         }
       }
 
@@ -1011,7 +1113,10 @@ export class GeminiLiveService {
           await cronService.removeJob(deleteJobId);
           return { success: true, message: `Cron job ${deleteJobId} deleted.` };
         } catch (err) {
-          return { success: false, message: `Failed to delete cron job: ${err instanceof Error ? err.message : String(err)}` };
+          return {
+            success: false,
+            message: `Failed to delete cron job: ${err instanceof Error ? err.message : String(err)}`,
+          };
         }
       }
 
@@ -1023,6 +1128,61 @@ export class GeminiLiveService {
           action: { name: 'navigate_to_route', params: { route } },
         });
         return { success: true, message: `Opening settings${section ? ` (${section})` : ''}` };
+      }
+
+      case 'create_note': {
+        const relPath = String(args.path ?? '').trim();
+        const body = String(args.body ?? '');
+        if (!relPath) return { success: false, message: 'path is required' };
+        const normalised = relPath.endsWith('.md') ? relPath : `${relPath}.md`;
+        const frontmatter: BrainFrontmatter = {};
+        const title = args.title;
+        if (typeof title === 'string' && title.trim()) frontmatter.title = title.trim();
+        const tags = args.tags;
+        if (Array.isArray(tags) && tags.every((t) => typeof t === 'string')) {
+          frontmatter.tags = tags as string[];
+        }
+        frontmatter.created = new Date().toISOString();
+        try {
+          const ref = await brainService.writeNote(normalised, frontmatter, body);
+          return { success: true, message: `Saved note ${ref.path}`, path: ref.path };
+        } catch (err) {
+          return { success: false, message: (err as Error)?.message ?? 'Failed to write note' };
+        }
+      }
+
+      case 'append_to_note': {
+        const relPath = String(args.path ?? '').trim();
+        const markdown = String(args.markdown ?? '');
+        if (!relPath) return { success: false, message: 'path is required' };
+        const normalised = relPath.endsWith('.md') ? relPath : `${relPath}.md`;
+        try {
+          const ref = await brainService.appendToNote(normalised, markdown);
+          return { success: true, message: `Appended to ${ref.path}`, path: ref.path };
+        } catch (err) {
+          return { success: false, message: (err as Error)?.message ?? 'Failed to append note' };
+        }
+      }
+
+      case 'search_brain': {
+        const query = String(args.query ?? '').trim();
+        const limit = typeof args.limit === 'number' ? Math.max(1, Math.min(25, args.limit)) : 10;
+        if (!query) return { success: false, message: 'query is required' };
+        try {
+          const hits = await brainService.search(query, limit);
+          return {
+            success: true,
+            count: hits.length,
+            results: hits.map((h) => ({
+              path: h.path,
+              title: h.title,
+              snippet: h.snippet,
+              score: h.score,
+            })),
+          };
+        } catch (err) {
+          return { success: false, message: (err as Error)?.message ?? 'Failed to search brain' };
+        }
       }
 
       default:
@@ -1037,9 +1197,7 @@ export class GeminiLiveService {
     try {
       const providers: IProvider[] | undefined = await ProcessConfig.get('model.config');
       if (providers && Array.isArray(providers)) {
-        const geminiProvider = providers.find(
-          (p) => p.platform === 'gemini' && p.apiKey && p.model?.length,
-        );
+        const geminiProvider = providers.find((p) => p.platform === 'gemini' && p.apiKey && p.model?.length);
         if (geminiProvider?.model) {
           const liveModel = geminiProvider.model.find((m) => m.toLowerCase().includes('live'));
           if (liveModel) {
@@ -1048,7 +1206,9 @@ export class GeminiLiveService {
           }
         }
       }
-    } catch { /* */ }
+    } catch {
+      /* */
+    }
 
     // Fallback
     const fallback = 'gemini-2.0-flash-live-001';
@@ -1066,9 +1226,7 @@ export class GeminiLiveService {
     try {
       const providers: IProvider[] | undefined = await ProcessConfig.get('model.config');
       if (providers && Array.isArray(providers)) {
-        const geminiProvider = providers.find(
-          (p) => p.platform === 'gemini' && p.apiKey && p.apiKey.trim().length > 0,
-        );
+        const geminiProvider = providers.find((p) => p.platform === 'gemini' && p.apiKey && p.apiKey.trim().length > 0);
         if (geminiProvider?.apiKey) {
           mainLog(LOG_TAG, 'Using API key from model config');
           return geminiProvider.apiKey.trim();
