@@ -122,6 +122,21 @@ class AcpAgentManager extends BaseAgentManager<AcpAgentManagerData, AcpPermissio
     this.currentMode = data.sessionMode || 'default';
     this.persistedModelId = data.currentModelId || null;
     this.status = 'pending';
+
+    // Team agents require bypassPermissions so the CLI allows team MCP tool calls.
+    // Modes like "dontAsk" block tool calls at the CLI level before Gods Eye can auto-approve them.
+    const isTeamAgent = Boolean((data as unknown as Record<string, unknown>).teamMcpStdioConfig);
+    if (isTeamAgent && !this.isYoloMode(this.currentMode)) {
+      const yoloModes: Partial<Record<string, string>> = {
+        claude: 'bypassPermissions',
+        codebuddy: 'bypassPermissions',
+        qwen: 'yolo',
+        iflow: 'yolo',
+        codex: 'yolo',
+      };
+      this.currentMode = yoloModes[data.backend] || 'bypassPermissions';
+    }
+
     // Sync yoloMode from sessionMode so addConfirmation auto-approves when Full Auto is selected
     this.yoloMode = this.yoloMode || this.isYoloMode(this.currentMode);
   }
