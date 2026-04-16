@@ -6,6 +6,20 @@ import { getDatabase } from '@process/services/database';
 import { mainWarn } from '@process/utils/mainLogger';
 import type { AgentStatus } from './agentTypes';
 
+// Main-process hook for turn-completion events.
+// buildEmitter.on() only works in renderer, so main-process subscribers use this hook.
+type TurnCompletedListener = (event: IConversationTurnCompletedEvent) => void | Promise<void>;
+
+const _turnCompletedListeners = new Set<TurnCompletedListener>();
+
+/** Register a main-process listener for turn-completed events. Returns an unsubscribe function. */
+export function onTurnCompleted(listener: TurnCompletedListener): () => void {
+  _turnCompletedListeners.add(listener);
+  return () => {
+    _turnCompletedListeners.delete(listener);
+  };
+}
+
 export type TurnCompletionContext = {
   status?: AgentStatus;
   state?: IConversationTurnCompletedEvent['state'];
@@ -95,5 +109,19 @@ export class ConversationTurnCompletionService {
     };
 
     ipcBridge.conversation?.turnCompleted?.emit?.(event);
+
+    // Notify main-process listeners (buildEmitter.on() only works in renderer).
+    // Fire-and-forget — listeners handle their own errors.
+    for (const listener of _turnCompletedListeners) {
+      try {
+        const result = listener(event);
+        // Handle async listeners — swallow rejections so one listener can't crash others
+        if (result && typeof (result as Promise<void>).catch === 'function') {
+          (result as Promise<void>).catch(() => {});
+        }
+      } catch {
+        // Best-effort — don't let a listener crash the emitter
+      }
+    }
   }
 }

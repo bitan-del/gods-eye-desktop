@@ -46,6 +46,7 @@ import { initJarvisLiveBridge } from './jarvisLiveBridge';
 import { initTeamBridge } from './teamBridge';
 import { initCliInstallerBridge } from './cliInstallerBridge';
 import { initBrainBridge } from './brainBridge';
+import { initBrainAutoSave } from '@process/services/brain/BrainAutoSave';
 import type { TeamSessionService } from '@process/team/TeamSessionService';
 
 export interface BridgeDependencies {
@@ -98,6 +99,7 @@ export function initAllBridges(deps: BridgeDependencies): void {
   initTeamBridge(deps.teamSessionService);
   initCliInstallerBridge();
   initBrainBridge();
+  initBrainAutoSave();
 }
 
 /**
