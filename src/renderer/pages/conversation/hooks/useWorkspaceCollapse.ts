@@ -85,7 +85,10 @@ export function useWorkspaceCollapse({
     };
   }, [workspaceEnabled]);
 
-  // Auto expand/collapse workspace panel based on files state (user preference takes priority)
+  // Auto expand/collapse workspace panel based on files state (user preference takes priority).
+  // Uses rightCollapsedRef to read the latest collapse state inside the callback
+  // without capturing a stale closure value and without re-registering the
+  // listener on every state change.
   useEffect(() => {
     if (typeof window === 'undefined' || !workspaceEnabled) {
       return undefined;
@@ -118,17 +121,19 @@ export function useWorkspaceCollapse({
         }
       }
 
+      const collapsed = rightCollapsedRef.current;
+
       // If user has preference, use it; otherwise decide by file state
       if (userPreference) {
         const shouldCollapse = userPreference === 'collapsed';
-        if (shouldCollapse !== rightSiderCollapsed) {
+        if (shouldCollapse !== collapsed) {
           setRightSiderCollapsed(shouldCollapse);
         }
       } else {
         // No user preference: expand if has files, collapse if not
-        if (detail.hasFiles && rightSiderCollapsed) {
+        if (detail.hasFiles && collapsed) {
           setRightSiderCollapsed(false);
-        } else if (!detail.hasFiles && !rightSiderCollapsed) {
+        } else if (!detail.hasFiles && !collapsed) {
           setRightSiderCollapsed(true);
         }
       }
@@ -137,7 +142,7 @@ export function useWorkspaceCollapse({
     return () => {
       window.removeEventListener(WORKSPACE_HAS_FILES_EVENT, handleHasFiles);
     };
-  }, [isMobile, workspaceEnabled, rightSiderCollapsed]);
+  }, [isMobile, workspaceEnabled]);
 
   // Broadcast workspace state event
   useEffect(() => {
@@ -157,12 +162,28 @@ export function useWorkspaceCollapse({
     }
   }, [rightSiderCollapsed]);
 
-  // Force collapse when workspace is disabled
+  // Force collapse when workspace is disabled; auto-expand for new conversations.
+  // The global default is collapsed (true), but a new conversation with a workspace
+  // should start expanded so the user sees the file panel without needing to guess
+  // that a hidden toggle exists.  Only override when there is no explicit user
+  // preference for this conversation (i.e. the user never manually toggled it).
   useEffect(() => {
     if (!workspaceEnabled) {
       setRightSiderCollapsed(true);
+      return;
     }
-  }, [workspaceEnabled]);
+    // Auto-expand for new conversations (no per-conversation preference yet)
+    if (!isMobile && conversationId) {
+      try {
+        const stored = localStorage.getItem(`workspace-preference-${conversationId}`);
+        if (!stored) {
+          setRightSiderCollapsed(false);
+        }
+      } catch {
+        // ignore errors
+      }
+    }
+  }, [workspaceEnabled, conversationId, isMobile]);
 
   // Mobile: force collapse when entering mobile mode
   useEffect(() => {
