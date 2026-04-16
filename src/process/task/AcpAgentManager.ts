@@ -915,7 +915,23 @@ ${collectedResponses.join('\n')}`;
 
     this.bootstrapping = true;
     this.bootstrap = (async () => {
+      // Belt-and-suspenders: ensure team agents always get yolo mode even if the
+      // constructor override was bypassed (e.g. agent rebuilt without skipCache).
+      const hasTeamMcp = Boolean((data as unknown as Record<string, unknown>).teamMcpStdioConfig);
+      if (hasTeamMcp && !this.isYoloMode(this.currentMode)) {
+        const yoloModes: Partial<Record<string, string>> = {
+          claude: 'bypassPermissions',
+          codebuddy: 'bypassPermissions',
+          qwen: 'yolo',
+          iflow: 'yolo',
+          codex: 'yolo',
+        };
+        this.currentMode = yoloModes[data.backend] || 'bypassPermissions';
+        this.yoloMode = true;
+      }
+
       const { cliPath, customArgs, customEnv, yoloMode } = await this.resolveAgentCliConfig(data);
+      const effectiveYoloMode = yoloMode || hasTeamMcp;
 
       this.agent = new AcpAgent({
         id: data.conversation_id,
@@ -931,7 +947,7 @@ ${collectedResponses.join('\n')}`;
           customWorkspace: data.customWorkspace,
           customArgs: customArgs,
           customEnv: customEnv,
-          yoloMode: yoloMode,
+          yoloMode: effectiveYoloMode,
           agentName: data.agentName,
           acpSessionId: data.acpSessionId,
           acpSessionUpdatedAt: data.acpSessionUpdatedAt,
