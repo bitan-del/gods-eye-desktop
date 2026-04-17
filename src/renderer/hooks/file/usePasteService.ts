@@ -1,5 +1,4 @@
 import type { FileMetadata } from '@/renderer/services/FileService';
-import { MAX_UPLOAD_SIZE_MB } from '@/renderer/services/FileService';
 import type { UploadSource } from '@/renderer/hooks/file/useUploadState';
 import { PasteService } from '@/renderer/services/PasteService';
 import { useCallback, useEffect, useRef } from 'react';
@@ -54,12 +53,8 @@ export const usePasteService = ({
           event.stopPropagation();
         }
         return handled;
-      } catch (err) {
-        if (err instanceof Error && err.message === 'FILE_TOO_LARGE') {
-          Message.error(t('common.fileAttach.tooLarge', { max: MAX_UPLOAD_SIZE_MB }));
-        } else {
-          Message.error(t('common.fileAttach.failed'));
-        }
+      } catch (_err) {
+        Message.error(t('common.fileAttach.failed'));
         return false;
       }
     },

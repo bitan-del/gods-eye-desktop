@@ -71,7 +71,6 @@
   "tray.untitled": "Без назви",
   "fileAttach.hostFiles": "Файли хост-машини",
   "fileAttach.myDevice": "Мій пристрій",
-  "fileAttach.tooLarge": "Файл перевищує ліміт {{max}} МБ",
   "fileAttach.failed": "Помилка завантаження",
   "fileAttach.uploading": "Завантаження...",
   "fileAttach.uploadSuccess": "Завантажено успішно",

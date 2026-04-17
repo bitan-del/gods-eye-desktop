@@ -86,7 +86,6 @@ vi.mock('@/renderer/pages/conversation/Preview', () => ({
 
 vi.mock('@/renderer/services/FileService', () => ({
   allSupportedExts: [],
-  MAX_UPLOAD_SIZE_MB: 50,
   FileService: { uploadFile: vi.fn(), isSupportedFile: vi.fn(() => true) },
   isSupportedFile: vi.fn(() => true),
 }));
