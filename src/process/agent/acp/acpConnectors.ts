@@ -31,6 +31,7 @@ import {
   normalizeNpxArgsForBundledBun,
   resolveNpxPath,
 } from '@process/utils/shellEnv';
+import { readClaudeProviderEnvFromCcSwitch } from '@process/services/ccSwitchModelSource';
 import { mainWarn } from '@process/utils/mainLogger';
 
 const execFile = promisify(execFileCb);
@@ -399,6 +400,7 @@ export function spawnNpxBackend(
 /** Prepare clean env + resolve npx for Claude ACP bridge. */
 async function prepareClaude(): Promise<NpxPrepareResult> {
   const cleanEnv = await prepareCleanEnv();
+  Object.assign(cleanEnv, readClaudeProviderEnvFromCcSwitch());
 
   // When Gods Eye is launched from Claude Desktop (or Claude Code agent mode),
   // the child process inherits env vars that hijack Claude CLI's auth flow:
