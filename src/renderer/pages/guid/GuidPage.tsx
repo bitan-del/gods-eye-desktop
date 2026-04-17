@@ -72,10 +72,13 @@ const GuidPage: React.FC = () => {
   // --- Hooks ---
   const modelSelection = useGuidModelSelection();
 
+  const resetAssistantRequested = (location.state as { resetAssistant?: boolean } | null)?.resetAssistant === true;
   const agentSelection = useGuidAgentSelection({
     modelList: modelSelection.modelList,
     isGoogleAuth: modelSelection.isGoogleAuth,
     localeKey,
+    resetAssistant: resetAssistantRequested,
+    locationKey: location.key,
   });
 
   const guidInput = useGuidInput({
@@ -315,6 +318,14 @@ const GuidPage: React.FC = () => {
     guidInput.setInput('');
     setIsDescriptionExpanded(false);
   }, [location.key]);
+
+  // When sidebar "新对话" navigates with resetAssistant, clear the location state
+  // so subsequent re-renders don't keep seeing the flag. The actual agent reset
+  // is handled inside useGuidAgentSelection (via the resetAssistant option).
+  useEffect(() => {
+    if (!resetAssistantRequested) return;
+    window.history.replaceState(null, '', `${location.pathname}${location.search}${location.hash}`);
+  }, [resetAssistantRequested, location.pathname, location.search, location.hash]);
 
   useEffect(() => {
     const node = descriptionTextRef.current;
