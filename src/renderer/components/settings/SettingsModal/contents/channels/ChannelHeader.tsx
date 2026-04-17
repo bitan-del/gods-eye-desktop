@@ -9,6 +9,7 @@ import ChannelDiscordLogo from '@/renderer/assets/channel-logos/discord.svg';
 import ChannelLarkLogo from '@/renderer/assets/channel-logos/lark.svg';
 import ChannelSlackLogo from '@/renderer/assets/channel-logos/slack.svg';
 import ChannelTelegramLogo from '@/renderer/assets/channel-logos/telegram.svg';
+import ChannelWecomLogo from '@/renderer/assets/channel-logos/wecom.svg';
 import ChannelWhatsAppLogo from '@/renderer/assets/channel-logos/whatsapp.svg';
 import ChannelWeixinLogo from '@/renderer/assets/channel-logos/weixin.svg';
 import { resolveExtensionAssetUrl } from '@/renderer/utils/platform';
@@ -31,6 +32,7 @@ const ChannelHeader: React.FC<ChannelHeaderProps> = ({ channel, onToggleEnabled 
     slack: { src: ChannelSlackLogo, alt: 'Slack' },
     discord: { src: ChannelDiscordLogo, alt: 'Discord' },
     weixin: { src: ChannelWeixinLogo, alt: 'WeChat' },
+    wecom: { src: ChannelWecomLogo, alt: 'WeCom' },
     whatsapp: { src: ChannelWhatsAppLogo, alt: 'WhatsApp' },
   };
   const builtinLogo = channelLogoMap[channel.id];

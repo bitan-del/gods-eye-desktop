@@ -14,6 +14,7 @@ import ChannelDiscordLogo from '@/renderer/assets/channel-logos/discord.svg';
 import ChannelLarkLogo from '@/renderer/assets/channel-logos/lark.svg';
 import ChannelSlackLogo from '@/renderer/assets/channel-logos/slack.svg';
 import ChannelTelegramLogo from '@/renderer/assets/channel-logos/telegram.svg';
+import ChannelWecomLogo from '@/renderer/assets/channel-logos/wecom.svg';
 import ChannelWhatsAppLogo from '@/renderer/assets/channel-logos/whatsapp.svg';
 import ChannelWeixinLogo from '@/renderer/assets/channel-logos/weixin.svg';
 import { isElectronDesktop } from '@/renderer/utils/platform';
@@ -50,6 +51,7 @@ const CHANNEL_LOGOS = [
   { src: ChannelLarkLogo, alt: 'Lark' },
   { src: ChannelDingTalkLogo, alt: 'DingTalk' },
   { src: ChannelWeixinLogo, alt: 'WeChat' },
+  { src: ChannelWecomLogo, alt: 'WeCom' },
   { src: ChannelWhatsAppLogo, alt: 'WhatsApp' },
   { src: ChannelSlackLogo, alt: 'Slack' },
   { src: ChannelDiscordLogo, alt: 'Discord' },

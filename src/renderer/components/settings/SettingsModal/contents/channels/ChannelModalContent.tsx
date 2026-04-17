@@ -22,6 +22,7 @@ import type { ChannelConfig } from './types';
 import DingTalkConfigForm from './DingTalkConfigForm';
 import LarkConfigForm from './LarkConfigForm';
 import TelegramConfigForm from './TelegramConfigForm';
+import WecomConfigForm from './WecomConfigForm';
 import WeixinConfigForm from './WeixinConfigForm';
 import WhatsAppConfigForm from './WhatsAppConfigForm';
 
@@ -29,7 +30,8 @@ type ChannelModelConfigKey =
   | 'assistant.telegram.defaultModel'
   | 'assistant.lark.defaultModel'
   | 'assistant.dingtalk.defaultModel'
-  | 'assistant.weixin.defaultModel';
+  | 'assistant.weixin.defaultModel'
+  | 'assistant.wecom.defaultModel';
 
 type ExtensionFieldType = 'text' | 'password' | 'select' | 'number' | 'boolean';
 
@@ -44,7 +46,16 @@ type ExtensionFieldSchema = {
 
 type ExtensionFieldValues = Record<string, Record<string, string | number | boolean>>;
 
-const BUILTIN_CHANNEL_TYPES = new Set(['telegram', 'lark', 'dingtalk', 'weixin', 'whatsapp', 'slack', 'discord']);
+const BUILTIN_CHANNEL_TYPES = new Set([
+  'telegram',
+  'lark',
+  'dingtalk',
+  'weixin',
+  'wecom',
+  'whatsapp',
+  'slack',
+  'discord',
+]);
 
 /**
  * Internal hook: wraps useGeminiModelSelection with ConfigStorage persistence
@@ -126,7 +137,8 @@ const useChannelModelSelection = (configKey: ChannelModelConfigKey): GeminiModel
           | 'telegram'
           | 'lark'
           | 'dingtalk'
-          | 'weixin';
+          | 'weixin'
+          | 'wecom';
         const agentKey = `assistant.${platform}.agent` as const;
         const currentAgent = await ConfigStorage.get(agentKey);
         await channel.syncChannelSettings
@@ -173,11 +185,13 @@ const ChannelModalContent: React.FC = () => {
   const [larkPluginStatus, setLarkPluginStatus] = useState<IChannelPluginStatus | null>(null);
   const [dingtalkPluginStatus, setDingtalkPluginStatus] = useState<IChannelPluginStatus | null>(null);
   const [weixinPluginStatus, setWeixinPluginStatus] = useState<IChannelPluginStatus | null>(null);
+  const [wecomPluginStatus, setWecomPluginStatus] = useState<IChannelPluginStatus | null>(null);
   const [whatsappPluginStatus, setWhatsappPluginStatus] = useState<IChannelPluginStatus | null>(null);
   const [enableLoading, setEnableLoading] = useState(false);
   const [larkEnableLoading, setLarkEnableLoading] = useState(false);
   const [dingtalkEnableLoading, setDingtalkEnableLoading] = useState(false);
   const [weixinEnableLoading, setWeixinEnableLoading] = useState(false);
+  const [wecomEnableLoading, setWecomEnableLoading] = useState(false);
   const [whatsappEnableLoading, setWhatsappEnableLoading] = useState(false);
   const [extensionStatuses, setExtensionStatuses] = useState<Record<string, IChannelPluginStatus>>({});
   const [extensionLoadingMap, setExtensionLoadingMap] = useState<Record<string, boolean>>({});
@@ -195,6 +209,7 @@ const ChannelModalContent: React.FC = () => {
     lark: true,
     dingtalk: true,
     weixin: true,
+    wecom: true,
     whatsapp: true,
   });
 
@@ -203,6 +218,7 @@ const ChannelModalContent: React.FC = () => {
   const larkModelSelection = useChannelModelSelection('assistant.lark.defaultModel');
   const dingtalkModelSelection = useChannelModelSelection('assistant.dingtalk.defaultModel');
   const weixinModelSelection = useChannelModelSelection('assistant.weixin.defaultModel');
+  const wecomModelSelection = useChannelModelSelection('assistant.wecom.defaultModel');
   const whatsappModelSelection = useChannelModelSelection('assistant.whatsapp.defaultModel');
 
   // Load plugin status
@@ -214,6 +230,7 @@ const ChannelModalContent: React.FC = () => {
         const larkPlugin = result.data.find((p) => p.type === 'lark');
         const dingtalkPlugin = result.data.find((p) => p.type === 'dingtalk');
         const weixinPlugin = result.data.find((p) => p.type === 'weixin');
+        const wecomPlugin = result.data.find((p) => p.type === 'wecom');
         const whatsappPlugin = result.data.find((p) => p.type === 'whatsapp');
         const extensionPlugins = result.data.filter((p) => !BUILTIN_CHANNEL_TYPES.has(p.type));
 
@@ -221,6 +238,7 @@ const ChannelModalContent: React.FC = () => {
         setLarkPluginStatus(larkPlugin || null);
         setDingtalkPluginStatus(dingtalkPlugin || null);
         setWeixinPluginStatus(weixinPlugin || null);
+        setWecomPluginStatus(wecomPlugin || null);
         setWhatsappPluginStatus(whatsappPlugin || null);
         setExtensionStatuses(() => {
           const next: Record<string, IChannelPluginStatus> = {};
@@ -284,6 +302,8 @@ const ChannelModalContent: React.FC = () => {
         setDingtalkPluginStatus(status);
       } else if (status.type === 'weixin') {
         setWeixinPluginStatus(status);
+      } else if (status.type === 'wecom') {
+        setWecomPluginStatus(status);
       } else if (!BUILTIN_CHANNEL_TYPES.has(status.type)) {
         setExtensionStatuses((prev) => ({
           ...prev,
@@ -467,6 +487,43 @@ const ChannelModalContent: React.FC = () => {
       Message.error(error.message);
     } finally {
       setWeixinEnableLoading(false);
+    }
+  };
+
+  const handleToggleWecomPlugin = async (enabled: boolean) => {
+    setWecomEnableLoading(true);
+    try {
+      if (enabled) {
+        if (!wecomPluginStatus?.hasToken) {
+          Message.warning(t('settings.wecom.configureFirst', 'Please save Token and EncodingAESKey first'));
+          setWecomEnableLoading(false);
+          return;
+        }
+        const result = await channel.enablePlugin.invoke({
+          pluginId: 'wecom_default',
+          config: {},
+        });
+        if (result.success) {
+          Message.success(t('settings.wecom.pluginEnabled', 'WeCom channel enabled'));
+          await loadPluginStatus();
+        } else {
+          Message.error(result.msg || t('settings.wecom.enableFailed', 'Failed to enable WeCom channel'));
+        }
+      } else {
+        const result = await channel.disablePlugin.invoke({
+          pluginId: 'wecom_default',
+        });
+        if (result.success) {
+          Message.success(t('settings.wecom.pluginDisabled', 'WeCom channel disabled'));
+          await loadPluginStatus();
+        } else {
+          Message.error(result.msg || t('settings.wecom.disableFailed', 'Failed to disable WeCom channel'));
+        }
+      }
+    } catch (error: unknown) {
+      Message.error(error instanceof Error ? error.message : String(error));
+    } finally {
+      setWecomEnableLoading(false);
     }
   };
 
@@ -782,6 +839,25 @@ const ChannelModalContent: React.FC = () => {
       ),
     };
 
+    const wecomChannel: ChannelConfig = {
+      id: 'wecom',
+      title: t('settings.channels.wecomTitle', 'WeCom'),
+      description: t('settings.channels.wecomDesc', 'Chat with Gods Eye assistant via WeCom (Enterprise WeChat)'),
+      status: 'active',
+      enabled: wecomPluginStatus?.enabled || false,
+      disabled: wecomEnableLoading,
+      isConnected: wecomPluginStatus?.connected || false,
+      defaultModel: wecomModelSelection.currentModel?.useModel,
+      content: (
+        <WecomConfigForm
+          pluginStatus={wecomPluginStatus}
+          modelSelection={wecomModelSelection}
+          onStatusChange={setWecomPluginStatus}
+          webuiStatus={webuiStatus}
+        />
+      ),
+    };
+
     const whatsappChannel: ChannelConfig = {
       id: 'whatsapp',
       title: t('settings.channels.whatsappTitle', 'WhatsApp'),
@@ -853,7 +929,16 @@ const ChannelModalContent: React.FC = () => {
       },
     ].filter((channel) => !extensionTypeSet.has(String(channel.id).toLowerCase()));
 
-    return [telegramChannel, larkChannel, dingtalkChannel, weixinChannel, whatsappChannel, ...extensionChannels, ...comingSoonChannels];
+    return [
+      telegramChannel,
+      larkChannel,
+      dingtalkChannel,
+      weixinChannel,
+      wecomChannel,
+      whatsappChannel,
+      ...extensionChannels,
+      ...comingSoonChannels,
+    ];
   }, [
     pluginStatus,
     larkPluginStatus,
@@ -869,6 +954,10 @@ const ChannelModalContent: React.FC = () => {
     weixinPluginStatus,
     weixinEnableLoading,
     weixinModelSelection,
+    wecomPluginStatus,
+    wecomEnableLoading,
+    wecomModelSelection,
+    webuiStatus,
     whatsappPluginStatus,
     whatsappEnableLoading,
     whatsappModelSelection,
@@ -882,6 +971,7 @@ const ChannelModalContent: React.FC = () => {
     if (channelId === 'lark') return handleToggleLarkPlugin;
     if (channelId === 'dingtalk') return handleToggleDingtalkPlugin;
     if (channelId === 'weixin') return handleToggleWeixinPlugin;
+    if (channelId === 'wecom') return handleToggleWecomPlugin;
     if (channelId === 'whatsapp') return handleToggleWhatsappPlugin;
     if (extensionStatuses[channelId]) {
       return (enabled: boolean) => {
