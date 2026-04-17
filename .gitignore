@@ -220,3 +220,5 @@ resources/*.png
 out/
 dist/
 package/
+
+.snow/

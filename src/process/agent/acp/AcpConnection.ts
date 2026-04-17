@@ -250,6 +250,7 @@ export class AcpConnection {
       case 'cursor':
       case 'kiro':
       case 'hermes':
+      case 'snow':
         if (!cliPath) {
           throw new Error(`CLI path is required for ${backend} backend`);
         }

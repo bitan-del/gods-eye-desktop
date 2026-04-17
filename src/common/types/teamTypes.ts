@@ -7,7 +7,7 @@
  * This is the single source of truth — frontend UI, backend spawn validation,
  * and the available-agent-types list passed to the leader prompt all derive from here.
  */
-export const TEAM_SUPPORTED_BACKENDS = new Set(['claude', 'codex', 'gemini']);
+export const TEAM_SUPPORTED_BACKENDS = new Set(['claude', 'codex', 'gemini', 'snow']);
 
 /** Role of a teammate within a team */
 export type TeammateRole = 'lead' | 'teammate';
