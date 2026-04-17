@@ -55,7 +55,16 @@ function makeAgent(overrides: Partial<TeamAgent> = {}): TeamAgent {
 function makeMailbox(): Mailbox {
   return {
     write: vi.fn().mockResolvedValue({ id: 'msg-1', type: 'message', read: false, createdAt: 1000 }),
-    readUnread: vi.fn().mockResolvedValue([]),
+    readUnread: vi.fn().mockResolvedValue([
+      {
+        id: 'msg-1',
+        teamId: 'team-1',
+        toAgentId: 'slot-1',
+        fromAgentId: 'system',
+        content: 'Wake trigger',
+        type: 'message',
+      },
+    ]),
     getHistory: vi.fn().mockResolvedValue([]),
   } as unknown as Mailbox;
 }
@@ -86,7 +95,6 @@ function makeTeammateManager(agents: TeamAgent[] = [], overrides: Record<string,
     teamId: 'team-1',
     agents,
     mailbox,
-    taskManager,
     workerTaskManager,
     ...overrides,
   });
