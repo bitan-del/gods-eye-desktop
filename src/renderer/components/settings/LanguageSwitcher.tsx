@@ -36,6 +36,7 @@ const LanguageSwitcher: React.FC = () => {
         <GodsEyeSelect.Option value='ko-KR'>한국어</GodsEyeSelect.Option>
         <GodsEyeSelect.Option value='tr-TR'>Türkçe</GodsEyeSelect.Option>
         <GodsEyeSelect.Option value='ru-RU'>Русский</GodsEyeSelect.Option>
+        <GodsEyeSelect.Option value='uk-UA'>Українська</GodsEyeSelect.Option>
         <GodsEyeSelect.Option value='en-US'>English</GodsEyeSelect.Option>
       </GodsEyeSelect>
     </div>
