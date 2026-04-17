@@ -82,5 +82,7 @@
   "import": "Импорт",
   "processing": "Обработка...",
   "optional": "(необязательно)",
-  "clear": "Очистить"
+  "clear": "Очистить",
+  "agentMode": "Режим агента",
+  "historyBack": "Назад"
 }
