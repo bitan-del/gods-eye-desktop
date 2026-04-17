@@ -276,6 +276,7 @@ const TeamPageContent: React.FC<TeamPageContentProps> = ({ team, onAddAgent, onR
   const handleTabClick = useCallback(
     (slotId: string) => {
       switchTab(slotId);
+      if (fullscreenSlotId) setFullscreenSlotId(slotId);
       requestAnimationFrame(() => {
         const el = agentRefs.current[slotId];
         if (el) {
@@ -295,7 +296,7 @@ const TeamPageContent: React.FC<TeamPageContentProps> = ({ team, onAddAgent, onR
         }
       });
     },
-    [switchTab]
+    [switchTab, fullscreenSlotId]
   );
 
   const scrollToPrev = useCallback(() => {
