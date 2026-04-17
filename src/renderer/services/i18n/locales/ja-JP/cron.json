@@ -74,7 +74,7 @@
     "createSuccess": "タスクが正常に作成されました",
     "updateSuccess": "タスクが正常に更新されました",
     "scheduleHint": "スケジュールタスクはサーバーパフォーマンスのため、数分のランダムな遅延があります。",
-    "customCronWarning": "これはカスタムのCron式（{{expr}}）で、UIから編集できません。スケジュールを変更するには、プリセットの頻度に切り替えてください。",
+    "customCronWarning": "カスタム Cron 式は UI から編集できません。スケジュールを変更するには、プリセットの頻度に切り替えてください。",
     "weekday": {
       "monday": "月曜日",
       "tuesday": "火曜日",
@@ -117,6 +117,8 @@
       "workspaceHint": "オプション：ファイル操作のワークスペースフォルダを設定",
       "selectFolder": "フォルダを選択",
       "clearFolder": "クリア",
+      "recentWorkspaces": "最近のワークスペース",
+      "chooseDifferentFolder": "別のフォルダを選択",
       "model": "モデル"
     },
     "freq": {
@@ -125,7 +127,7 @@
       "daily": "毎日",
       "weekdays": "平日",
       "weekly": "毎週",
-      "custom": "カスタム Cron..."
+      "custom": "カスタム"
     },
     "scheduleDesc": {
       "manual": "手動",

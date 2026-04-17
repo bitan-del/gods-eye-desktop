@@ -62,7 +62,7 @@
     "createSuccess": "任務建立成功",
     "updateSuccess": "任務更新成功",
     "scheduleHint": "定時任務會有幾分鐘的隨機延遲以優化伺服器效能。",
-    "customCronWarning": "這是自訂的 Cron 表達式（{{expr}}），無法透過介面修改。如需變更頻率，請切換到其他預設頻率。",
+    "customCronWarning": "自訂的 Cron 表達式無法透過介面修改。如需變更頻率，請切換到預設頻率。",
     "weekday": {
       "monday": "星期一",
       "tuesday": "星期二",
@@ -105,6 +105,8 @@
       "workspaceHint": "選填：設定檔案操作的工作空間資料夾",
       "selectFolder": "選擇資料夾",
       "clearFolder": "清除",
+      "recentWorkspaces": "最近的工作空間",
+      "chooseDifferentFolder": "選擇其他資料夾",
       "model": "模型"
     },
     "freq": {
@@ -113,7 +115,7 @@
       "daily": "每天",
       "weekdays": "工作日",
       "weekly": "每週",
-      "custom": "自訂 Cron..."
+      "custom": "自訂"
     },
     "scheduleDesc": {
       "manual": "手動觸發",

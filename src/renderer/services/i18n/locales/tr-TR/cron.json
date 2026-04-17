@@ -74,7 +74,7 @@
     "createSuccess": "Görev başarıyla oluşturuldu",
     "updateSuccess": "Görev başarıyla güncellendi",
     "scheduleHint": "Zamanlanmış görevler sunucu performansı için birkaç dakikalık rastgele gecikme kullanır.",
-    "customCronWarning": "Bu, arayüz üzerinden düzenlenemeyen özel bir cron ifadesidir ({{expr}}). Programı değiştirmek için önceden ayarlanmış bir sıklığa geçin.",
+    "customCronWarning": "Özel cron ifadeleri arayüz üzerinden düzenlenemez. Programı değiştirmek için önceden ayarlanmış bir sıklığa geçin.",
     "weekday": {
       "monday": "Pazartesi",
       "tuesday": "Salı",
@@ -117,6 +117,8 @@
       "workspaceHint": "İsteğe bağlı: Dosya işlemleri için çalışma alanı klasörü ayarlayın",
       "selectFolder": "Klasör Seç",
       "clearFolder": "Temizle",
+      "recentWorkspaces": "Son çalışma alanları",
+      "chooseDifferentFolder": "Farklı bir klasör seç",
       "model": "Model"
     },
     "freq": {
@@ -125,7 +127,7 @@
       "daily": "Günlük",
       "weekdays": "Hafta içi",
       "weekly": "Haftalık",
-      "custom": "Özel Cron..."
+      "custom": "Özel"
     },
     "scheduleDesc": {
       "manual": "Manuel",

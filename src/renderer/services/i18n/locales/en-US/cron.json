@@ -61,7 +61,7 @@
     "createSuccess": "Task created successfully",
     "updateSuccess": "Task updated successfully",
     "scheduleHint": "Scheduled tasks use a randomized delay of several minutes for server performance.",
-    "customCronWarning": "This is a custom cron expression ({{expr}}) that cannot be edited through the UI. Switch to a preset frequency to change the schedule.",
+    "customCronWarning": "Custom cron expressions cannot be edited through the UI. Switch to a preset frequency to change the schedule.",
     "weekday": {
       "monday": "Monday",
       "tuesday": "Tuesday",
@@ -102,8 +102,10 @@
       "workspace": "Workspace",
       "workspacePlaceholder": "Select a folder",
       "workspaceHint": "Optional: set a workspace folder for file operations",
-      "selectFolder": "Select Folder",
+      "selectFolder": "Select a folder",
       "clearFolder": "Clear",
+      "recentWorkspaces": "Recent workspaces",
+      "chooseDifferentFolder": "Choose a different folder",
       "model": "Model"
     },
     "freq": {
@@ -112,7 +114,7 @@
       "daily": "Daily",
       "weekdays": "Weekdays",
       "weekly": "Weekly",
-      "custom": "Custom cron..."
+      "custom": "Custom"
     },
     "scheduleDesc": {
       "manual": "Manual",
