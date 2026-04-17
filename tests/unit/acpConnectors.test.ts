@@ -43,7 +43,10 @@ vi.mock('@process/utils/shellEnv', () => ({
     process.platform === 'win32' ? { shell: true, windowsHide: true } : {}
   ),
   loadFullShellEnvironment: vi.fn(async () => ({ PATH: '/usr/bin' })),
-  resolveNpxPath: vi.fn(() => 'npx'),
+  normalizeNpxArgsForBundledBun: vi.fn((args: string[]) =>
+    args.filter((arg) => arg !== '-y' && arg !== '--yes' && arg !== '--prefer-offline')
+  ),
+  resolveNpxPath: vi.fn(() => '/bundled/bun'),
   resolveNpxDirect: vi.fn(() => null),
 }));
 
@@ -79,20 +82,20 @@ describe('spawnNpxBackend - Windows UTF-8 fix', () => {
   });
 
   it('uses npxCommand directly on non-Windows (no chcp prefix)', () => {
-    spawnNpxBackend('claude', '@pkg/cli@1.0.0', '/usr/local/bin/npx', {}, '/cwd', false, false);
+    spawnNpxBackend('claude', '@pkg/cli@1.0.0', '/bundled/bun', {}, '/cwd', false, false);
 
     expect(mockSpawn).toHaveBeenCalledWith(
-      '/usr/local/bin/npx',
+      '/bundled/bun',
       expect.any(Array),
       expect.objectContaining({ shell: false })
     );
   });
 
   it('prefixes command with chcp 65001 on Windows to enable UTF-8', () => {
-    spawnNpxBackend('claude', '@pkg/cli@1.0.0', 'npx.cmd', {}, '/cwd', true, false);
+    spawnNpxBackend('claude', '@pkg/cli@1.0.0', '/bundled/bun', {}, '/cwd', true, false);
 
     const [command, , options] = mockSpawn.mock.calls[0];
-    expect(command).toBe('chcp 65001 >nul && npx.cmd');
+    expect(command).toBe('chcp 65001 >nul && "/bundled/bun"');
     expect(options).toMatchObject({ shell: true });
   });
 
@@ -104,26 +107,27 @@ describe('spawnNpxBackend - Windows UTF-8 fix', () => {
     expect(command).toBe(`chcp 65001 >nul && "${npxWithSpaces}"`);
   });
 
-  it('passes --yes and package name as spawn args', () => {
+  it('passes bun x --bun and package name as spawn args', () => {
     spawnNpxBackend('claude', '@pkg/cli@1.0.0', 'npx', {}, '/cwd', false, false);
 
     const [, args] = mockSpawn.mock.calls[0];
-    expect(args).toContain('--yes');
+    expect(args).toContain('x');
+    expect(args).toContain('--bun');
     expect(args).toContain('@pkg/cli@1.0.0');
   });
 
-  it('includes --prefer-offline when preferOffline is true', () => {
+  it('does not include npx-only flags when preferOffline is true', () => {
     spawnNpxBackend('claude', '@pkg/cli@1.0.0', 'npx', {}, '/cwd', false, true);
 
     const [, args] = mockSpawn.mock.calls[0];
-    expect(args).toContain('--prefer-offline');
+    expect(args).not.toContain('--prefer-offline');
   });
 
-  it('omits --prefer-offline when preferOffline is false', () => {
+  it('omits --yes when preferOffline is false', () => {
     spawnNpxBackend('claude', '@pkg/cli@1.0.0', 'npx', {}, '/cwd', false, false);
 
     const [, args] = mockSpawn.mock.calls[0];
-    expect(args).not.toContain('--prefer-offline');
+    expect(args).not.toContain('--yes');
   });
 
   it('calls child.unref() when detached is true', () => {
@@ -138,18 +142,11 @@ describe('spawnNpxBackend - Windows UTF-8 fix', () => {
     expect(mockChild.unref).not.toHaveBeenCalled();
   });
 
-  it('uses directInvoke on Windows to bypass .cmd shims', () => {
-    spawnNpxBackend('claude', '@pkg/cli@1.0.0', 'npx.cmd', {}, 'C:\\cwd', true, false, {
-      directInvoke: {
-        nodePath: 'C:\\Program Files\\nodejs\\node.exe',
-        npxScript: 'C:\\Program Files\\nodejs\\node_modules\\npm\\bin\\npx-cli.js',
-      },
-    });
+  it('uses bundled bun command with chcp prefix on Windows', () => {
+    spawnNpxBackend('claude', '@pkg/cli@1.0.0', 'npx.cmd', {}, 'C:\\cwd', true, false);
 
     const [command] = mockSpawn.mock.calls[0];
-    expect(command).toBe(
-      'chcp 65001 >nul && "C:\\Program Files\\nodejs\\node.exe" "C:\\Program Files\\nodejs\\node_modules\\npm\\bin\\npx-cli.js"'
-    );
+    expect(command).toBe('chcp 65001 >nul && npx.cmd');
   });
 
   it('falls back to npxCommand when directInvoke is undefined on Windows', () => {
@@ -159,13 +156,8 @@ describe('spawnNpxBackend - Windows UTF-8 fix', () => {
     expect(command).toBe('chcp 65001 >nul && "C:\\nodejs\\npx.cmd"');
   });
 
-  it('ignores directInvoke on non-Windows', () => {
-    spawnNpxBackend('claude', '@pkg/cli@1.0.0', '/usr/local/bin/npx', {}, '/cwd', false, false, {
-      directInvoke: {
-        nodePath: '/usr/local/bin/node',
-        npxScript: '/usr/local/lib/node_modules/npm/bin/npx-cli.js',
-      },
-    });
+  it('uses bundled bun command directly on non-Windows', () => {
+    spawnNpxBackend('claude', '@pkg/cli@1.0.0', '/usr/local/bin/npx', {}, '/cwd', false, false);
 
     const [command] = mockSpawn.mock.calls[0];
     expect(command).toBe('/usr/local/bin/npx');
@@ -222,7 +214,9 @@ describe('createGenericSpawnConfig - Windows path handling', () => {
   it('splits npx package into command and args (no chcp prefix for npx path)', () => {
     const config = createGenericSpawnConfig('npx @pkg/cli', '/cwd', ['--acp'], undefined, { PATH: '/usr/bin' });
 
-    expect(config.command).toBe('npx');
+    expect(config.command).toBe('/bundled/bun');
+    expect(config.args).toContain('x');
+    expect(config.args).toContain('--bun');
     expect(config.args).toContain('@pkg/cli');
     expect(config.args).toContain('--acp');
   });
@@ -324,8 +318,8 @@ describe('connectClaude - detached process group', () => {
     await connectClaude('/cwd', { setup, cleanup });
 
     expect(mockSpawn).toHaveBeenCalledWith(
-      'npx',
-      expect.arrayContaining(['--yes']),
+      '/bundled/bun',
+      expect.arrayContaining(['x', '--bun']),
       expect.objectContaining({
         cwd: '/cwd',
         detached: true,
@@ -345,7 +339,7 @@ describe('connectClaude - detached process group', () => {
 
     expect(mockSpawn).toHaveBeenCalledWith(
       expect.stringContaining('chcp 65001 >nul &&'),
-      expect.arrayContaining(['--yes']),
+      expect.arrayContaining(['x', '--bun']),
       expect.objectContaining({
         cwd: 'C:\\cwd',
         detached: false,

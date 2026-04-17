@@ -19,25 +19,17 @@ import type {
 } from '@/common/types/acpTypes';
 import { ACP_METHODS, JSONRPC_VERSION } from '@/common/types/acpTypes';
 import type { ChildProcess } from 'child_process';
-import { execFile as execFileCb } from 'child_process';
-import { promisify } from 'util';
 import type { AcpSessionMcpServer } from './mcpSessionConfig';
-import { promises as fs } from 'fs';
-import os from 'os';
 import path from 'path';
-import { getNpxCacheDir, getWindowsShellExecutionOptions, resolveNpxPath } from '@process/utils/shellEnv';
 import {
   ACP_PERF_LOG,
   connectClaude,
   connectCodebuddy,
   connectCodex,
-  prepareCleanEnv,
   spawnGenericBackend,
 } from './acpConnectors';
 import type { SpawnResult } from './acpConnectors';
 import { killChild, readTextFile, writeJsonRpcMessage, writeTextFile } from './utils';
-
-const execFile = promisify(execFileCb);
 
 // Re-export for unit tests that import from this module
 export { createGenericSpawnConfig } from './acpConnectors';
@@ -187,9 +179,6 @@ export class AcpConnection {
     await this.spawnAndSetup(result, backend);
   }
 
-  /** Npx-based backends that may need npm cache recovery on version mismatch */
-  private static readonly NPX_BACKENDS: ReadonlySet<string> = new Set(['claude', 'codex', 'codebuddy']);
-
   async connect(
     backend: AcpBackend,
     cliPath?: string,
@@ -200,55 +189,7 @@ export class AcpConnection {
     const connectStart = Date.now();
     if (ACP_PERF_LOG) console.log(`[ACP-PERF] connect: start backend=${backend}`);
 
-    try {
-      await this.doConnect(backend, cliPath, workingDir, acpArgs, customEnv);
-    } catch (error) {
-      // For npx-based backends, detect stale npm cache errors and auto-recover.
-      // When we upgrade a bridge package version (e.g., claude-agent-acp 0.17→0.18),
-      // users with the old version cached hit "notarget" because --prefer-offline
-      // serves stale metadata. Cleaning the cache and retrying fixes this.
-      const errMsg = error instanceof Error ? error.message : String(error);
-      if (AcpConnection.NPX_BACKENDS.has(backend) && /notarget|no matching version/i.test(errMsg)) {
-        console.warn(`[ACP] Detected stale npm cache for ${backend}, cleaning and retrying...`);
-        try {
-          const cleanEnv = await prepareCleanEnv();
-          const npmPath = resolveNpxPath(cleanEnv)
-            .replace(/npx$/, 'npm')
-            .replace(/npx\.cmd$/, 'npm.cmd');
-          await execFile(npmPath, ['cache', 'clean', '--force'], {
-            env: cleanEnv,
-            timeout: 30000,
-            ...getWindowsShellExecutionOptions(),
-          });
-          console.warn('[ACP] npm cache cleaned, retrying connection...');
-        } catch (cleanError) {
-          console.warn('[ACP] Failed to clean npm cache:', cleanError);
-          throw error; // Throw original error if cache clean fails
-        }
-        await this.doConnect(backend, cliPath, workingDir, acpArgs, customEnv);
-      } else if (
-        AcpConnection.NPX_BACKENDS.has(backend) &&
-        errMsg.includes('_npx') &&
-        /ENOENT|ERR_MODULE_NOT_FOUND|Cannot find package/i.test(errMsg)
-      ) {
-        // Corrupted npx cache: the _npx/<hash> directory exists but has missing
-        // or incomplete files (e.g. package.json deleted, transitive deps like zod
-        // not installed). Phase 1/2 retries don't help because npx reuses the
-        // existing directory. Fix: delete the _npx cache and retry from scratch.
-        console.warn(`[ACP] Detected corrupted npx cache for ${backend}, cleaning _npx and retrying...`);
-        try {
-          const npxCacheDir = getNpxCacheDir();
-          await fs.rm(npxCacheDir, { recursive: true, force: true });
-          console.warn(`[ACP] Cleaned corrupted npx cache: ${npxCacheDir}`);
-        } catch (cleanError) {
-          console.warn('[ACP] Failed to clean npx cache:', cleanError);
-          throw error;
-        }
-        await this.doConnect(backend, cliPath, workingDir, acpArgs, customEnv);
-      } else {
-        throw error;
-      }
-    }
+    await this.doConnect(backend, cliPath, workingDir, acpArgs, customEnv);
 
     if (ACP_PERF_LOG) console.log(`[ACP-PERF] connect: total ${Date.now() - connectStart}ms`);
   }
