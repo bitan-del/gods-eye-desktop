@@ -529,6 +529,40 @@
   position: relative;
 }
 
+/* Aurora Pro treatment — ambient breathing backdrop + editorial serif hero title */
+.guidContainerAurora :global(.aurora-stage) {
+  z-index: 0;
+}
+.guidContainerAurora > :not(:global(.aurora-stage)) {
+  position: relative;
+  z-index: 2;
+}
+
+.heroTitleAurora {
+  margin: 0;
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: clamp(38px, 5vw, 60px);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  font-weight: 400;
+  color: var(--text-primary);
+  text-wrap: balance;
+  animation: auroraHeroFadeUp 800ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes auroraHeroFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
 /* 整体内容块略往上移，减轻「重心偏下」的感觉 */
 .guidContainer .guidLayout {
   margin-top: -5vh;

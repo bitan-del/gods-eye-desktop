@@ -502,7 +502,14 @@ const GuidPage: React.FC = () => {
 
   return (
     <ConfigProvider getPopupContainer={() => guidContainerRef.current || document.body}>
-      <div ref={guidContainerRef} className={styles.guidContainer}>
+      <div ref={guidContainerRef} className={`${styles.guidContainer} ${styles.guidContainerAurora}`}>
+        {/* Aurora Pro — ambient breathing background (decorative, click-through) */}
+        <div className='aurora-stage' aria-hidden='true'>
+          <div className='aurora-blob b1' />
+          <div className='aurora-blob b2' />
+          <div className='aurora-blob b3' />
+          <div className='aurora-blob b4' />
+        </div>
         <SkillsMarketBanner />
         <div className={styles.guidLayout}>
           <div className={styles.heroHeader}>
@@ -613,7 +620,7 @@ const GuidPage: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <p className='text-2xl font-semibold mb-0 text-0 text-center'>{heroTitle}</p>
+              <p className={`${styles.heroTitleAurora} mb-0 text-0 text-center`}>{heroTitle}</p>
             )}
           </div>
 
