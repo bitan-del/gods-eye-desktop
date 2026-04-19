@@ -44,9 +44,10 @@
   --aurora-5: oklch(28% 0.02 90);
 }
 
-/* ===== Type overhaul (scoped under opt-in container) ===== */
-.aurora-type,
-.aurora-type * {
+/* ===== Type overhaul (global cascade) ===== */
+html,
+body,
+#root {
   font-family:
     'Geist',
     'Inter Tight',
@@ -61,11 +62,21 @@
   letter-spacing: -0.025em;
 }
 .mono,
-.aurora-type code,
-.aurora-type kbd,
-.aurora-type pre {
+code,
+kbd,
+pre {
   font-family: 'Geist Mono', 'JetBrains Mono', monospace;
   font-feature-settings: 'ss01';
+}
+
+/* Arco root inherits the Aurora type scale */
+.arco-input,
+.arco-textarea,
+.arco-btn,
+.arco-select-view,
+.arco-menu,
+.arco-modal {
+  font-family: inherit;
 }
 
 /* ===== Grain — subtle film noise overlay (opt-in) ===== */
@@ -1058,4 +1069,148 @@ kbd.k-pill {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ============================================================
+ * Aurora Pro retrofit overrides — re-skin existing components
+ * without modifying their JSX. Applies only to the Home / Guid
+ * landing and shared chrome; chat messages, Jarvis internals,
+ * and modals are untouched.
+ * ============================================================ */
+
+/* Keep the Skills Market banner clear of the enlarged hero title */
+.guid-market-banner-anchor,
+[class*='SkillsMarketBanner'] {
+  z-index: 20;
+}
+
+/* Composer Pro retrofit — applied to existing .guid-input-card-shell */
+.guid-input-card-shell {
+  border-radius: 18px !important;
+  border: 1px solid var(--line-2) !important;
+  background: var(--paper) !important;
+  box-shadow: 0 8px 32px -12px rgba(10, 10, 10, 0.08) !important;
+  transition:
+    box-shadow var(--dur-2) var(--ease),
+    border-color var(--dur-2) var(--ease),
+    transform var(--dur-2) var(--ease) !important;
+}
+.guid-input-card-shell:focus-within {
+  border-color: var(--ink) !important;
+  box-shadow:
+    0 20px 60px -16px rgba(10, 10, 10, 0.18),
+    0 0 0 4px color-mix(in oklch, var(--ink) 5%, transparent) !important;
+  transform: translateY(-1px);
+}
+[data-theme='dark'] .guid-input-card-shell {
+  box-shadow: 0 8px 32px -12px rgba(0, 0, 0, 0.5) !important;
+}
+[data-theme='dark'] .guid-input-card-shell:focus-within {
+  box-shadow:
+    0 20px 60px -16px rgba(0, 0, 0, 0.6),
+    0 0 0 4px color-mix(in oklch, var(--ink) 12%, transparent) !important;
+}
+
+/* Aurora hero title refinement — smaller and balanced */
+.heroTitleAurora,
+[class*='heroTitleAurora'] {
+  font-size: clamp(34px, 4.4vw, 54px) !important;
+}
+
+/* Agent pill bar retrofit — paper w/ backdrop blur matching aurora-pill */
+[data-agent-pill] {
+  transition:
+    opacity var(--dur-1) var(--ease),
+    background-color var(--dur-1) var(--ease),
+    color var(--dur-1) var(--ease) !important;
+}
+[data-agent-pill][data-agent-selected='true'] {
+  background: var(--paper) !important;
+  border: 1px solid var(--ink) !important;
+  box-shadow: 0 2px 8px -2px rgba(10, 10, 10, 0.12) !important;
+}
+[data-theme='dark'] [data-agent-pill][data-agent-selected='true'] {
+  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Morph container (parent of [data-agent-pill]) */
+[data-agent-pill]:first-child {
+  /* anchor only */
+}
+
+/* Hero header spacing: give the big serif title breathing room under the market toggle */
+.arco-layout .guidLayout,
+[class*='guidLayout'] {
+  padding-top: 6px;
+}
+
+/* Editorial quick-action buttons (bottom floating bar) */
+[class*='guidQuickActions'] .group.inline-flex {
+  background: color-mix(in oklch, var(--paper) 80%, transparent) !important;
+  border: 1px solid var(--line-2) !important;
+  backdrop-filter: blur(8px);
+  transition:
+    transform var(--dur-1) var(--ease),
+    border-color var(--dur-1) var(--ease),
+    color var(--dur-1) var(--ease),
+    max-width 0.42s var(--ease),
+    padding 0.42s var(--ease) !important;
+}
+[class*='guidQuickActions'] .group.inline-flex:hover {
+  border-color: var(--ink) !important;
+  transform: translateY(-2px);
+}
+
+/* Assistant selection chips — aurora skill-chip aesthetic */
+[class*='AssistantSelectionArea'] button,
+[class*='assistantCard'],
+[class*='assistant-card'] {
+  border-radius: 999px !important;
+  border: 1px solid var(--line-2) !important;
+  background: color-mix(in oklch, var(--paper) 70%, transparent) !important;
+  backdrop-filter: blur(8px);
+  transition:
+    transform var(--dur-1) var(--ease),
+    border-color var(--dur-1) var(--ease),
+    color var(--dur-1) var(--ease),
+    background var(--dur-1) var(--ease) !important;
+}
+[class*='AssistantSelectionArea'] button:hover,
+[class*='assistantCard']:hover,
+[class*='assistant-card']:hover {
+  border-color: var(--ink) !important;
+  transform: translateY(-2px) scale(1.02);
+  background: var(--paper) !important;
+}
+
+/* Sidebar refinement — sharper typography + tighter item spacing */
+.arco-layout-sider,
+[class*='siderLayout'],
+[class*='sider-'] {
+  font-family: inherit;
+}
+
+/* New Chat / Search / Scheduled Tasks buttons — pill edge */
+.arco-layout-sider .arco-btn,
+[class*='sider'] .arco-btn {
+  border-radius: 10px !important;
+}
+
+/* Floating ball (Jarvis trigger) — soft aurora orb finish */
+[class*='floatingBall'],
+[class*='floating-ball'] {
+  background:
+    radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.2) 18%, transparent 42%),
+    linear-gradient(145deg, #4a4a45 0%, #2a2a26 55%, #18181a 100%) !important;
+  box-shadow:
+    0 12px 24px -8px rgba(20, 20, 18, 0.35),
+    inset -8px -10px 20px rgba(0, 0, 0, 0.2),
+    inset 4px 4px 12px rgba(255, 255, 255, 0.18) !important;
+}
+
+/* Titlebar inherits Aurora type + soft divider */
+.arco-layout-header,
+[class*='titlebar'] {
+  font-family: inherit;
+  letter-spacing: 0.01em;
 }
