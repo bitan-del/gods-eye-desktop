@@ -5,3 +5,6 @@
 
 /* Color Schemes */
 @import './default-color-scheme.css';
+
+/* Aurora Pro — cinematic overlay (additive design layer) */
+@import './aurora-pro.css';
