@@ -487,6 +487,38 @@ export const acpConversation = {
   >('acp.get-available-agents'),
   checkEnv: bridge.buildProvider<{ env: Record<string, string> }, void>('acp.check.env'),
   refreshCustomAgents: bridge.buildProvider<IBridgeResponse, void>('acp.refresh-custom-agents'),
+  // Return the full POTENTIAL_ACP_CLIS list enriched with detection state +
+  // saved user overrides. Used by the settings UI to render "Not detected"
+  // cards for backends where `which` failed so the user can manually point
+  // the app at a custom install location.
+  getKnownBackends: bridge.buildProvider<
+    IBridgeResponse<
+      Array<{
+        backend: AcpBackend;
+        name: string;
+        defaultCommand: string;
+        acpArgs: string[];
+        detected: boolean;
+        cliPath?: string;
+        overridePath?: string;
+      }>
+    >,
+    void
+  >('acp.get-known-backends'),
+  // Persist a user-supplied `cliPath` override for a builtin backend.
+  // Passing an empty / undefined `cliPath` clears the override.
+  setBuiltinCliPath: bridge.buildProvider<
+    IBridgeResponse<{
+      backend: AcpBackend;
+      name: string;
+      defaultCommand: string;
+      acpArgs: string[];
+      detected: boolean;
+      cliPath?: string;
+      overridePath?: string;
+    }>,
+    { backend: AcpBackend; cliPath?: string }
+  >('acp.set-builtin-cli-path'),
   testCustomAgent: bridge.buildProvider<
     IBridgeResponse<{ step: 'cli_check' | 'acp_initialize'; error?: string }>,
     { command: string; acpArgs?: string[]; env?: Record<string, string> }

@@ -385,6 +385,17 @@ function getPosixExtraToolPaths(): string[] {
     // pnpm global bin
     path.join(homeDir, 'Library', 'pnpm'),
     path.join(homeDir, '.local', 'share', 'pnpm'),
+    // Anthropic Claude Code installer (official `curl … | sh` script installs
+    // the `claude` binary here by default, and the path is NOT added to
+    // /etc/paths or system-wide PATH — only to interactive shell rc files).
+    // Without this, a fresh install of Claude Code is invisible to the app
+    // when it's launched from Finder/Dock (non-login, non-interactive).
+    path.join(homeDir, '.claude', 'local'),
+    path.join(homeDir, '.claude', 'bin'),
+    // Volta / asdf / mise shims — sometimes where users end up with `claude`
+    path.join(homeDir, '.volta', 'bin'),
+    path.join(homeDir, '.asdf', 'shims'),
+    path.join(homeDir, '.local', 'share', 'mise', 'shims'),
   ];
 
   return candidates.filter((p) => existsSync(p) && !currentPath.includes(p));

@@ -6,25 +6,45 @@
 
 import { ipcBridge } from '@/common';
 import { ConfigStorage } from '@/common/config/storage';
-import type { AcpBackendConfig } from '@/common/types/acpTypes';
+import type { AcpBackend, AcpBackendConfig } from '@/common/types/acpTypes';
 import GodsEyeModal from '@/renderer/components/base/GodsEyeModal';
-import { Button, Typography } from '@arco-design/web-react';
-import { Home, Plus } from '@icon-park/react';
+import { resolveAgentLogo } from '@/renderer/utils/model/agentLogo';
+import { Avatar, Button, Typography } from '@arco-design/web-react';
+import { Home, Plus, Setting } from '@icon-park/react';
 import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import useSWR from 'swr';
 import AgentCard from './AgentCard';
 import { AgentHubModal } from './AgentHubModal';
+import BuiltinAgentPathModal from './BuiltinAgentPathModal';
 import InlineAgentEditor from './InlineAgentEditor';
+
+interface KnownBackendInfo {
+  backend: AcpBackend;
+  name: string;
+  defaultCommand: string;
+  acpArgs: string[];
+  detected: boolean;
+  cliPath?: string;
+  overridePath?: string;
+}
+
+// Backends that already have a dedicated settings page; the gear should
+// navigate there rather than opening the generic path-override modal.
+const DEDICATED_SETTINGS_BACKENDS: Record<string, string> = {
+  aionrs: '/settings/aionrs',
+  gemini: '/settings/gemini',
+};
 
 const LocalAgents: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [hubModalVisible, setHubModalVisible] = useState(false);
+  const [pathModalBackend, setPathModalBackend] = useState<KnownBackendInfo | null>(null);
 
   // Detected agents (include built-in backends and extension-contributed agents, exclude user custom and remote)
-  const { data: detectedAgents } = useSWR('acp.agents.available.settings', async () => {
+  const { data: detectedAgents, mutate: mutateDetected } = useSWR('acp.agents.available.settings', async () => {
     const result = await ipcBridge.acpConversation.getAvailableAgents.invoke();
     if (result.success && result.data) {
       return result.data.filter(
@@ -33,6 +53,19 @@ const LocalAgents: React.FC = () => {
     }
     return [];
   });
+
+  // Known builtin backends — includes entries whose CLI was NOT detected so
+  // the user can set a path manually. This is the escape hatch for fresh
+  // installs where `which claude` fails because Claude Code lives at
+  // ~/.claude/local/claude (outside the default Finder/Dock PATH).
+  const { data: knownBackends, mutate: mutateKnown } = useSWR<KnownBackendInfo[]>(
+    'acp.agents.known.settings',
+    async () => {
+      const result = await ipcBridge.acpConversation.getKnownBackends.invoke();
+      if (result.success && result.data) return result.data as KnownBackendInfo[];
+      return [];
+    }
+  );
 
   // Custom agents
   const { data: customAgents, mutate: mutateCustomAgents } = useSWR('acp.customAgents.settings', async () => {
@@ -88,10 +121,57 @@ const LocalAgents: React.FC = () => {
   const geminiAgent = detectedAgents?.find((a) => a.backend === 'gemini');
   const otherDetected = detectedAgents?.filter((a) => a.backend !== 'gemini' && a.backend !== 'aionrs') ?? [];
 
+  // Known backends that are NOT in the detected set — these get "Set path"
+  // placeholder cards so the user can manually configure `cliPath` even when
+  // auto-detection fails.
+  const detectedBackendIds = new Set((detectedAgents ?? []).map((a) => a.backend));
+  const undetectedKnown = (knownBackends ?? []).filter((k) => !detectedBackendIds.has(k.backend));
+
   const openCustomAgentEditor = useCallback(() => {
     setEditingAgent(null);
     setEditorVisible(true);
   }, []);
+
+  const handleOpenPathModal = useCallback(
+    (backend: AcpBackend) => {
+      const info = knownBackends?.find((k) => k.backend === backend);
+      if (!info) {
+        // Synthesise a minimal info object so users can still configure
+        // a path even if the known-backends query hasn't returned yet.
+        setPathModalBackend({
+          backend,
+          name: backend,
+          defaultCommand: backend,
+          acpArgs: [],
+          detected: true,
+          cliPath: undefined,
+          overridePath: undefined,
+        });
+        return;
+      }
+      setPathModalBackend(info);
+    },
+    [knownBackends]
+  );
+
+  const handlePathSaved = useCallback(async () => {
+    setPathModalBackend(null);
+    // Re-run backend-side detection by refetching both queries. Detection
+    // on the process side has already been re-run by setBuiltinCliPath.
+    await Promise.all([mutateDetected(), mutateKnown()]);
+  }, [mutateDetected, mutateKnown]);
+
+  const handleSettingsForDetected = useCallback(
+    (backend: AcpBackend) => {
+      const dedicated = DEDICATED_SETTINGS_BACKENDS[backend];
+      if (dedicated) {
+        navigate(dedicated);
+        return;
+      }
+      handleOpenPathModal(backend);
+    },
+    [navigate, handleOpenPathModal]
+  );
 
   return (
     <div className='flex flex-col gap-8px py-16px'>
@@ -163,13 +243,75 @@ const LocalAgents: React.FC = () => {
           />
         )}
         {otherDetected.map((agent) => (
-          <AgentCard key={agent.backend} type='detected' agent={agent} variant='grid' />
+          <AgentCard
+            key={agent.backend}
+            type='detected'
+            agent={agent}
+            settingsDisabled={false}
+            onSettings={() => handleSettingsForDetected(agent.backend as AcpBackend)}
+            variant='grid'
+          />
         ))}
       </div>
       {(!detectedAgents || detectedAgents.length === 0) && (
         <Typography.Text type='secondary' className='block px-16px py-16px text-center text-12px'>
           {t('settings.agentManagement.localAgentsEmpty')}
         </Typography.Text>
+      )}
+
+      {/* Not-detected section — shown when there are known backends we couldn't
+          find on PATH. Gives the user an explicit escape hatch to configure
+          a path manually so they aren't locked out by detection failures
+          (the most common being Claude Code at ~/.claude/local/claude on
+          fresh installs). */}
+      {undetectedKnown.length > 0 && (
+        <>
+          <div className='px-16px mt-16px'>
+            <Typography.Text className='text-12px font-medium text-t-secondary mb-4px block'>
+              {t('settings.agentManagement.notDetectedTitle', { defaultValue: 'Not detected' })}
+            </Typography.Text>
+            <Typography.Text type='secondary' className='block text-12px leading-18px'>
+              {t('settings.agentManagement.notDetectedHint', {
+                defaultValue:
+                  'These CLIs were not found on your PATH. If one is installed in a custom location, click "Set path" to point the app at it.',
+              })}
+            </Typography.Text>
+          </div>
+          <div className='grid grid-cols-2 gap-10px px-16px md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'>
+            {undetectedKnown.map((info) => {
+              const logo = resolveAgentLogo({ backend: info.backend });
+              return (
+                <div
+                  key={info.backend}
+                  className='flex min-h-[154px] flex-col rounded-12px border border-dashed border-[var(--color-border-2)] bg-[var(--color-bg-1)] p-12px transition-colors hover:border-[var(--color-border-3)]'
+                >
+                  <div className='mb-10px flex justify-center opacity-70'>
+                    <Avatar size={40} shape='square' style={{ flexShrink: 0, backgroundColor: 'transparent' }}>
+                      {logo ? <img src={logo} alt={info.name} className='h-full w-full object-contain' /> : '🤖'}
+                    </Avatar>
+                  </div>
+                  <div className='mb-10px flex-1 text-center'>
+                    <Typography.Text className='block text-13px font-medium leading-18px line-clamp-2'>
+                      {info.name}
+                    </Typography.Text>
+                    <Typography.Text className='mt-4px block text-11px text-t-tertiary'>
+                      {t('settings.agentManagement.notDetected', { defaultValue: 'Not detected' })}
+                    </Typography.Text>
+                  </div>
+                  <Button
+                    size='small'
+                    type='secondary'
+                    icon={<Setting theme='outline' size='14' />}
+                    onClick={() => handleOpenPathModal(info.backend)}
+                    className='!w-full !justify-center !rounded-10px !text-12px'
+                  >
+                    {t('settings.agentManagement.setPath', { defaultValue: 'Set path' })}
+                  </Button>
+                </div>
+              );
+            })}
+          </div>
+        </>
       )}
 
       {/* Custom Agents section */}
@@ -229,6 +371,20 @@ const LocalAgents: React.FC = () => {
       </div>
 
       {hubModalVisible && <AgentHubModal visible={hubModalVisible} onCancel={() => setHubModalVisible(false)} />}
+
+      {pathModalBackend && (
+        <BuiltinAgentPathModal
+          visible={!!pathModalBackend}
+          backend={pathModalBackend.backend}
+          name={pathModalBackend.name}
+          defaultCommand={pathModalBackend.defaultCommand}
+          acpArgs={pathModalBackend.acpArgs}
+          currentPath={pathModalBackend.overridePath}
+          detected={pathModalBackend.detected}
+          onCancel={() => setPathModalBackend(null)}
+          onSaved={() => void handlePathSaved()}
+        />
+      )}
     </div>
   );
 };

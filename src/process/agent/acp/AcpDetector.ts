@@ -4,12 +4,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { AcpBackendAll, PresetAgentType } from '@/common/types/acpTypes';
+import type { AcpBackendAll, PresetAgentType, PotentialAcpCli } from '@/common/types/acpTypes';
 import { POTENTIAL_ACP_CLIS } from '@/common/types/acpTypes';
 import { ExtensionRegistry } from '@process/extensions';
 import { ProcessConfig } from '@process/utils/initStorage';
 import { getEnhancedEnv } from '@process/utils/shellEnv';
 import { execSync } from 'child_process';
+import { existsSync } from 'fs';
+import * as path from 'path';
 
 interface DetectedAgent {
   backend: AcpBackendAll;
@@ -23,6 +25,31 @@ interface DetectedAgent {
   presetAgentType?: PresetAgentType | string;
   isExtension?: boolean;
   extensionName?: string;
+}
+
+/**
+ * Result from `getKnownBackends()` — describes all POTENTIAL_ACP_CLIS entries
+ * regardless of whether the binary was found on disk. Used by the settings UI
+ * to show "not detected — set path" cards for backends where `which` failed
+ * so users can manually configure the path even on fresh installs where CLI
+ * detection is broken.
+ */
+export interface KnownBackendInfo {
+  backend: AcpBackendAll;
+  name: string;
+  /** The default cliCommand name (e.g. 'claude', 'qwen'), for Test Connection. */
+  defaultCommand: string;
+  /** ACP arguments for this backend. */
+  acpArgs: string[];
+  /** Whether the CLI is currently detected on PATH or via saved override. */
+  detected: boolean;
+  /**
+   * Effective cliPath the app will use. Either the user-saved override (from
+   * `acp.config.<backend>.cliPath`) or the default command resolved via PATH.
+   */
+  cliPath?: string;
+  /** User-saved override path, if any. */
+  overridePath?: string;
 }
 
 /**
@@ -91,6 +118,45 @@ class AcpDetector {
   }
 
   /**
+   * Load per-backend saved `cliPath` overrides from `acp.config`.
+   *
+   * Users can manually configure a path for any builtin backend when the
+   * default `which <cmd>` probe fails — e.g. when Claude Code is installed
+   * at `~/.claude/local/claude` on a fresh install before we register that
+   * directory on PATH. This lookup is consulted FIRST in `detectBuiltinAgents`
+   * so that a saved override makes the agent appear as "detected" regardless
+   * of PATH state. Missing config, missing keys, or an override pointing at
+   * a file that no longer exists are all treated as "no override".
+   */
+  private async loadBuiltinOverrides(): Promise<Partial<Record<AcpBackendAll, string>>> {
+    try {
+      const acpConfig = await ProcessConfig.get('acp.config');
+      if (!acpConfig || typeof acpConfig !== 'object') return {};
+
+      const overrides: Partial<Record<AcpBackendAll, string>> = {};
+      for (const [backend, cfg] of Object.entries(acpConfig) as Array<
+        [AcpBackendAll, { cliPath?: string } | undefined]
+      >) {
+        const cliPath = cfg?.cliPath?.trim();
+        if (!cliPath) continue;
+        // Only honour absolute paths for overrides — relative or bare-name
+        // entries should continue to go through PATH-based detection so the
+        // user doesn't accidentally lock themselves to a non-existent path.
+        if (!path.isAbsolute(cliPath)) continue;
+        if (!existsSync(cliPath)) continue;
+        overrides[backend] = cliPath;
+      }
+      return overrides;
+    } catch (error) {
+      if (error instanceof Error && (error.message.includes('ENOENT') || error.message.includes('not found'))) {
+        return {};
+      }
+      console.warn('[AcpDetector] Failed to read acp.config overrides:', error);
+      return {};
+    }
+  }
+
+  /**
    * Check if a CLI command is available on the system PATH.
    */
   private isCliAvailable(cliCommand: string): boolean {
@@ -138,21 +204,99 @@ class AcpDetector {
   // ---------------------------------------------------------------------------
 
   /**
-   * Source 1: Built-in POTENTIAL_ACP_CLIS — parallel CLI availability check.
+   * Source 1: Built-in POTENTIAL_ACP_CLIS.
+   *
+   * For each entry: if the user has saved an absolute-path override in
+   * `acp.config.<backend>.cliPath`, use it directly (no `which` probe — the
+   * user has already told us where the binary is). Otherwise fall back to
+   * parallel `isCliAvailable` on the CLI name.
+   *
+   * This means the settings UI's "Set path" feature keeps working even on
+   * minimal-PATH launches (Finder/Dock) where Claude Code's installer
+   * directory (`~/.claude/local`) isn't visible to child processes.
    */
   private async detectBuiltinAgents(): Promise<DetectedAgent[]> {
+    const overrides = await this.loadBuiltinOverrides();
+
     const promises = POTENTIAL_ACP_CLIS.map((cli) =>
-      Promise.resolve().then((): DetectedAgent | null =>
-        this.isCliAvailable(cli.cmd)
+      Promise.resolve().then((): DetectedAgent | null => {
+        const override = overrides[cli.backendId];
+        if (override) {
+          return { backend: cli.backendId, name: cli.name, cliPath: override, acpArgs: cli.args };
+        }
+        return this.isCliAvailable(cli.cmd)
           ? { backend: cli.backendId, name: cli.name, cliPath: cli.cmd, acpArgs: cli.args }
-          : null
-      )
+          : null;
+      })
     );
 
     const results = await Promise.allSettled(promises);
     return results
       .filter((r): r is PromiseFulfilledResult<DetectedAgent> => r.status === 'fulfilled' && r.value !== null)
       .map((r) => r.value);
+  }
+
+  /**
+   * Return the full list of known backends from `POTENTIAL_ACP_CLIS` enriched
+   * with detection state + any saved override. The settings UI uses this to
+   * render "Not detected — Set path" cards for backends where CLI detection
+   * failed, so users can point the app at a non-PATH install location
+   * (e.g. `~/.claude/local/claude` on a fresh `curl … | sh` Claude install)
+   * without having to restart their shell or edit rc files.
+   */
+  async getKnownBackends(): Promise<KnownBackendInfo[]> {
+    const overrides = await this.loadBuiltinOverrides();
+    const detectedMap = new Map(this.detectedAgents.filter((a) => !!a.cliPath).map((a) => [a.backend, a.cliPath!]));
+
+    return (POTENTIAL_ACP_CLIS as unknown as PotentialAcpCli[]).map((cli) => {
+      const overridePath = overrides[cli.backendId];
+      const detectedPath = detectedMap.get(cli.backendId);
+      return {
+        backend: cli.backendId,
+        name: cli.name,
+        defaultCommand: cli.cmd,
+        acpArgs: cli.args,
+        detected: !!detectedPath,
+        cliPath: detectedPath,
+        overridePath,
+      };
+    });
+  }
+
+  /**
+   * Persist a user-supplied `cliPath` for a builtin backend and re-run
+   * builtin detection. Passing `undefined` (or an empty string) clears the
+   * override and re-detects via PATH.
+   *
+   * Returns the fresh `KnownBackendInfo` for the backend so the caller can
+   * reflect the new detection state in the UI without a second round-trip.
+   */
+  async setBuiltinCliPath(backend: AcpBackendAll, cliPath: string | undefined): Promise<KnownBackendInfo | null> {
+    const trimmed = typeof cliPath === 'string' ? cliPath.trim() : '';
+    const existingConfig = (await ProcessConfig.get('acp.config').catch((): undefined => undefined)) || {};
+    const prevEntry = (existingConfig as Record<string, { cliPath?: string } | undefined>)[backend] ?? {};
+    const nextEntry: { cliPath?: string } = { ...prevEntry };
+
+    if (trimmed) {
+      nextEntry.cliPath = trimmed;
+    } else {
+      delete nextEntry.cliPath;
+    }
+
+    const nextConfig = { ...existingConfig } as Record<string, typeof nextEntry>;
+    if (Object.keys(nextEntry).length === 0) {
+      delete nextConfig[backend];
+    } else {
+      nextConfig[backend] = nextEntry;
+    }
+
+    await ProcessConfig.set('acp.config', nextConfig as Parameters<typeof ProcessConfig.set<'acp.config'>>[1]);
+
+    // Re-run builtin detection so callers (and any listeners) see the update.
+    await this.refreshBuiltinAgents();
+
+    const known = await this.getKnownBackends();
+    return known.find((k) => k.backend === backend) ?? null;
   }
 
   /**

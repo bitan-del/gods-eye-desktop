@@ -92,6 +92,39 @@ export function initAcpConversationBridge(workerTaskManager: IWorkerTaskManager)
     }
   });
 
+  // Return the full list of known builtin backends regardless of detection
+  // state. Used by the Local Agents settings page to render "Not detected —
+  // Set path" cards so users can manually configure `cliPath` for an agent
+  // when `which` probing failed (e.g. Claude Code installed at
+  // `~/.claude/local/claude` on a fresh install, before a shell restart).
+  ipcBridge.acpConversation.getKnownBackends.provider(async () => {
+    try {
+      // Make sure detection has run at least once so `detected` reflects truth.
+      await acpDetector.initialize();
+      const known = await acpDetector.getKnownBackends();
+      return { success: true, data: known };
+    } catch (error) {
+      return {
+        success: false,
+        msg: error instanceof Error ? error.message : 'Unknown error',
+      };
+    }
+  });
+
+  // Persist a user-supplied `cliPath` override for a builtin backend.
+  // Pass an empty / undefined `cliPath` to clear the override.
+  ipcBridge.acpConversation.setBuiltinCliPath.provider(async ({ backend, cliPath }) => {
+    try {
+      const info = await acpDetector.setBuiltinCliPath(backend, cliPath);
+      return { success: true, data: info ?? undefined };
+    } catch (error) {
+      return {
+        success: false,
+        msg: error instanceof Error ? error.message : 'Unknown error',
+      };
+    }
+  });
+
   // Test custom agent connection - validates CLI exists and ACP handshake works
   ipcBridge.acpConversation.testCustomAgent.provider(async (params) => {
     const { testCustomAgentConnection } = await import('./testCustomAgentConnection');
