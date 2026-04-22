@@ -8,32 +8,36 @@
  * these classes are available for progressive adoption.
  */
 
-/* ===== Aurora Pro tokens (mapped to existing Gods Eye tokens where possible) ===== */
+/* ===== Aurora Pro tokens (exact hex from reference design) ===== */
 :root {
   /* Signature motion */
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in: cubic-bezier(0.6, 0, 0.86, 0);
   --dur-1: 180ms;
-  --dur-2: 280ms;
-  --dur-3: 480ms;
-  --dur-4: 800ms;
+  --dur-2: 220ms;
+  --dur-3: 320ms;
+  --dur-4: 420ms;
 
-  /* Aurora palette — warm, muted, editorial (light mode) */
+  /* Aurora palette — warm accent gradients (light mode) */
   --aurora-1: oklch(92% 0.04 80);
   --aurora-2: oklch(90% 0.03 60);
   --aurora-3: oklch(94% 0.02 40);
   --aurora-4: oklch(88% 0.05 50);
   --aurora-5: oklch(96% 0.02 90);
 
-  /* Aurora Pro semantic aliases mapped onto existing Gods Eye tokens */
-  --paper: var(--bg-base);
-  --ink: var(--text-primary);
-  --ink-2: var(--text-secondary);
-  --ink-3: var(--bg-6);
-  --ink-4: var(--bg-5);
-  --line: var(--border-base);
-  --line-2: var(--border-light);
-  --line-strong: var(--bg-3);
+  /* Aurora Pro — editorial warm neutrals, kissed with peach for a premium feel */
+  --aurora-bg: #faf6f0;
+  --aurora-bg-1: #f2ede4;
+  --aurora-bg-2: #ebe4d7;
+  --aurora-bg-3: #dfd6c5;
+  --paper: #fffdf9;
+  --ink: #0a0a0a;
+  --ink-2: #3a3a38;
+  --ink-3: #6e6d67;
+  --ink-4: #9c9a93;
+  --line: #e8e1d4;
+  --line-2: #d4cbb9;
+  --line-strong: #0a0a0a;
 }
 
 [data-theme='dark'] {
@@ -42,6 +46,126 @@
   --aurora-3: oklch(30% 0.02 40);
   --aurora-4: oklch(34% 0.05 50);
   --aurora-5: oklch(28% 0.02 90);
+
+  --aurora-bg: #0d0d0b;
+  --aurora-bg-1: #131311;
+  --aurora-bg-2: #1a1a17;
+  --aurora-bg-3: #242420;
+  --paper: #141412;
+  --ink: #f4f1e8;
+  --ink-2: #cfcdc3;
+  --ink-3: #8f8d83;
+  --ink-4: #5a5851;
+  --line: #26261f;
+  --line-2: #373730;
+  --line-strong: #f4f1e8;
+}
+
+/* ===== Override Arco base tokens so the whole shell inherits warm paper =====
+   Use body[arco-theme=...] to beat Arco's own theme selectors, and !important
+   because CSS vars can still be overridden by equally-specific selectors. */
+:root,
+[data-theme='light'],
+[data-theme='dark'],
+body,
+body[arco-theme='light'],
+body[arco-theme='dark'],
+.arco-theme-light,
+.arco-theme-dark {
+  --color-bg-1: var(--aurora-bg) !important;
+  --color-bg-2: var(--aurora-bg-1) !important;
+  --color-bg-3: var(--aurora-bg-2) !important;
+  --color-bg-4: var(--aurora-bg-3) !important;
+  --color-bg-5: var(--aurora-bg-3) !important;
+  --color-bg-white: var(--paper) !important;
+  --color-fill-1: var(--aurora-bg-1) !important;
+  --color-fill-2: var(--aurora-bg-1) !important;
+  --color-fill-3: var(--aurora-bg-2) !important;
+  --color-fill-4: var(--aurora-bg-3) !important;
+  --color-border: var(--line) !important;
+  --color-border-1: var(--line) !important;
+  --color-border-2: var(--line) !important;
+  --color-border-3: var(--line-2) !important;
+  --color-border-4: var(--line-2) !important;
+  --color-text-1: var(--ink) !important;
+  --color-text-2: var(--ink-2) !important;
+  --color-text-3: var(--ink-3) !important;
+  --color-text-4: var(--ink-4) !important;
+  /* Arco "primary" accent ramp — flatten to ink-on-paper neutrals so blue tints
+     in hover/active/message bubbles inherit the warm palette instead of cyan. */
+  --color-primary-light-1: var(--aurora-bg-1) !important;
+  --color-primary-light-2: var(--aurora-bg-2) !important;
+  --color-primary-light-3: var(--aurora-bg-3) !important;
+  --color-primary-light-4: var(--ink-4) !important;
+  --primary-1: 232, 225, 212 !important;
+  --primary-2: 212, 203, 185 !important;
+  --primary-3: 110, 109, 103 !important;
+  --primary-4: 58, 58, 56 !important;
+  --primary-5: 10, 10, 10 !important;
+  --primary-6: 10, 10, 10 !important;
+  --primary-7: 10, 10, 10 !important;
+}
+
+/* Map Gods Eye semantic tokens onto the warm palette so every Arco surface follows */
+:root,
+[data-theme='light'],
+[data-theme='dark'],
+[data-color-scheme='default'],
+[data-color-scheme='default'][data-theme='dark'] {
+  --bg-base: var(--paper) !important;
+  --bg-1: var(--aurora-bg) !important;
+  --bg-2: var(--aurora-bg-1) !important;
+  --bg-3: var(--aurora-bg-2) !important;
+  --bg-4: var(--aurora-bg-3) !important;
+  --bg-5: var(--aurora-bg-3) !important;
+  --bg-6: var(--ink-3) !important;
+  --bg-8: var(--ink-2) !important;
+  --bg-9: var(--ink) !important;
+  --bg-10: var(--ink) !important;
+
+  --bg-hover: var(--aurora-bg-1) !important;
+  --bg-active: var(--aurora-bg-2) !important;
+
+  --border-base: var(--line) !important;
+  --border-light: var(--line) !important;
+  --border-special: var(--line-2) !important;
+
+  --text-primary: var(--ink) !important;
+  --text-secondary: var(--ink-3) !important;
+  --text-disabled: var(--ink-4) !important;
+  --text-0: var(--ink) !important;
+
+  /* Kill the blue everywhere — brand, primary, messages are now ink/paper */
+  --primary: var(--ink) !important;
+  --brand: var(--ink) !important;
+  --brand-light: var(--aurora-bg-1) !important;
+  --brand-hover: var(--ink-2) !important;
+  --info: var(--ink) !important;
+
+  --message-user-bg: var(--aurora-bg-1) !important;
+  --message-tips-bg: var(--aurora-bg-1) !important;
+  --workspace-btn-bg: var(--aurora-bg-1) !important;
+  --color-guid-agent-bar: var(--aurora-bg-1) !important;
+
+  --fill: var(--aurora-bg) !important;
+  --fill-0: var(--paper) !important;
+  --dialog-fill-0: var(--aurora-bg-1) !important;
+
+  /* Gods Eye brand ramp (aou-*) — reduce to ink-on-paper neutrals */
+  --aou-1: var(--aurora-bg-1) !important;
+  --aou-2: var(--aurora-bg-2) !important;
+  --aou-3: var(--aurora-bg-3) !important;
+  --aou-4: var(--ink-4) !important;
+  --aou-5: var(--ink-3) !important;
+  --aou-6: var(--ink-2) !important;
+  --aou-7: var(--ink) !important;
+  --aou-8: var(--ink) !important;
+}
+
+body,
+.arco-layout {
+  background: var(--aurora-bg) !important;
+  color: var(--ink) !important;
 }
 
 /* ===== Type overhaul (global cascade) ===== */
@@ -271,7 +395,7 @@ pre {
   max-width: 960px;
   margin-bottom: 40px;
   animation: aurora-fade-up var(--dur-4) var(--ease) both;
-  animation-delay: 80ms;
+  animation-delay: 0ms;
   text-wrap: balance;
 }
 .display-pro .accent {
@@ -281,15 +405,16 @@ pre {
 }
 
 @keyframes aurora-fade-up {
+  /* Motion was removed (previously translateY 6px → 0). The staggered
+     cascade on multiple stacked elements caused the flex container
+     to visibly re-balance on mount, which read as the whole body
+     "sinking into place". Opacity-only keeps the elegant reveal
+     without any perceptible Y shift. */
   from {
     opacity: 0;
-    transform: translateY(12px);
-    filter: blur(6px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
-    filter: blur(0);
   }
 }
 
@@ -305,7 +430,7 @@ pre {
   box-shadow: 0 4px 24px -8px rgba(10, 10, 10, 0.08);
   margin-bottom: 24px;
   animation: aurora-fade-up var(--dur-4) var(--ease) both;
-  animation-delay: 160ms;
+  animation-delay: 0ms;
   position: relative;
 }
 .agent-pill button.agent {
@@ -368,7 +493,7 @@ pre {
     border-color var(--dur-2) var(--ease),
     transform var(--dur-2) var(--ease);
   animation: aurora-fade-up var(--dur-4) var(--ease) both;
-  animation-delay: 240ms;
+  animation-delay: 0ms;
   margin-bottom: 28px;
   position: relative;
   overflow: hidden;
@@ -458,7 +583,7 @@ pre {
   gap: 8px;
   max-width: 680px;
   animation: aurora-fade-up var(--dur-4) var(--ease) both;
-  animation-delay: 320ms;
+  animation-delay: 0ms;
 }
 .skill-chip {
   display: inline-flex;
@@ -519,7 +644,7 @@ pre {
   gap: 10px;
   margin-top: 28px;
   animation: aurora-fade-up var(--dur-4) var(--ease) both;
-  animation-delay: 400ms;
+  animation-delay: 0ms;
 }
 .action-rail .ab {
   width: 38px;
@@ -1072,24 +1197,147 @@ kbd.k-pill {
 }
 
 /* ============================================================
- * Aurora Pro retrofit overrides — re-skin existing components
- * without modifying their JSX. Applies only to the Home / Guid
- * landing and shared chrome; chat messages, Jarvis internals,
- * and modals are untouched.
+ * Aurora Pro — GuidPage in-place retrofit
+ *
+ * Re-skins the real GuidPage (every feature preserved) to *look* like
+ * the Aurora Pro reference. No JSX changes — only style overrides
+ * anchored to existing classnames.
  * ============================================================ */
 
-/* Keep the Skills Market banner clear of the enlarged hero title */
-.guid-market-banner-anchor,
-[class*='SkillsMarketBanner'] {
-  z-index: 20;
+/* --- Hero title: Instrument Serif editorial display --- */
+[class*='guidLayout'] > [class*='heroHeader'] p.text-2xl,
+[class*='heroHeaderLeft'] p[class*='heroTitle'] > span:last-child {
+  font-family: 'Instrument Serif', Georgia, serif !important;
+  font-size: clamp(44px, 5.2vw, 68px) !important;
+  line-height: 1.02 !important;
+  letter-spacing: -0.035em !important;
+  font-weight: 400 !important;
+  font-style: normal !important;
+  text-wrap: balance;
+  color: var(--ink) !important;
+}
+[class*='guidLayout'] > [class*='heroHeader'] p.text-2xl {
+  padding: 14px 4px 22px;
+  animation: aurora-fade-up var(--dur-4) var(--ease) both;
 }
 
-/* Composer Pro retrofit — applied to existing .guid-input-card-shell */
+/* Editorial hero split: second half renders in italic muted serif, matching
+   the Aurora Pro reference. Inherits size + family from the parent so the
+   cascade stays consistent across locales. */
+.aurora-hero-accent {
+  font-style: italic !important;
+  color: var(--ink-3) !important;
+  font-weight: 400 !important;
+  /* Instrument Serif italic reads slightly wider; keep optical rhythm. */
+  letter-spacing: -0.02em;
+}
+[data-theme='dark'] .aurora-hero-accent {
+  color: var(--ink-3) !important;
+}
+
+/* --- Greeting eyebrow (live date+time pill above the title) ---
+   Sits directly below the in-flow SkillsMarketBanner with a small gap. */
+[class*='guidLayout'] > .greeting-eyebrow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: max-content;
+  max-width: 100%;
+  margin: 0 auto 18px;
+  font-family: 'Geist', 'Inter Tight', sans-serif;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+}
+
+/* --- Skills market banner ---
+   Positioned via the banner component's own inline styles (`position:
+   absolute`, `top`, `right`) so it can horizontally centre over the
+   shifted hero/composer column. Only a z-index is set here so it layers
+   above the ambient backdrop but below modals.
+   Earlier iterations pinned the banner into the flex column via
+   `position: static !important`, which is why inline-style attempts
+   silently failed — those overrides have been removed. */
+.skills-market-banner {
+  z-index: 25;
+}
+/* The stock guid layout pulls itself up by -5vh to compensate for visual
+   weight. Reset the offset so the flex column stacks cleanly below the
+   absolutely-positioned banner at the top of the pane. */
+[class*='guidContainer'] [class*='guidLayout'] {
+  margin-top: 0 !important;
+}
+
+/* --- Home shortcut hints footer ---
+   Anchored to the guid content area (not the viewport) so it shares the
+   same horizontal center axis as the Quick-action buttons above it. Uses
+   `position: absolute` inside the `position: relative` guidContainer
+   rather than viewport-fixed positioning — keeping the whole vertical
+   stack (banner → eyebrow → hero → quick actions → shortcut hints) on
+   one centered axis. */
+.home-shortcut-hints {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  margin-inline: auto;
+  width: max-content;
+  max-width: calc(100% - 32px);
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 14px;
+  font-size: 11.5px;
+  color: var(--ink-3);
+  background: color-mix(in oklch, var(--paper) 82%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  box-shadow: 0 8px 28px -12px rgba(10, 10, 10, 0.14);
+  z-index: 60;
+  pointer-events: auto;
+  animation: aurora-fade-up var(--dur-4) var(--ease) both;
+  animation-delay: 0ms;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.home-shortcut-hints .shortcut-label {
+  color: var(--ink-3);
+  letter-spacing: 0.01em;
+  font-family: 'Geist', 'Inter Tight', sans-serif;
+  font-weight: 500;
+}
+.home-shortcut-hints .shortcut-dot {
+  color: var(--ink-4);
+  font-size: 13px;
+  line-height: 1;
+}
+.home-shortcut-hints kbd.k-pill {
+  color: var(--ink-2);
+  background: var(--paper);
+  min-width: 20px;
+  text-align: center;
+  display: inline-block;
+  line-height: 1.2;
+}
+
+/* Hide the ⌘K / ⌘, shortcut hints pill when the window is smaller than a
+   "full-size" viewport. Below these thresholds the pill visually collides
+   with the assistant chips stack above it and compounds the crowded feel.
+   The shortcuts themselves remain active — only the visual hint is hidden. */
+@media (max-height: 860px), (max-width: 1200px) {
+  .home-shortcut-hints {
+    display: none;
+  }
+}
+
+/* --- Composer card: Aurora paper-soft lift + ink focus ring --- */
 .guid-input-card-shell {
-  border-radius: 18px !important;
+  border-radius: 20px !important;
   border: 1px solid var(--line-2) !important;
   background: var(--paper) !important;
-  box-shadow: 0 8px 32px -12px rgba(10, 10, 10, 0.08) !important;
+  box-shadow: 0 10px 36px -14px rgba(10, 10, 10, 0.1) !important;
   transition:
     box-shadow var(--dur-2) var(--ease),
     border-color var(--dur-2) var(--ease),
@@ -1098,31 +1346,45 @@ kbd.k-pill {
 .guid-input-card-shell:focus-within {
   border-color: var(--ink) !important;
   box-shadow:
-    0 20px 60px -16px rgba(10, 10, 10, 0.18),
+    0 22px 64px -18px rgba(10, 10, 10, 0.2),
     0 0 0 4px color-mix(in oklch, var(--ink) 5%, transparent) !important;
-  transform: translateY(-1px);
+  transform: translateY(-1px) !important;
 }
 [data-theme='dark'] .guid-input-card-shell {
-  box-shadow: 0 8px 32px -12px rgba(0, 0, 0, 0.5) !important;
+  box-shadow: 0 10px 36px -14px rgba(0, 0, 0, 0.55) !important;
 }
 [data-theme='dark'] .guid-input-card-shell:focus-within {
   box-shadow:
-    0 20px 60px -16px rgba(0, 0, 0, 0.6),
+    0 22px 64px -18px rgba(0, 0, 0, 0.65),
     0 0 0 4px color-mix(in oklch, var(--ink) 12%, transparent) !important;
 }
 
-/* Aurora hero title refinement — smaller and balanced */
-.heroTitleAurora,
-[class*='heroTitleAurora'] {
-  font-size: clamp(34px, 4.4vw, 54px) !important;
+/* Composer textarea — larger line height + softer placeholder */
+.guid-input-card-shell textarea,
+.guid-input-card-shell .arco-textarea {
+  font-size: 15px !important;
+  line-height: 1.55 !important;
+  color: var(--ink) !important;
+}
+.guid-input-card-shell .arco-textarea::placeholder,
+.guid-input-card-shell textarea::placeholder {
+  color: var(--ink-4) !important;
+  opacity: 1 !important;
 }
 
-/* Agent pill bar retrofit — paper w/ backdrop blur matching aurora-pill */
+/* --- Agent pill bar: paper glass + morph indicator feel --- */
+[class*='guidLayout'] > div:has([data-agent-pill]) > div {
+  background: color-mix(in oklch, var(--paper) 85%, transparent) !important;
+  backdrop-filter: blur(14px) !important;
+  border: 1px solid var(--line-2) !important;
+  box-shadow: 0 4px 24px -8px rgba(10, 10, 10, 0.08) !important;
+}
 [data-agent-pill] {
   transition:
     opacity var(--dur-1) var(--ease),
-    background-color var(--dur-1) var(--ease),
-    color var(--dur-1) var(--ease) !important;
+    background-color var(--dur-2) var(--ease),
+    color var(--dur-1) var(--ease),
+    border-color var(--dur-1) var(--ease) !important;
 }
 [data-agent-pill][data-agent-selected='true'] {
   background: var(--paper) !important;
@@ -1130,73 +1392,103 @@ kbd.k-pill {
   box-shadow: 0 2px 8px -2px rgba(10, 10, 10, 0.12) !important;
 }
 [data-theme='dark'] [data-agent-pill][data-agent-selected='true'] {
-  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.5) !important;
+  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.55) !important;
 }
 
-/* Morph container (parent of [data-agent-pill]) */
-[data-agent-pill]:first-child {
-  /* anchor only */
+/* --- Quick-action floating buttons (chat / bug / link bar) ---
+   Lifted higher than the stock `bottom: 32px` so the bottom shortcut
+   hints pill (`.home-shortcut-hints`, viewport-fixed at `bottom: 18px`)
+   has clear vertical separation and the two never overlap. --- */
+[class*='guidQuickActions'] {
+  bottom: calc(74px + env(safe-area-inset-bottom, 0px)) !important;
 }
-
-/* Hero header spacing: give the big serif title breathing room under the market toggle */
-.arco-layout .guidLayout,
-[class*='guidLayout'] {
-  padding-top: 6px;
+/* Desktop: follow the `.guidLayout` left-shift so the floating quick-
+   action row sits under the hero/composer column instead of drifting
+   back to the true centre of the main pane. Uses the same 15% offset
+   math as `.guidContainer .guidLayout` (slack × 0.35 left margin means
+   the column centre moves left by slack × 0.15 from container centre).
+   The `max(0px, …)` floor collapses the shift to zero on narrow windows
+   where the column already fills the pane. */
+@media (min-width: 769px) {
+  [class*='guidQuickActions'] {
+    left: calc(50% - max(0px, (100% - 800px) * 0.15)) !important;
+  }
+  /* `.home-shortcut-hints` is centred via `left: 0; right: 0;
+     margin-inline: auto`. Nudge its right anchor inward so the auto-
+     centred result lands under the shifted hero column. The 0.3×slack
+     offset = 2 × (0.15×slack) shift of the column centre. (Hidden
+     entirely below 1200px by the rule above, so this only applies on
+     truly-wide windows.) */
+  .home-shortcut-hints {
+    right: max(0px, (100% - 800px) * 0.3);
+  }
 }
-
-/* Editorial quick-action buttons (bottom floating bar) */
 [class*='guidQuickActions'] .group.inline-flex {
   background: color-mix(in oklch, var(--paper) 80%, transparent) !important;
   border: 1px solid var(--line-2) !important;
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(10px) !important;
+  box-shadow: 0 4px 16px -8px rgba(10, 10, 10, 0.08) !important;
   transition:
     transform var(--dur-1) var(--ease),
     border-color var(--dur-1) var(--ease),
     color var(--dur-1) var(--ease),
+    box-shadow var(--dur-1) var(--ease),
     max-width 0.42s var(--ease),
     padding 0.42s var(--ease) !important;
 }
 [class*='guidQuickActions'] .group.inline-flex:hover {
   border-color: var(--ink) !important;
-  transform: translateY(-2px);
+  transform: translateY(-2px) !important;
+  box-shadow: 0 10px 24px -10px rgba(10, 10, 10, 0.18) !important;
 }
 
-/* Assistant selection chips — aurora skill-chip aesthetic */
-[class*='AssistantSelectionArea'] button,
+/* --- Assistant selection chips (below composer) — skill-chip aesthetic --- */
+[class*='assistantChip'],
 [class*='assistantCard'],
 [class*='assistant-card'] {
   border-radius: 999px !important;
   border: 1px solid var(--line-2) !important;
   background: color-mix(in oklch, var(--paper) 70%, transparent) !important;
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px) !important;
   transition:
     transform var(--dur-1) var(--ease),
     border-color var(--dur-1) var(--ease),
     color var(--dur-1) var(--ease),
     background var(--dur-1) var(--ease) !important;
 }
-[class*='AssistantSelectionArea'] button:hover,
+[class*='assistantChip']:hover,
 [class*='assistantCard']:hover,
 [class*='assistant-card']:hover {
   border-color: var(--ink) !important;
-  transform: translateY(-2px) scale(1.02);
+  transform: translateY(-2px) scale(1.02) !important;
   background: var(--paper) !important;
 }
 
-/* Sidebar refinement — sharper typography + tighter item spacing */
+/* --- Skills market banner: glass pill --- */
+[class*='SkillsMarketBanner'],
+[class*='skillsMarketBanner'] {
+  z-index: 20;
+}
+[class*='SkillsMarketBanner'] > div:first-child {
+  background: color-mix(in oklch, var(--paper) 85%, transparent) !important;
+  backdrop-filter: blur(12px) !important;
+  border: 1px solid var(--line-2) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 4px 16px -8px rgba(10, 10, 10, 0.08) !important;
+}
+
+/* --- Sidebar — Aurora type + pill buttons --- */
 .arco-layout-sider,
 [class*='siderLayout'],
 [class*='sider-'] {
   font-family: inherit;
 }
-
-/* New Chat / Search / Scheduled Tasks buttons — pill edge */
 .arco-layout-sider .arco-btn,
-[class*='sider'] .arco-btn {
+[class*='siderLayout'] .arco-btn {
   border-radius: 10px !important;
 }
 
-/* Floating ball (Jarvis trigger) — soft aurora orb finish */
+/* --- Floating Jarvis ball — aurora orb finish --- */
 [class*='floatingBall'],
 [class*='floating-ball'] {
   background:
@@ -1208,9 +1500,517 @@ kbd.k-pill {
     inset 4px 4px 12px rgba(255, 255, 255, 0.18) !important;
 }
 
-/* Titlebar inherits Aurora type + soft divider */
+/* --- Titlebar: centered editorial wordmark --- */
 .arco-layout-header,
 [class*='titlebar'] {
   font-family: inherit;
   letter-spacing: 0.01em;
+}
+[class*='titlebar'] [class*='title-center'],
+[class*='Titlebar'] [class*='title'] {
+  font-family: 'Instrument Serif', Georgia, serif !important;
+  font-size: 15px !important;
+  letter-spacing: 0.02em !important;
+}
+
+/* --- Ambient aurora stage behind the whole guid surface --- */
+[class*='guidContainer'] {
+  position: relative;
+}
+[class*='guidContainer']::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(520px 520px at -120px -180px, var(--aurora-1), transparent 70%),
+    radial-gradient(480px 480px at calc(100% + 140px) 20%, var(--aurora-4), transparent 70%),
+    radial-gradient(420px 420px at 40% calc(100% + 140px), var(--aurora-3), transparent 70%),
+    radial-gradient(300px 300px at 30% 40%, var(--aurora-2), transparent 70%);
+  filter: blur(40px);
+  opacity: 0.65;
+  animation: aurora-drift-1 22s var(--ease) infinite;
+}
+[data-theme='dark'] [class*='guidContainer']::before {
+  opacity: 0.4;
+}
+/* Lift in-flow children above the ambient backdrop layer, but never
+   clobber any child that has already been positioned absolutely via its
+   own UnoCSS utilities (Skills market banner, Quick-action buttons, etc.). */
+[class*='guidContainer'] > *:not(.absolute):not(.fixed):not(.skills-market-banner):not(.home-shortcut-hints) {
+  position: relative;
+  z-index: 1;
+}
+
+/* --- kbd / shortcut chips --- */
+kbd {
+  font-family: 'Geist Mono', 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  background: var(--aurora-bg-1);
+  border: 1px solid var(--line-2);
+  border-bottom-width: 2px;
+  padding: 2px 7px;
+  border-radius: 5px;
+}
+
+/* ============================================================
+ * Aurora Pro — Sidebar retrofit
+ * Rewrites the real Gods Eye <Sider> to match the Aurora reference
+ * (.sider / .brand / .sider-item / .sider-label / .back-pill).
+ * ============================================================ */
+
+/* Sidebar base — warm paper, tighter padding */
+.arco-layout-sider,
+.arco-layout-sider-children,
+.layout-sider,
+.layout-sider > .arco-layout-sider-children {
+  background: var(--aurora-bg) !important;
+  color: var(--ink) !important;
+  border-right: none !important;
+}
+.layout-sider {
+  padding: 14px 10px 12px !important;
+}
+/* Neutralise any leftover blue fill */
+.arco-layout-sider.\!bg-2,
+.layout-sider.\!bg-2 {
+  background: var(--aurora-bg) !important;
+}
+
+/* Brand row: the real header is `.layout-sider-header` with a 40px gradient square.
+   Horizontal padding is intentionally *not* forced here — the React component
+   sets it via utility classes (`pl-18px pr-16px` when expanded, `px-8px` when
+   collapsed) so the brand tile shares a column with the content-item icons
+   below it. Hard-coding `padding-left` here would beat those utilities via
+   `!important` and put the brand and the items on different x-axes. */
+.layout-sider-header {
+  padding-top: 2px !important;
+  padding-bottom: 14px !important;
+  background: transparent !important;
+  border-bottom: none !important;
+  min-height: 0 !important;
+  height: auto !important;
+}
+/* Replace the inline blue linear-gradient with a solid ink square.
+   Inline styles win, so we use background-image: none + background-color. */
+.layout-sider-header > div[style*='linear-gradient'] {
+  background-image: none !important;
+  background: var(--ink) !important;
+  width: 30px !important;
+  height: 30px !important;
+  border-radius: 3px !important;
+}
+.layout-sider-header > div[style*='linear-gradient'] svg {
+  width: 18px !important;
+  height: 18px !important;
+}
+.layout-sider-header .text-20px,
+.layout-sider-header [class*='text-20px'] {
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em !important;
+  color: var(--ink) !important;
+  font-family: inherit !important;
+}
+
+/* Any text inside the sider uses the ink scale */
+.arco-layout-sider * {
+  border-color: var(--line) !important;
+}
+
+/* Brand / logo row: convert the Arco logo + text into the Aurora brand mark */
+.arco-layout-sider [class*='logo'],
+.arco-layout-sider [class*='Logo'],
+.arco-layout-sider [class*='brand'],
+.arco-layout-sider [class*='Brand'] {
+  padding: 2px 8px 14px !important;
+  gap: 10px !important;
+  background: transparent !important;
+}
+.arco-layout-sider [class*='logo'] img,
+.arco-layout-sider [class*='logo'] svg,
+.arco-layout-sider [class*='Logo'] svg,
+.arco-layout-sider [class*='brand'] > :first-child,
+.arco-layout-sider [class*='Brand'] > :first-child {
+  width: 30px !important;
+  height: 30px !important;
+  background: var(--ink) !important;
+  color: var(--paper) !important;
+  border-radius: 3px !important;
+  display: grid !important;
+  place-items: center !important;
+  flex-shrink: 0 !important;
+  box-shadow: none !important;
+}
+.arco-layout-sider [class*='logo'] img {
+  filter: brightness(0) invert(1);
+  padding: 6px;
+}
+
+/* Sider rows — the real app renders each SiderItem with `h-40px rd-8px px-10px`.
+   Re-style to match `.sider-item` in the reference: 3px radius, 7px vertical pad, 13px text. */
+.arco-layout-sider [class*='group'].h-40px,
+.arco-layout-sider-children .group.h-40px,
+.arco-layout-sider .h-40px.rd-8px {
+  height: auto !important;
+  min-height: 34px !important;
+  padding: 8px 10px !important;
+  border-radius: 4px !important;
+  gap: 12px !important;
+  color: var(--ink-2) !important;
+  font-size: 14px !important;
+  line-height: 1.3 !important;
+  margin: 1px 0 !important;
+  transition:
+    color 0.12s ease,
+    background 0.12s ease !important;
+}
+.arco-layout-sider .h-40px.rd-8px:hover {
+  background: var(--aurora-bg-1) !important;
+  color: var(--ink) !important;
+}
+.arco-layout-sider .h-40px.rd-8px.\!bg-active,
+.arco-layout-sider [class*='h-40px'][class*='bg-active'] {
+  background: var(--aurora-bg-2) !important;
+  color: var(--ink) !important;
+  font-weight: 500 !important;
+}
+
+/* Inner text inside each row */
+.arco-layout-sider .h-40px .text-14px,
+.arco-layout-sider .h-40px [class*='text-14px'] {
+  font-size: 14px !important;
+  color: var(--ink-2) !important;
+  font-weight: 500 !important;
+}
+.arco-layout-sider .h-40px:hover .text-14px,
+.arco-layout-sider [class*='bg-active'] .text-14px {
+  color: var(--ink) !important;
+}
+
+/* Leading icon column: shrink to match reference */
+.arco-layout-sider .h-40px > .w-28px {
+  width: 22px !important;
+  height: 22px !important;
+  color: var(--ink-3) !important;
+}
+.arco-layout-sider .h-40px > .w-28px svg,
+.arco-layout-sider .h-40px > .w-28px span {
+  width: 18px !important;
+  height: 18px !important;
+}
+.arco-layout-sider [class*='bg-active'] > .w-28px,
+.arco-layout-sider .h-40px:hover > .w-28px {
+  color: var(--ink) !important;
+}
+
+/* Section labels — "Teams", "Recents" etc. */
+.arco-layout-sider .text-13px.text-t-secondary.font-bold,
+.arco-layout-sider [class*='text-13px'][class*='text-t-secondary'][class*='font-bold'] {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+  color: var(--ink-4) !important;
+  line-height: 1 !important;
+}
+/* The wrapper row (flex items-center justify-between px-12px py-8px) */
+.arco-layout-sider .flex.items-center.justify-between.px-12px.py-8px {
+  padding: 14px 8px 6px !important;
+}
+
+/* Sider footer (settings button band) — convert into the Aurora back-pill */
+.arco-layout-sider [class*='SiderFooter'],
+.arco-layout-sider [class*='siderFooter'],
+.arco-layout-sider [class*='footer'] {
+  background: transparent !important;
+  border-top: none !important;
+  padding: 8px 0 0 !important;
+  gap: 4px !important;
+}
+.arco-layout-sider [class*='SiderFooter'] .arco-btn,
+.arco-layout-sider [class*='footer'] .arco-btn {
+  border: 1px solid var(--line-2) !important;
+  background: var(--paper) !important;
+  color: var(--ink-2) !important;
+  border-radius: 999px !important;
+  padding: 7px 14px !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  height: auto !important;
+  transition:
+    border-color 0.12s ease,
+    color 0.12s ease !important;
+}
+.arco-layout-sider [class*='SiderFooter'] .arco-btn:hover,
+.arco-layout-sider [class*='footer'] .arco-btn:hover {
+  border-color: var(--ink) !important;
+  color: var(--ink) !important;
+  background: var(--paper) !important;
+}
+
+/* Divider between top-fixed nav and scrolling list */
+.arco-layout-sider .bg-\[var\(--color-border-2\)\] {
+  background: var(--line) !important;
+}
+
+/* Scroll area — hide native scrollbar */
+.arco-layout-sider .overflow-y-auto {
+  scrollbar-width: thin;
+}
+.arco-layout-sider .overflow-y-auto::-webkit-scrollbar {
+  width: 8px;
+}
+.arco-layout-sider .overflow-y-auto::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 999px;
+}
+
+/* Main content frame (right side) — border-left + warm paper */
+.arco-layout-content,
+[class*='main-inner'],
+[class*='mainInner'] {
+  background: var(--aurora-bg) !important;
+  border-left: 1px solid var(--line);
+}
+
+/* Titlebar in Aurora Pro is 36px tall, on the paper bg with bottom border.
+   Scope carefully so the sider's internal ArcoLayout.Header (layout-sider-header)
+   does NOT also receive a border — that caused the double-line. */
+.app-shell > [class*='titlebar'],
+.app-shell > [class*='Titlebar'] {
+  background: var(--aurora-bg) !important;
+  border-bottom: 1px solid var(--line) !important;
+  color: var(--ink-3) !important;
+}
+.app-shell > [class*='titlebar'] [class*='title-center'],
+.app-shell > [class*='Titlebar'] [class*='title-center'] {
+  color: var(--ink-3) !important;
+  font-size: 12px !important;
+  font-family: 'Inter Tight', 'Geist', sans-serif !important;
+  letter-spacing: 0.02em !important;
+  font-weight: 500 !important;
+}
+
+/* Belt-and-braces: kill any border on the sider's inner header & its wrapper */
+.layout-sider .arco-layout-header,
+.layout-sider-header {
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+
+/* Arco layout background */
+.arco-layout,
+.arco-layout-sider-trigger {
+  background: var(--aurora-bg) !important;
+}
+
+/* ============================================================
+ * Aurora Pro — Settings pages retrofit (Capabilities, Skill Store, MCP, etc.)
+ * ============================================================ */
+
+/* The section "cards" that wrap each settings panel: warm paper + soft lift */
+.arco-layout-content .bg-base.rd-16px,
+.arco-layout-content .bg-base.rd-24px,
+.arco-layout-content [class*='bg-base'][class*='rd-16px'],
+.arco-layout-content [class*='bg-base'][class*='rd-24px'] {
+  background: var(--paper) !important;
+  border: 1px solid var(--line) !important;
+  box-shadow:
+    0 1px 0 rgba(10, 10, 10, 0.02),
+    0 8px 32px -18px rgba(10, 10, 10, 0.08) !important;
+  border-radius: 16px !important;
+}
+
+/* Section headings — pull them into the Aurora voice */
+.arco-layout-content .text-16px.text-t-primary.font-bold,
+.arco-layout-content .text-18px.text-t-primary.font-bold,
+.arco-layout-content [class*='text-18px'][class*='font-bold'] {
+  font-family: 'Instrument Serif', Georgia, serif !important;
+  font-weight: 400 !important;
+  letter-spacing: -0.01em !important;
+  font-size: 26px !important;
+  color: var(--ink) !important;
+}
+
+/* Count badges next to section titles (e.g. "51") — go from blue pill to neutral */
+.arco-layout-content .bg-\[rgba\(var\(--primary-6\)\,0\.08\)\].text-primary-6 {
+  background: var(--aurora-bg-1) !important;
+  color: var(--ink) !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.01em !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+/* Source tabs / filter chips row (Claude Code, Codex, etc.) */
+.arco-layout-content button.bg-primary-6.border-primary-6 {
+  background: var(--ink) !important;
+  border-color: var(--ink) !important;
+  color: var(--paper) !important;
+  box-shadow: 0 2px 8px -2px rgba(10, 10, 10, 0.2) !important;
+}
+.arco-layout-content button.bg-primary-6.border-primary-6 .bg-white\/20 {
+  background: rgba(255, 253, 249, 0.18) !important;
+  color: var(--paper) !important;
+}
+
+/* Inactive source chips — glass paper pill */
+.arco-layout-content .bg-base.border-border-1 {
+  background: color-mix(in oklch, var(--paper) 85%, transparent) !important;
+  backdrop-filter: blur(6px);
+  border: 1px solid var(--line-2) !important;
+  transition:
+    border-color var(--dur-1) var(--ease),
+    color var(--dur-1) var(--ease),
+    background var(--dur-1) var(--ease),
+    transform var(--dur-1) var(--ease) !important;
+}
+.arco-layout-content .bg-base.border-border-1:hover {
+  border-color: var(--ink) !important;
+  color: var(--ink) !important;
+  transform: translateY(-1px);
+}
+
+/* "+" Add-source dashed button */
+.arco-layout-content button.border-dashed {
+  border-color: var(--line-2) !important;
+  color: var(--ink-3) !important;
+}
+.arco-layout-content button.border-dashed:hover {
+  border-color: var(--ink) !important;
+  color: var(--ink) !important;
+  background: var(--aurora-bg-1) !important;
+}
+
+/* Search input inside settings cards — paper shell + ink focus ring */
+.arco-layout-content .bg-fill-1.hover\:bg-fill-2.border.border-border-1 {
+  background: var(--aurora-bg) !important;
+  border: 1px solid var(--line-2) !important;
+  border-radius: 999px !important;
+  box-shadow: 0 1px 0 rgba(10, 10, 10, 0.02) !important;
+}
+.arco-layout-content .bg-fill-1.hover\:bg-fill-2.border.border-border-1:focus-within,
+.arco-layout-content input:focus {
+  border-color: var(--ink) !important;
+  background: var(--paper) !important;
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--ink) 6%, transparent) !important;
+}
+
+/* Folder path pill */
+.arco-layout-content .text-t-tertiary.font-mono {
+  color: var(--ink-3) !important;
+  font-family: 'Geist Mono', 'JetBrains Mono', monospace !important;
+  font-size: 11.5px !important;
+  letter-spacing: 0.01em;
+}
+
+/* "Import All" link button */
+.arco-layout-content button.text-primary-6 {
+  color: var(--ink) !important;
+  font-weight: 500 !important;
+}
+.arco-layout-content button.text-primary-6:hover {
+  color: var(--ink-2) !important;
+}
+
+/* Skill list item rows — lift card aesthetic */
+.arco-layout-content .group.flex.flex-col.bg-base.border.border-transparent,
+.arco-layout-content [class*='group'][class*='bg-base'][class*='rd-12px'] {
+  background: var(--paper) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 12px !important;
+  padding: 18px !important;
+  transition:
+    border-color var(--dur-1) var(--ease),
+    box-shadow var(--dur-1) var(--ease),
+    transform var(--dur-1) var(--ease) !important;
+}
+.arco-layout-content .group.bg-base.rd-12px:hover,
+.arco-layout-content [class*='group'][class*='bg-base'][class*='rd-12px']:hover {
+  border-color: var(--ink-4) !important;
+  box-shadow: 0 12px 32px -16px rgba(10, 10, 10, 0.14) !important;
+  transform: translateY(-1px);
+}
+
+/* Skill avatar circle — editorial serif initial, ink on paper */
+.arco-layout-content .w-40px.h-40px.rd-full.bg-base {
+  background: var(--aurora-bg-1) !important;
+  border: 1px solid var(--line) !important;
+  color: var(--ink) !important;
+  font-family: 'Instrument Serif', Georgia, serif !important;
+  font-weight: 400 !important;
+  font-size: 20px !important;
+  letter-spacing: -0.01em !important;
+  box-shadow: 0 1px 0 rgba(10, 10, 10, 0.02) !important;
+}
+
+/* Skill title */
+.arco-layout-content h3.text-14px.font-semibold {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: var(--ink) !important;
+  letter-spacing: -0.005em !important;
+}
+
+/* Skill description */
+.arco-layout-content .text-13px.text-t-secondary {
+  color: var(--ink-3) !important;
+  line-height: 1.55 !important;
+}
+
+/* Tabs bar (Skills | Skill Store | MCP & Voice) — Arco Tabs */
+.arco-layout-content .arco-tabs-header-title {
+  font-family: inherit !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: var(--ink-3) !important;
+  letter-spacing: 0.01em !important;
+}
+.arco-layout-content .arco-tabs-header-title-active,
+.arco-layout-content .arco-tabs-header-title:hover {
+  color: var(--ink) !important;
+}
+.arco-layout-content .arco-tabs-header-ink {
+  background: var(--ink) !important;
+  height: 2px !important;
+  border-radius: 1px !important;
+}
+.arco-layout-content .arco-tabs-header-line::before {
+  background: var(--line) !important;
+}
+
+/* Arco default primary button — turn blue "Import" button into ink pill */
+.arco-btn-primary,
+.arco-btn-primary:not(:disabled):not(.arco-btn-loading) {
+  background: var(--ink) !important;
+  border-color: var(--ink) !important;
+  color: var(--paper) !important;
+  border-radius: 999px !important;
+  font-weight: 500 !important;
+  box-shadow: 0 2px 8px -3px rgba(10, 10, 10, 0.18) !important;
+  transition:
+    transform var(--dur-1) var(--ease),
+    box-shadow var(--dur-1) var(--ease),
+    background var(--dur-1) var(--ease) !important;
+}
+.arco-btn-primary:hover {
+  background: var(--ink-2) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px -6px rgba(10, 10, 10, 0.28) !important;
+}
+
+/* Arco default secondary button — outlined paper pill */
+.arco-btn-secondary,
+.arco-btn-outline {
+  background: var(--paper) !important;
+  border: 1px solid var(--line-2) !important;
+  color: var(--ink-2) !important;
+  border-radius: 999px !important;
+}
+.arco-btn-secondary:hover,
+.arco-btn-outline:hover {
+  border-color: var(--ink) !important;
+  color: var(--ink) !important;
+  background: var(--paper) !important;
 }

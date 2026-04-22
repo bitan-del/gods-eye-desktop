@@ -442,46 +442,68 @@ const Layout: React.FC<{
             >
               <ArcoLayout.Header
                 className={classNames(
-                  'flex items-center justify-start py-8px px-16px pl-20px gap-12px layout-sider-header',
+                  'flex items-center py-8px gap-10px layout-sider-header',
                   isMobile && 'layout-sider-header--mobile',
+                  // Expanded: left padding matches the effective left edge of
+                  // the sidebar content items below (container px-8 + item
+                  // px-10 = 18px), so the 44px brand tile and the 28px item
+                  // icon tiles share the same visual left margin — creating a
+                  // single clean column down the sidebar instead of two
+                  // slightly-offset ones.
+                  collapsed ? 'justify-center px-8px' : 'justify-start pl-18px pr-16px',
                   {
                     'cursor-pointer group ': collapsed,
                   }
                 )}
               >
+                {/* Brand mark — warm-ink tile with a refined almond-eye glyph.
+                    Matches the Aurora Pro editorial palette (deep ink, cream,
+                    single bronze accent). Sized for real presence in the
+                    sidebar header — 44px expanded, 36px collapsed. */}
                 <div
-                  className={classNames('shrink-0 size-40px relative rd-0.5rem overflow-hidden', {
-                    '!size-24px': collapsed,
+                  className={classNames('shrink-0 size-44px relative rd-12px overflow-hidden', {
+                    '!size-36px !rd-10px': collapsed,
                   })}
                   onClick={onClick}
-                  style={{ background: 'linear-gradient(135deg, #4F8CFF 0%, #3B6EE8 100%)' }}
+                  style={{
+                    background:
+                      'radial-gradient(120% 120% at 30% 18%, #24231f 0%, #0a0a0a 62%, #000000 100%)',
+                    boxShadow:
+                      'inset 0 1px 0 rgba(244,241,232,0.10), inset 0 -1px 0 rgba(0,0,0,0.45), 0 1px 2px rgba(0,0,0,0.14)',
+                  }}
                 >
+                  {/* hairline specular highlight on the top edge */}
+                  <div
+                    className='absolute inset-x-0 top-0 pointer-events-none'
+                    style={{
+                      height: '1px',
+                      background:
+                        'linear-gradient(90deg, transparent 0%, rgba(244,241,232,0.24) 50%, transparent 100%)',
+                    }}
+                    aria-hidden='true'
+                  />
                   <svg
                     className={classNames('absolute inset-0 m-auto', {
-                      'w-7 h-7': !collapsed,
-                      'w-4.5 h-4.5': collapsed,
+                      'w-[32px] h-[32px]': !collapsed,
+                      'w-[26px] h-[26px]': collapsed,
                     })}
-                    viewBox='0 0 80 80'
+                    viewBox='0 0 40 40'
                     fill='none'
+                    aria-hidden='true'
                   >
-                    {/* Viewfinder corners */}
-                    <path key='vf-tl' d='M18 14 L14 14 L14 18' stroke='white' strokeWidth='2.2' strokeLinecap='round' strokeLinejoin='round' opacity='0.7'></path>
-                    <path key='vf-tr' d='M62 14 L66 14 L66 18' stroke='white' strokeWidth='2.2' strokeLinecap='round' strokeLinejoin='round' opacity='0.7'></path>
-                    <path key='vf-bl' d='M18 66 L14 66 L14 62' stroke='white' strokeWidth='2.2' strokeLinecap='round' strokeLinejoin='round' opacity='0.7'></path>
-                    <path key='vf-br' d='M62 66 L66 66 L66 62' stroke='white' strokeWidth='2.2' strokeLinecap='round' strokeLinejoin='round' opacity='0.7'></path>
-                    {/* Crosshair ticks */}
-                    <line key='ch-t' x1='40' y1='14' x2='40' y2='18' stroke='white' strokeWidth='2' strokeLinecap='round' opacity='0.7'></line>
-                    <line key='ch-b' x1='40' y1='62' x2='40' y2='66' stroke='white' strokeWidth='2' strokeLinecap='round' opacity='0.7'></line>
-                    <line key='ch-l' x1='14' y1='40' x2='18' y2='40' stroke='white' strokeWidth='2' strokeLinecap='round' opacity='0.7'></line>
-                    <line key='ch-r' x1='62' y1='40' x2='66' y2='40' stroke='white' strokeWidth='2' strokeLinecap='round' opacity='0.7'></line>
-                    {/* Eye shape (almond) */}
-                    <path key='eye' d='M12 40 Q26 24 40 24 Q54 24 68 40 Q54 56 40 56 Q26 56 12 40 Z' fill='rgba(255,255,255,0.15)' stroke='white' strokeWidth='2.5'></path>
-                    {/* Iris circle */}
-                    <circle key='iris' cx='40' cy='40' r='11' fill='rgba(255,255,255,0.25)' stroke='white' strokeWidth='1.5'></circle>
+                    {/* Almond eye outline */}
+                    <path
+                      d='M4 20 C 10 10, 30 10, 36 20 C 30 30, 10 30, 4 20 Z'
+                      stroke='rgba(244,241,232,0.94)'
+                      strokeWidth='1.8'
+                      strokeLinejoin='round'
+                    />
+                    {/* Iris — warm bronze ring from the aurora palette */}
+                    <circle cx='20' cy='20' r='5.6' stroke='#c99465' strokeWidth='1.5' />
                     {/* Pupil */}
-                    <circle key='pupil' cx='40' cy='40' r='6' fill='white'></circle>
-                    {/* Highlight */}
-                    <circle key='highlight' cx='43' cy='37' r='2' fill='rgba(79,140,255,0.8)'></circle>
+                    <circle cx='20' cy='20' r='2.6' fill='#f4f1e8' />
+                    {/* Catch-light specular */}
+                    <circle cx='21' cy='18.8' r='0.75' fill='#ffffff' opacity='0.95' />
                   </svg>
                 </div>
                 <div className='flex-1 text-20px text-1 collapsed-hidden font-bold'>Gods Eye</div>

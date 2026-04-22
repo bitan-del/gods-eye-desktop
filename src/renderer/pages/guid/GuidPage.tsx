@@ -16,6 +16,7 @@ import { AgentPillBarSkeleton } from './components/GuidSkeleton';
 import GuidActionRow from './components/GuidActionRow';
 import GuidInputCard from './components/GuidInputCard';
 import GuidModelSelector from './components/GuidModelSelector';
+import { AuroraHeroTitle, GreetingEyebrow, HomeShortcutHints } from './components/HomeAuroraExtras';
 import MentionDropdown, { MentionSelectorBadge } from './components/MentionDropdown';
 import QuickActionButtons from './components/QuickActionButtons';
 import SkillsMarketBanner from './components/SkillsMarketBanner';
@@ -505,6 +506,7 @@ const GuidPage: React.FC = () => {
       <div ref={guidContainerRef} className={styles.guidContainer}>
         <SkillsMarketBanner />
         <div className={styles.guidLayout}>
+          <GreetingEyebrow locale={i18n.language} />
           <div className={styles.heroHeader}>
             {agentSelection.isPresetAgent ? (
               <div className={styles.heroHeaderControls}>
@@ -613,7 +615,9 @@ const GuidPage: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <p className='text-2xl font-semibold mb-0 text-0 text-center'>{heroTitle}</p>
+              <p className='text-2xl font-semibold mb-0 text-0 text-center'>
+                <AuroraHeroTitle title={heroTitle} />
+              </p>
             )}
           </div>
 
@@ -715,6 +719,7 @@ const GuidPage: React.FC = () => {
           inactiveBorderColor={inactiveBorderColor}
           activeShadow={activeShadow}
         />
+        <HomeShortcutHints />
         <FeedbackReportModal visible={showFeedbackModal} onCancel={() => setShowFeedbackModal(false)} />
       </div>
     </ConfigProvider>

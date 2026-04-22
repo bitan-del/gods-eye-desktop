@@ -27,21 +27,23 @@ interface TitlebarProps {
   workspaceAvailable: boolean;
 }
 
+// Editorial eye mark — almond outline + iris ring + pupil, rendered in
+// `currentColor` so the titlebar inherits the current text color. The
+// proportions (almond 4→36, iris r=5.4, pupil r=2.4) match the sidebar
+// brand tile so the product reads with one coherent identity.
 const GodsEyeLogoMark: React.FC = () => (
-  <svg className='app-titlebar__brand-logo' viewBox='0 0 80 80' fill='none' aria-hidden='true' focusable='false'>
-    {/* Viewfinder corners */}
-    <path d='M18 14 L14 14 L14 18' stroke='currentColor' strokeWidth='2.2' strokeLinecap='round' strokeLinejoin='round' opacity='0.5'></path>
-    <path d='M62 14 L66 14 L66 18' stroke='currentColor' strokeWidth='2.2' strokeLinecap='round' strokeLinejoin='round' opacity='0.5'></path>
-    <path d='M18 66 L14 66 L14 62' stroke='currentColor' strokeWidth='2.2' strokeLinecap='round' strokeLinejoin='round' opacity='0.5'></path>
-    <path d='M62 66 L66 66 L66 62' stroke='currentColor' strokeWidth='2.2' strokeLinecap='round' strokeLinejoin='round' opacity='0.5'></path>
-    {/* Eye shape */}
-    <path d='M12 40 Q26 24 40 24 Q54 24 68 40 Q54 56 40 56 Q26 56 12 40 Z' fill='none' stroke='currentColor' strokeWidth='2.5'></path>
+  <svg className='app-titlebar__brand-logo' viewBox='0 0 40 40' fill='none' aria-hidden='true' focusable='false'>
+    {/* Almond eye outline */}
+    <path
+      d='M4 20 C 10 10, 30 10, 36 20 C 30 30, 10 30, 4 20 Z'
+      stroke='currentColor'
+      strokeWidth='1.6'
+      strokeLinejoin='round'
+    />
     {/* Iris */}
-    <circle cx='40' cy='40' r='11' fill='none' stroke='currentColor' strokeWidth='1.5'></circle>
+    <circle cx='20' cy='20' r='5.4' stroke='currentColor' strokeWidth='1.35' opacity='0.8' />
     {/* Pupil */}
-    <circle cx='40' cy='40' r='6' fill='currentColor'></circle>
-    {/* Highlight */}
-    <circle cx='43' cy='37' r='2' fill='var(--bg-base, white)'></circle>
+    <circle cx='20' cy='20' r='2.4' fill='currentColor' />
   </svg>
 );
 
@@ -343,18 +345,25 @@ const Titlebar: React.FC<TitlebarProps> = ({ workspaceAvailable }) => {
           </>
         )}
       </div>
+      {/* Brand title.
+          - Mobile: no sidebar is visible, so show the app name (or conversation
+            title) centered between the menu and toolbar buttons.
+          - Desktop: the sidebar already renders a prominent "Gods Eye" brand
+            header (logo tile + wordmark), so repeating the name here creates
+            duplicate labels at mismatched x positions (one over the sidebar,
+            one over the main column). Render an empty spacer instead — this
+            keeps the flex layout intact while letting the sidebar own the
+            branding. */}
       <div
         className='app-titlebar__brand'
         aria-label={layout?.isMobile ? mobileCenterTitle : appTitle}
         title={layout?.isMobile ? mobileCenterTitle : appTitle}
       >
-        {layout?.isMobile ? (
+        {layout?.isMobile && (
           <span className='app-titlebar__brand-mobile'>
             <GodsEyeLogoMark />
             <span className='app-titlebar__brand-text'>{mobileCenterTitle}</span>
           </span>
-        ) : (
-          appTitle
         )}
       </div>
       <div ref={toolbarRef} className='app-titlebar__toolbar'>

@@ -3,7 +3,7 @@
   --assistant-surface-bg-hover: color-mix(in srgb, var(--bg-2) 85%, transparent);
   width: clamp(var(--app-min-width, 360px), calc(100% - 32px), 800px);
   max-width: 100%;
-  padding: 0 16px;
+  padding: 0 16px 140px;
   box-sizing: border-box;
   margin: 0 auto;
 }
@@ -514,7 +514,7 @@
 @media (max-width: 420px) {
   .guidLayout {
     width: clamp(var(--app-min-width, 360px), calc(100% - 20px), 100%);
-    padding: 0 10px;
+    padding: 0 10px 100px;
   }
 }
 
@@ -524,9 +524,19 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 10px;
+  /* Anchor content from the top so async blocks that mount later
+     (AssistantSelectionArea, chip grid) don't cause the hero
+     title to slide as the flex container re-balances. */
+  justify-content: flex-start;
+  padding: clamp(48px, 9vh, 120px) 10px 0;
   position: relative;
+  /* Let the container scroll vertically when chips wrap on narrow
+     widths. `.guidLayout` carries a `padding-bottom: 140px` buffer
+     so the last chip row always ends above the floating quick
+     actions and shortcut hint pill. */
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Aurora Pro treatment — ambient breathing backdrop + editorial serif hero title */
@@ -547,25 +557,46 @@
   font-weight: 400;
   color: var(--text-primary);
   text-wrap: balance;
-  animation: auroraHeroFadeUp 800ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: auroraHeroFadeUp 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @keyframes auroraHeroFadeUp {
+  /* Opacity-only reveal. Previously animated translateY(6px → 0)
+     which combined with the cascaded fade of the elements below
+     caused the whole hero block to appear to settle downward on
+     mount. */
   from {
     opacity: 0;
-    transform: translateY(10px);
-    filter: blur(6px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
-    filter: blur(0);
   }
 }
 
-/* 整体内容块略往上移，减轻「重心偏下」的感觉 */
+/* The old `-5vh` pull-up was compensating for justify-content:center.
+   We now anchor from the top via `.guidContainer { padding-top }`,
+   so no negative margin is needed (and it used to contribute to the
+   "sinking" perception on load). */
 .guidContainer .guidLayout {
-  margin-top: -5vh;
+  margin-top: 0;
+}
+
+/* Desktop: pull the hero + composer column slightly left of dead-centre
+   so the stack balances visually with the sidebar brand block on its
+   left. We consume only 35% of the available horizontal slack as the
+   left margin (instead of the 50% that `margin: 0 auto` would give),
+   producing a subtle lean-left that scales with the window width.
+   `align-self: start` overrides the container's `align-items: center`
+   for this single child — the `SkillsMarketBanner` stays pinned to the
+   top-right via its own absolute positioning, so this shift only
+   affects the main hero/composer column. Mobile (≤768px) keeps the
+   existing centered behaviour via the media query further below. */
+@media (min-width: 769px) {
+  .guidContainer .guidLayout {
+    align-self: start;
+    margin-left: max(16px, calc((100% - 800px) * 0.35));
+    margin-right: auto;
+  }
 }
 
 /* Agent 选中时：先放大再回落至略大（pop 动效） */
@@ -597,10 +628,7 @@
 @media (max-width: 768px) {
   .guidContainer {
     justify-content: flex-start;
-    overflow-y: auto;
-    overflow-x: hidden;
     padding-top: 20px;
-    -webkit-overflow-scrolling: touch;
   }
 
   .guidContainer .guidLayout {
