@@ -1005,7 +1005,6 @@ describe('TeammateManager', () => {
       expect(idleCalls).toHaveLength(1);
       mgr.dispose();
     });
-
   });
 
   // -------------------------------------------------------------------------

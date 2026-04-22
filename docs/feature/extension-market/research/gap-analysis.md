@@ -76,7 +76,7 @@ flowchart TD
 
 LobeHub 按独立市场拆分，每种类型一个 index repo：
 
-| 维度           | Gods Eye (当前+方案)                                         | LobeHub                                            |
+| 维度           | Gods Eye (当前+方案)                                       | LobeHub                                            |
 | -------------- | ---------------------------------------------------------- | -------------------------------------------------- |
 | **单元**       | Extension (含多种 contributes)                             | 每种类型独立 (agent/plugin 各自一个 repo)          |
 | **Agent 定义** | manifest → contextFile + presetAgentType + skills + models | 单个 JSON (system prompt + meta, 纯数据)           |
@@ -142,7 +142,7 @@ flowchart LR
 | Gap                 | 详细说明                                                                                           | 现有基础                                   |
 | ------------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------ |
 | **中心化 Registry** | 没有存储/查询扩展元数据的服务端。用户无法在线浏览可用扩展。                                        | 无                                         |
-| **包格式**          | 没有 `.godseyex` 或标准压缩包规范。无法从网络下载并安装一个扩展。                                     | 无                                         |
+| **包格式**          | 没有 `.godseyex` 或标准压缩包规范。无法从网络下载并安装一个扩展。                                  | 无                                         |
 | **远程安装**        | `ExtensionLoader` 只扫描本地目录, 没有从 URL 下载 → 解压 → 放入 extensions 目录的流程。            | `getUserExtensionsDir()` 可作为安装目标    |
 | **Hub UI**          | 没有扩展商店界面。目前只有 `ExtensionSettingsPage` 渲染扩展贡献的 settings tab。                   | `IExtensionInfo` IPC 类型已有基础字段      |
 | **卸载通道**        | `uninstallExtension()` 函数存在 (运行 `onUninstall` 钩子), 但没有 IPC channel, renderer 无法调用。 | `lifecycle.ts` 已有 `uninstallExtension()` |
@@ -225,7 +225,7 @@ flowchart LR
 | ------------------------ | ------------------------------------------------------------------------------------ |
 | Manifest Schema (Zod)    | 开发者提交扩展时自动校验 manifest 格式, 提取 displayName/description/icon 等展示信息 |
 | 10 种 Contribution 类型  | 每种是一个 Hub 的"商品"类型, 可按类型建立独立市场或统一市场分类展示                  |
-| Engine + Dependency 校验 | 安装前检查 Gods Eye 版本兼容性 + 依赖扩展是否已安装                                    |
+| Engine + Dependency 校验 | 安装前检查 Gods Eye 版本兼容性 + 依赖扩展是否已安装                                  |
 | Lifecycle hooks          | `onInstall` 用于安装后初始化, `onUninstall` 用于卸载清理                             |
 | State Persistence        | 记录用户对每个扩展的启用/禁用选择, 跨重启保持                                        |
 | Permission 声明 + 分析   | 在市场页面展示权限徽章, 安装前向用户展示风险等级                                     |

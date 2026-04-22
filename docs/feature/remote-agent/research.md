@@ -135,7 +135,7 @@
 | 模式                             | 代表                             | 适用场景               | 复杂度 |
 | -------------------------------- | -------------------------------- | ---------------------- | :----: |
 | **Bearer Token (静态 API Key)**  | Daytona, E2B, Plandex, Nanobot   | 个人自建、机器对机器   |   低   |
-| **JWT (自签发/自验证)**          | Tabby, OpenHands, Gods Eye WebUI   | 需要过期/刷新的场景    |   中   |
+| **JWT (自签发/自验证)**          | Tabby, OpenHands, Gods Eye WebUI | 需要过期/刷新的场景    |   中   |
 | **OAuth2 / OIDC**                | OpenHands, Coder, Daytona, Tabby | 多用户、企业 SSO       |   高   |
 | **DM Pairing (配对码)**          | OpenClaw, ZeroClaw               | 个人助手设备绑定       |   中   |
 | **WS 握手 + Challenge-Response** | OpenClaw (设备认证)              | 安全性要求高的设备配对 |  中高  |

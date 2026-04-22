@@ -1629,20 +1629,22 @@ export function initFsBridge(): void {
             reject(new Error('Too many redirects'));
             return;
           }
-          protocol.get(reqUrl, (res) => {
-            if (res.statusCode && res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-              request(res.headers.location, redirectCount + 1);
-              return;
-            }
-            if (res.statusCode !== 200) {
-              reject(new Error(`HTTP ${res.statusCode}`));
-              return;
-            }
-            let data = '';
-            res.on('data', (chunk: string) => (data += chunk));
-            res.on('end', () => resolve(data));
-            res.on('error', reject);
-          }).on('error', reject);
+          protocol
+            .get(reqUrl, (res) => {
+              if (res.statusCode && res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+                request(res.headers.location, redirectCount + 1);
+                return;
+              }
+              if (res.statusCode !== 200) {
+                reject(new Error(`HTTP ${res.statusCode}`));
+                return;
+              }
+              let data = '';
+              res.on('data', (chunk: string) => (data += chunk));
+              res.on('end', () => resolve(data));
+              res.on('error', reject);
+            })
+            .on('error', reject);
         };
         request(url);
       });

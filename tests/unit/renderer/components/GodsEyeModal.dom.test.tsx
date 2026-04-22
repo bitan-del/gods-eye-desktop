@@ -78,7 +78,12 @@ describe('GodsEyeModal', () => {
 
   it('preserves an explicit content background override', () => {
     const { container } = render(
-      <GodsEyeModal visible onCancel={vi.fn()} header='Modal title' contentStyle={{ background: 'rgb(var(--primary-1))' }}>
+      <GodsEyeModal
+        visible
+        onCancel={vi.fn()}
+        header='Modal title'
+        contentStyle={{ background: 'rgb(var(--primary-1))' }}
+      >
         content
       </GodsEyeModal>
     );

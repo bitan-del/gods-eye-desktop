@@ -26,7 +26,12 @@ export function buildChannelConversationExtra(args: {
 } {
   const enabledSkills = getChannelEnabledSkills(args.platform);
 
-  if (args.backend === 'gemini' || args.backend === 'codex' || args.backend === 'openclaw-gateway' || args.backend === 'godseye-gateway') {
+  if (
+    args.backend === 'gemini' ||
+    args.backend === 'codex' ||
+    args.backend === 'openclaw-gateway' ||
+    args.backend === 'godseye-gateway'
+  ) {
     return enabledSkills ? { enabledSkills } : {};
   }
 

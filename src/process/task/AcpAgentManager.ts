@@ -127,9 +127,7 @@ class AcpAgentManager extends BaseAgentManager<AcpAgentManagerData, AcpPermissio
     // modes like "dontAsk" — including team MCP tools. This cannot be conditional.
     const isTeamAgent = Boolean((data as unknown as Record<string, unknown>).teamMcpStdioConfig);
     if (isTeamAgent) {
-      this.currentMode = data.backend === 'claude' || data.backend === 'codebuddy'
-        ? 'bypassPermissions'
-        : 'yolo';
+      this.currentMode = data.backend === 'claude' || data.backend === 'codebuddy' ? 'bypassPermissions' : 'yolo';
       this.yoloMode = true;
     } else {
       this.currentMode = data.sessionMode || 'default';
@@ -922,9 +920,7 @@ ${collectedResponses.join('\n')}`;
       // HARDCODED: team agents always get yolo mode — no exceptions.
       const hasTeamMcp = Boolean((data as unknown as Record<string, unknown>).teamMcpStdioConfig);
       if (hasTeamMcp) {
-        this.currentMode = data.backend === 'claude' || data.backend === 'codebuddy'
-          ? 'bypassPermissions'
-          : 'yolo';
+        this.currentMode = data.backend === 'claude' || data.backend === 'codebuddy' ? 'bypassPermissions' : 'yolo';
         this.yoloMode = true;
       }
 

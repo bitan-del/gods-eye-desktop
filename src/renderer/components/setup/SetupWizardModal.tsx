@@ -114,8 +114,17 @@ const SetupWizardModal: React.FC<{
       const lines = clean.split('\n').filter((l) => l.trim().length > 0);
       const newLines = lines.map((line) => {
         if (line.startsWith('$')) return { text: line, type: 'cmd' as const };
-        if (line.includes('✓') || line.includes('✔') || line.includes('successfully') || line.includes('ready') || line.includes('installed') || line.includes('found')) return { text: line, type: 'ok' as const };
-        if (data.stream === 'stderr' || line.startsWith('✗') || line.includes('error') || line.includes('Error')) return { text: line, type: 'err' as const };
+        if (
+          line.includes('✓') ||
+          line.includes('✔') ||
+          line.includes('successfully') ||
+          line.includes('ready') ||
+          line.includes('installed') ||
+          line.includes('found')
+        )
+          return { text: line, type: 'ok' as const };
+        if (data.stream === 'stderr' || line.startsWith('✗') || line.includes('error') || line.includes('Error'))
+          return { text: line, type: 'err' as const };
         return { text: line, type: 'out' as const };
       });
       if (newLines.length > 0) {
@@ -205,7 +214,9 @@ const SetupWizardModal: React.FC<{
         ))}
         {step === 'installing' && terminalLines.length > 0 && (
           <div style={{ color: '#3fb950' }}>
-            <span className="inline-block" style={{ animation: 'blink 1s step-end infinite' }}>_</span>
+            <span className='inline-block' style={{ animation: 'blink 1s step-end infinite' }}>
+              _
+            </span>
           </div>
         )}
       </div>
@@ -232,24 +243,27 @@ const SetupWizardModal: React.FC<{
         const secs = elapsed % 60;
         const timeStr = mins > 0 ? `${mins}m ${secs.toString().padStart(2, '0')}s` : `${secs}s`;
         return (
-          <div className="flex flex-col gap-12px">
-            <div className="flex items-center justify-between" style={{ color: 'var(--text-secondary)' }}>
-              <div className="flex items-center gap-8px">
+          <div className='flex flex-col gap-12px'>
+            <div className='flex items-center justify-between' style={{ color: 'var(--text-secondary)' }}>
+              <div className='flex items-center gap-8px'>
                 <div
                   style={{
-                    width: 8, height: 8, borderRadius: '50%', background: '#3fb950',
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    background: '#3fb950',
                     animation: 'pulse 1.5s ease-in-out infinite',
                   }}
                 />
-                <span className="text-13px">Installing Gods Eye CLI...</span>
+                <span className='text-13px'>Installing Gods Eye CLI...</span>
               </div>
-              <span className="text-12px" style={{ color: '#8b949e', fontVariantNumeric: 'tabular-nums' }}>
+              <span className='text-12px' style={{ color: '#8b949e', fontVariantNumeric: 'tabular-nums' }}>
                 {timeStr}
               </span>
             </div>
             {renderTerminal()}
             {elapsed > 30 && (
-              <div className="text-12px text-center" style={{ color: '#8b949e' }}>
+              <div className='text-12px text-center' style={{ color: '#8b949e' }}>
                 Installing dependencies — this usually takes 2-5 minutes on first setup
               </div>
             )}
@@ -259,17 +273,21 @@ const SetupWizardModal: React.FC<{
 
       case 'setup':
         return (
-          <div className="flex flex-col gap-16px items-center py-16px">
-            <CheckOne theme="filled" size="44" fill="#3fb950" />
-            <h3 className="text-16px font-500 m-0" style={{ color: 'var(--text-primary)' }}>CLI Installed</h3>
-            <p className="text-13px m-0 text-center" style={{ color: 'var(--text-secondary)', maxWidth: '380px' }}>
+          <div className='flex flex-col gap-16px items-center py-16px'>
+            <CheckOne theme='filled' size='44' fill='#3fb950' />
+            <h3 className='text-16px font-500 m-0' style={{ color: 'var(--text-primary)' }}>
+              CLI Installed
+            </h3>
+            <p className='text-13px m-0 text-center' style={{ color: 'var(--text-secondary)', maxWidth: '380px' }}>
               Configure your API keys and preferences in Terminal.
             </p>
-            <div className="flex gap-12px">
-              <Button type="secondary" onClick={handleDismiss}>Skip for Now</Button>
-              <Button type="primary" onClick={handleOpenTerminal}>
-                <span className="flex items-center gap-6px">
-                  <Terminal theme="outline" size="16" />
+            <div className='flex gap-12px'>
+              <Button type='secondary' onClick={handleDismiss}>
+                Skip for Now
+              </Button>
+              <Button type='primary' onClick={handleOpenTerminal}>
+                <span className='flex items-center gap-6px'>
+                  <Terminal theme='outline' size='16' />
                   Open Terminal to Configure
                 </span>
               </Button>
@@ -279,12 +297,12 @@ const SetupWizardModal: React.FC<{
 
       case 'setting-up':
         return (
-          <div className="flex flex-col gap-16px items-center py-24px">
-            <Terminal theme="outline" size="48" fill="var(--text-secondary)" />
-            <h3 className="text-16px font-500 m-0" style={{ color: 'var(--text-primary)' }}>
+          <div className='flex flex-col gap-16px items-center py-24px'>
+            <Terminal theme='outline' size='48' fill='var(--text-secondary)' />
+            <h3 className='text-16px font-500 m-0' style={{ color: 'var(--text-primary)' }}>
               Complete Setup in Terminal
             </h3>
-            <p className="text-13px m-0 text-center" style={{ color: 'var(--text-secondary)', maxWidth: '400px' }}>
+            <p className='text-13px m-0 text-center' style={{ color: 'var(--text-secondary)', maxWidth: '400px' }}>
               A Terminal window has opened with the setup wizard. Follow the prompts there to configure Gods Eye.
             </p>
             <div
@@ -299,11 +317,13 @@ const SetupWizardModal: React.FC<{
             >
               <code style={{ color: '#3fb950', fontSize: '13px' }}>$ godseye onboard</code>
             </div>
-            <div className="flex gap-12px" style={{ marginTop: '4px' }}>
-              <Button type="secondary" onClick={handleDismiss}>Close</Button>
-              <Button type="primary" onClick={handleOpenTerminal}>
-                <span className="flex items-center gap-6px">
-                  <Terminal theme="outline" size="16" />
+            <div className='flex gap-12px' style={{ marginTop: '4px' }}>
+              <Button type='secondary' onClick={handleDismiss}>
+                Close
+              </Button>
+              <Button type='primary' onClick={handleOpenTerminal}>
+                <span className='flex items-center gap-6px'>
+                  <Terminal theme='outline' size='16' />
                   Reopen Terminal
                 </span>
               </Button>
@@ -314,28 +334,40 @@ const SetupWizardModal: React.FC<{
 
       case 'complete':
         return (
-          <div className="flex flex-col items-center gap-16px py-24px">
-            <CheckOne theme="filled" size="52" fill="#3fb950" />
-            <h3 className="text-18px font-500 m-0" style={{ color: 'var(--text-primary)' }}>You're All Set!</h3>
-            <p className="text-13px m-0" style={{ color: 'var(--text-secondary)' }}>
+          <div className='flex flex-col items-center gap-16px py-24px'>
+            <CheckOne theme='filled' size='52' fill='#3fb950' />
+            <h3 className='text-18px font-500 m-0' style={{ color: 'var(--text-primary)' }}>
+              You're All Set!
+            </h3>
+            <p className='text-13px m-0' style={{ color: 'var(--text-secondary)' }}>
               Gods Eye CLI is installed and configured.
             </p>
-            <Button type="primary" onClick={onClose} style={{ marginTop: '4px' }}>Get Started</Button>
+            <Button type='primary' onClick={onClose} style={{ marginTop: '4px' }}>
+              Get Started
+            </Button>
           </div>
         );
 
       case 'error':
         return (
-          <div className="flex flex-col gap-16px">
-            <div className="flex flex-col items-center gap-8px py-8px">
-              <CloseOne theme="filled" size="44" fill="#f85149" />
-              <h3 className="text-16px font-500 m-0" style={{ color: 'var(--text-primary)' }}>Installation Failed</h3>
-              <p className="text-13px m-0" style={{ color: '#f85149' }}>{errorMessage}</p>
+          <div className='flex flex-col gap-16px'>
+            <div className='flex flex-col items-center gap-8px py-8px'>
+              <CloseOne theme='filled' size='44' fill='#f85149' />
+              <h3 className='text-16px font-500 m-0' style={{ color: 'var(--text-primary)' }}>
+                Installation Failed
+              </h3>
+              <p className='text-13px m-0' style={{ color: '#f85149' }}>
+                {errorMessage}
+              </p>
             </div>
             {terminalLines.length > 0 && renderTerminal()}
-            <div className="flex justify-center gap-12px">
-              <Button type="secondary" onClick={handleDismiss}>Skip for Now</Button>
-              <Button type="primary" onClick={handleRetry}>Try Again</Button>
+            <div className='flex justify-center gap-12px'>
+              <Button type='secondary' onClick={handleDismiss}>
+                Skip for Now
+              </Button>
+              <Button type='primary' onClick={handleRetry}>
+                Try Again
+              </Button>
             </div>
           </div>
         );
@@ -349,7 +381,7 @@ const SetupWizardModal: React.FC<{
     <GodsEyeModal
       visible={visible}
       onCancel={handleDismiss}
-      size="large"
+      size='large'
       header={{ title: 'Gods Eye Setup', showClose: true }}
       footer={null}
       maskClosable={false}
@@ -364,11 +396,11 @@ const SetupWizardModal: React.FC<{
           50% { opacity: 0; }
         }
       `}</style>
-      <div className="flex flex-col gap-20px px-16px py-8px">
-        <AionSteps current={stepIndex} size="small" style={{ padding: '0 32px' }}>
-          <AionSteps.Step title="Install" />
-          <AionSteps.Step title="Configure" />
-          <AionSteps.Step title="Done" />
+      <div className='flex flex-col gap-20px px-16px py-8px'>
+        <AionSteps current={stepIndex} size='small' style={{ padding: '0 32px' }}>
+          <AionSteps.Step title='Install' />
+          <AionSteps.Step title='Configure' />
+          <AionSteps.Step title='Done' />
         </AionSteps>
         {renderContent()}
       </div>

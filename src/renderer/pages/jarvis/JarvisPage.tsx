@@ -116,7 +116,7 @@ const JarvisPage: React.FC = () => {
         const isVirtual = VIRTUAL_DEVICE_KEYWORDS.some((kw) => label.toLowerCase().includes(kw));
         if (isVirtual) {
           setMicWarning(
-            `Default mic is "${label}" (virtual). Change to a real microphone in System Settings → Sound → Input.`,
+            `Default mic is "${label}" (virtual). Change to a real microphone in System Settings → Sound → Input.`
           );
         }
       } catch {
@@ -195,7 +195,7 @@ const JarvisPage: React.FC = () => {
       audioQueueRef.current.push(new Int16Array(int16Samples));
       playNextChunk();
     },
-    [playNextChunk],
+    [playNextChunk]
   );
 
   /** Clear audio queue and stop playback */
@@ -214,7 +214,7 @@ const JarvisPage: React.FC = () => {
         (d) =>
           d.kind === 'audioinput' &&
           d.label &&
-          !VIRTUAL_DEVICE_KEYWORDS.some((kw) => d.label.toLowerCase().includes(kw)),
+          !VIRTUAL_DEVICE_KEYWORDS.some((kw) => d.label.toLowerCase().includes(kw))
       );
       const audioConstraints: MediaStreamConstraints['audio'] = realMic
         ? { deviceId: { exact: realMic.deviceId } }
@@ -351,7 +351,7 @@ const JarvisPage: React.FC = () => {
           break;
       }
     },
-    [clearAudioQueue, enqueueAudio, navigate, stopMicStream, updateState],
+    [clearAudioQueue, enqueueAudio, navigate, stopMicStream, updateState]
   );
 
   // Subscribe to Gemini Live events from main process
@@ -443,7 +443,7 @@ const JarvisPage: React.FC = () => {
         handleOrbClick();
       }
     },
-    [handleOrbClick],
+    [handleOrbClick]
   );
 
   const orbClassName = useMemo(() => {
@@ -525,9 +525,7 @@ const JarvisPage: React.FC = () => {
         </div>
 
         {/* Title */}
-        <h1 className={styles.jarvisTitle}>
-          {jarvisState === 'sleeping' ? 'J . A . R . V . I . S' : 'JARVIS'}
-        </h1>
+        <h1 className={styles.jarvisTitle}>{jarvisState === 'sleeping' ? 'J . A . R . V . I . S' : 'JARVIS'}</h1>
 
         {/* Live indicator when connected */}
         {(jarvisState === 'listening' || jarvisState === 'speaking') && (
@@ -556,9 +554,7 @@ const JarvisPage: React.FC = () => {
         <p className={styles.statusText}>{statusText}</p>
 
         {/* User transcript (what Gemini heard) */}
-        {transcript && jarvisState !== 'sleeping' && (
-          <p className={styles.transcript}>&ldquo;{transcript}&rdquo;</p>
-        )}
+        {transcript && jarvisState !== 'sleeping' && <p className={styles.transcript}>&ldquo;{transcript}&rdquo;</p>}
 
         {/* Gemini response text */}
         {response && (jarvisState === 'speaking' || jarvisState === 'listening') && (
@@ -583,22 +579,16 @@ const JarvisPage: React.FC = () => {
         )}
 
         {/* Mic warning */}
-        {micWarning && (
-          <p className={styles.micWarning}>{micWarning}</p>
-        )}
+        {micWarning && <p className={styles.micWarning}>{micWarning}</p>}
 
         {/* Sleeping hint */}
         {jarvisState === 'sleeping' && (
-          <p className={styles.hintText}>
-            Say &ldquo;Hello JARVIS&rdquo;, clap, or click
-          </p>
+          <p className={styles.hintText}>Say &ldquo;Hello JARVIS&rdquo;, clap, or click</p>
         )}
 
         {/* Active hint — click to disconnect */}
         {(jarvisState === 'listening' || jarvisState === 'speaking') && (
-          <p className={styles.hintText}>
-            Click the orb to disconnect
-          </p>
+          <p className={styles.hintText}>Click the orb to disconnect</p>
         )}
       </div>
     </div>

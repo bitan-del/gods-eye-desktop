@@ -79,11 +79,7 @@
   width: 35%;
   height: 25%;
   border-radius: 50%;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.25) 0%,
-    rgba(255, 255, 255, 0.05) 100%
-  );
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.05) 100%);
   filter: blur(1px);
 }
 
@@ -143,18 +139,36 @@
 }
 
 @keyframes swirlRotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes orbFloat {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.03); opacity: 0.7; }
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.03);
+    opacity: 0.7;
+  }
 }
 
 @keyframes orbPulseAnim {
-  0%, 100% { transform: scale(1); opacity: 0.3; }
-  50% { transform: scale(1.15); opacity: 0.05; }
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.05;
+  }
 }
 
 /* ── State: Sleeping ── */
@@ -187,8 +201,12 @@
 }
 
 @keyframes siriWake {
-  0% { transform: scale(1); }
-  30% { transform: scale(1.2); }
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.2);
+  }
   60% {
     box-shadow:
       0 0 60px 16px rgba(79, 195, 247, 0.3),
@@ -229,7 +247,8 @@
 }
 
 @keyframes siriListen {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     box-shadow:
       0 0 50px 12px rgba(79, 195, 247, 0.3),
@@ -267,7 +286,8 @@
 }
 
 @keyframes siriSpeak {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     box-shadow:
       0 0 45px 10px rgba(79, 195, 247, 0.25),
@@ -344,8 +364,13 @@
 }
 
 @keyframes hintFade {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 0.9; }
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.9;
+  }
 }
 
 /* ──── Transcript display ──── */
@@ -372,8 +397,14 @@
 }
 
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ──── Activity Panel ──── */
@@ -449,8 +480,15 @@
 }
 
 @keyframes micPulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(0.8); }
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.8);
+  }
 }
 
 /* ──── Audio level visualizer ──── */
@@ -461,7 +499,9 @@
   border-radius: 50%;
   border: 2px solid rgba(79, 195, 247, 0.4);
   pointer-events: none;
-  transition: transform 0.08s ease-out, opacity 0.08s ease-out;
+  transition:
+    transform 0.08s ease-out,
+    opacity 0.08s ease-out;
 }
 
 .audioRing2 {
@@ -470,7 +510,9 @@
   border-radius: 50%;
   border: 1px solid rgba(156, 39, 176, 0.3);
   pointer-events: none;
-  transition: transform 0.08s ease-out, opacity 0.08s ease-out;
+  transition:
+    transform 0.08s ease-out,
+    opacity 0.08s ease-out;
 }
 
 .audioLevelContainer {

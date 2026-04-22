@@ -1047,4 +1047,3 @@ describe('Cross-component event flow: teamEventBus → TeammateManager → real 
     expect(idleNotifs).toHaveLength(0);
   });
 });
-

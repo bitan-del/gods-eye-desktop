@@ -57,28 +57,28 @@ const DESK_POSITIONS: Array<{ x: number; y: number }> = [
 
 /* ───────────── Character palettes ───────────── */
 
-const CHARACTER_PALETTES: Record<string, { skin: string; shirt: string; hair: string; pants: string; beard?: string }> = {
-  claude: { skin: '#f5c38a', shirt: '#d97706', hair: '#3a1f0e', pants: '#3b2417', beard: '#5a3418' },
-  gemini: { skin: '#f5c38a', shirt: '#3b82f6', hair: '#1e1e2e', pants: '#1e3a8a' },
-  codex: { skin: '#f5c38a', shirt: '#10b981', hair: '#111827', pants: '#064e3b' },
-  qwen: { skin: '#f5c38a', shirt: '#a855f7', hair: '#1f1b24', pants: '#581c87' },
-  copilot: { skin: '#f5c38a', shirt: '#6366f1', hair: '#1e1b2e', pants: '#312e81' },
-  cursor: { skin: '#f5c38a', shirt: '#06b6d4', hair: '#0e1a24', pants: '#164e63' },
-  goose: { skin: '#f5c38a', shirt: '#f43f5e', hair: '#1a1a1a', pants: '#881337' },
-  kimi: { skin: '#f5c38a', shirt: '#eab308', hair: '#1e1a05', pants: '#713f12' },
-  codebuddy: { skin: '#f5c38a', shirt: '#ec4899', hair: '#2a0a1d', pants: '#831843' },
-  droid: { skin: '#d1d5db', shirt: '#64748b', hair: '#334155', pants: '#1e293b' },
-  hermes: { skin: '#f5c38a', shirt: '#8b5cf6', hair: '#1a0b2e', pants: '#4c1d95' },
-  opencode: { skin: '#f5c38a', shirt: '#14b8a6', hair: '#0f1f1d', pants: '#134e4a' },
-  kiro: { skin: '#f5c38a', shirt: '#f97316', hair: '#1e120a', pants: '#7c2d12' },
-  auggie: { skin: '#f5c38a', shirt: '#84cc16', hair: '#172008', pants: '#365314' },
-  vibe: { skin: '#f5c38a', shirt: '#e11d48', hair: '#1f0a10', pants: '#881337' },
-};
+const CHARACTER_PALETTES: Record<string, { skin: string; shirt: string; hair: string; pants: string; beard?: string }> =
+  {
+    claude: { skin: '#f5c38a', shirt: '#d97706', hair: '#3a1f0e', pants: '#3b2417', beard: '#5a3418' },
+    gemini: { skin: '#f5c38a', shirt: '#3b82f6', hair: '#1e1e2e', pants: '#1e3a8a' },
+    codex: { skin: '#f5c38a', shirt: '#10b981', hair: '#111827', pants: '#064e3b' },
+    qwen: { skin: '#f5c38a', shirt: '#a855f7', hair: '#1f1b24', pants: '#581c87' },
+    copilot: { skin: '#f5c38a', shirt: '#6366f1', hair: '#1e1b2e', pants: '#312e81' },
+    cursor: { skin: '#f5c38a', shirt: '#06b6d4', hair: '#0e1a24', pants: '#164e63' },
+    goose: { skin: '#f5c38a', shirt: '#f43f5e', hair: '#1a1a1a', pants: '#881337' },
+    kimi: { skin: '#f5c38a', shirt: '#eab308', hair: '#1e1a05', pants: '#713f12' },
+    codebuddy: { skin: '#f5c38a', shirt: '#ec4899', hair: '#2a0a1d', pants: '#831843' },
+    droid: { skin: '#d1d5db', shirt: '#64748b', hair: '#334155', pants: '#1e293b' },
+    hermes: { skin: '#f5c38a', shirt: '#8b5cf6', hair: '#1a0b2e', pants: '#4c1d95' },
+    opencode: { skin: '#f5c38a', shirt: '#14b8a6', hair: '#0f1f1d', pants: '#134e4a' },
+    kiro: { skin: '#f5c38a', shirt: '#f97316', hair: '#1e120a', pants: '#7c2d12' },
+    auggie: { skin: '#f5c38a', shirt: '#84cc16', hair: '#172008', pants: '#365314' },
+    vibe: { skin: '#f5c38a', shirt: '#e11d48', hair: '#1f0a10', pants: '#881337' },
+  };
 
 const DEFAULT_PALETTE = { skin: '#f5c38a', shirt: '#4f46e5', hair: '#1e1b2e', pants: '#312e81' };
 
-const getPalette = (agentType: string) =>
-  CHARACTER_PALETTES[agentType.toLowerCase()] ?? DEFAULT_PALETTE;
+const getPalette = (agentType: string) => CHARACTER_PALETTES[agentType.toLowerCase()] ?? DEFAULT_PALETTE;
 
 /* ───────────── Character archetypes (15 roles) ───────────── */
 
@@ -101,11 +101,36 @@ const ARCHETYPES: Archetype[] = [
   { id: 'ceo', title: 'CEO', emoji: '👑', rarity: 'legendary', hat: 'crown', accessory: 'tie' },
   { id: 'cto', title: 'CTO', emoji: '⚡', rarity: 'legendary', hat: 'beanie', hatColor: '#0f172a', beard: true },
   { id: 'founder', title: 'Founder', emoji: '🔥', rarity: 'epic', accessory: 'sunglasses', beard: true },
-  { id: 'manager', title: 'Manager', emoji: '📋', rarity: 'rare', hat: 'headset', hatColor: '#334155', accessory: 'tie' },
+  {
+    id: 'manager',
+    title: 'Manager',
+    emoji: '📋',
+    rarity: 'rare',
+    hat: 'headset',
+    hatColor: '#334155',
+    accessory: 'tie',
+  },
   { id: 'architect', title: 'Architect', emoji: '🏗️', rarity: 'rare', hat: 'hardhat', hatColor: '#f59e0b' },
   { id: 'senior', title: 'Senior Eng', emoji: '🎯', rarity: 'rare', beard: true, accessory: 'glasses' },
-  { id: 'designer', title: 'Designer', emoji: '🎨', rarity: 'rare', hat: 'beret', hatColor: '#111827', accessory: 'glasses' },
-  { id: 'research', title: 'Researcher', emoji: '🔮', rarity: 'epic', hat: 'wizard', hatColor: '#1e3a8a', hatAccent: '#fde047', beard: true },
+  {
+    id: 'designer',
+    title: 'Designer',
+    emoji: '🎨',
+    rarity: 'rare',
+    hat: 'beret',
+    hatColor: '#111827',
+    accessory: 'glasses',
+  },
+  {
+    id: 'research',
+    title: 'Researcher',
+    emoji: '🔮',
+    rarity: 'epic',
+    hat: 'wizard',
+    hatColor: '#1e3a8a',
+    hatAccent: '#fde047',
+    beard: true,
+  },
   { id: 'data', title: 'Data Sci', emoji: '📊', rarity: 'common', accessory: 'glasses' },
   { id: 'devops', title: 'DevOps', emoji: '⚙️', rarity: 'common', hat: 'cap', hatColor: '#166534' },
   { id: 'scrum', title: 'Scrum Lead', emoji: '🏃', rarity: 'common', hat: 'visor', hatColor: '#8b5cf6' },
@@ -153,17 +178,27 @@ const PixelHat: React.FC<{ archetype: Archetype }> = ({ archetype }) => {
     case 'crown':
       return (
         <g>
-          <P x={3} y={-2} fill='#fbbf24' /><P x={4} y={-2} fill='#fbbf24' /><P x={5} y={-2} fill='#fbbf24' />
-          <P x={6} y={-2} fill='#fbbf24' /><P x={7} y={-2} fill='#fbbf24' /><P x={8} y={-2} fill='#fbbf24' />
-          <P x={3} y={-3} fill='#fde047' /><P x={5} y={-3} fill='#fde047' /><P x={7} y={-3} fill='#fde047' />
-          <P x={4} y={-4} fill='#fde047' /><P x={6} y={-4} fill='#fde047' /><P x={8} y={-4} fill='#fde047' />
-          <P x={5} y={-1} fill='#dc2626' /><P x={7} y={-1} fill='#3b82f6' />
+          <P x={3} y={-2} fill='#fbbf24' />
+          <P x={4} y={-2} fill='#fbbf24' />
+          <P x={5} y={-2} fill='#fbbf24' />
+          <P x={6} y={-2} fill='#fbbf24' />
+          <P x={7} y={-2} fill='#fbbf24' />
+          <P x={8} y={-2} fill='#fbbf24' />
+          <P x={3} y={-3} fill='#fde047' />
+          <P x={5} y={-3} fill='#fde047' />
+          <P x={7} y={-3} fill='#fde047' />
+          <P x={4} y={-4} fill='#fde047' />
+          <P x={6} y={-4} fill='#fde047' />
+          <P x={8} y={-4} fill='#fde047' />
+          <P x={5} y={-1} fill='#dc2626' />
+          <P x={7} y={-1} fill='#3b82f6' />
         </g>
       );
     case 'cap':
       return (
         <g>
-          <P x={2} y={-1} fill={color} w={8} /><P x={2} y={0} fill={color} w={8} />
+          <P x={2} y={-1} fill={color} w={8} />
+          <P x={2} y={0} fill={color} w={8} />
           <P x={3} y={-2} fill={color} w={6} />
           <P x={9} y={1} fill={color} w={3} />
           <P x={5} y={-1} fill={accent} w={2} />
@@ -182,7 +217,8 @@ const PixelHat: React.FC<{ archetype: Archetype }> = ({ archetype }) => {
     case 'hardhat':
       return (
         <g>
-          <P x={2} y={-1} fill={color} w={8} /><P x={2} y={0} fill={color} w={8} />
+          <P x={2} y={-1} fill={color} w={8} />
+          <P x={2} y={0} fill={color} w={8} />
           <P x={3} y={-2} fill={color} w={6} />
           <P x={4} y={-3} fill={color} w={4} />
           <P x={1} y={0} fill={color} w={10} />
@@ -213,16 +249,21 @@ const PixelHat: React.FC<{ archetype: Archetype }> = ({ archetype }) => {
       return (
         <g>
           <P x={3} y={-1} fill={color} w={6} />
-          <P x={3} y={0} fill={color} /><P x={8} y={0} fill={color} />
-          <P x={1} y={2} fill={color} /><P x={1} y={3} fill={color} />
-          <P x={10} y={2} fill={color} /><P x={10} y={3} fill={color} />
-          <P x={0} y={3} fill='#1a1a1a' /><P x={11} y={3} fill='#1a1a1a' />
+          <P x={3} y={0} fill={color} />
+          <P x={8} y={0} fill={color} />
+          <P x={1} y={2} fill={color} />
+          <P x={1} y={3} fill={color} />
+          <P x={10} y={2} fill={color} />
+          <P x={10} y={3} fill={color} />
+          <P x={0} y={3} fill='#1a1a1a' />
+          <P x={11} y={3} fill='#1a1a1a' />
         </g>
       );
     case 'beanie':
       return (
         <g>
-          <P x={2} y={-1} fill={color} w={8} /><P x={2} y={0} fill={color} w={8} />
+          <P x={2} y={-1} fill={color} w={8} />
+          <P x={2} y={0} fill={color} w={8} />
           <P x={3} y={-2} fill={color} w={6} />
           <P x={4} y={-3} fill={color} w={4} />
           <P x={2} y={0} fill={accent} w={8} h={1} />
@@ -250,9 +291,14 @@ const PixelAccessory: React.FC<{ archetype: Archetype }> = ({ archetype }) => {
     case 'glasses':
       return (
         <g>
-          <P x={3} y={3} fill='#1a1a1a' /><P x={4} y={3} fill='#1a1a1a' /><P x={5} y={3} fill='#1a1a1a' />
-          <P x={6} y={3} fill='#1a1a1a' /><P x={7} y={3} fill='#1a1a1a' /><P x={8} y={3} fill='#1a1a1a' />
-          <P x={4} y={3} fill='#bae6fd' /><P x={7} y={3} fill='#bae6fd' />
+          <P x={3} y={3} fill='#1a1a1a' />
+          <P x={4} y={3} fill='#1a1a1a' />
+          <P x={5} y={3} fill='#1a1a1a' />
+          <P x={6} y={3} fill='#1a1a1a' />
+          <P x={7} y={3} fill='#1a1a1a' />
+          <P x={8} y={3} fill='#1a1a1a' />
+          <P x={4} y={3} fill='#bae6fd' />
+          <P x={7} y={3} fill='#bae6fd' />
           <P x={5} y={3} fill='#1a1a1a' />
         </g>
       );
@@ -260,7 +306,8 @@ const PixelAccessory: React.FC<{ archetype: Archetype }> = ({ archetype }) => {
       return (
         <g>
           <P x={3} y={3} fill='#0a0a0a' w={7} />
-          <P x={4} y={3} fill='#1e293b' /><P x={7} y={3} fill='#1e293b' />
+          <P x={4} y={3} fill='#1e293b' />
+          <P x={7} y={3} fill='#1e293b' />
           <P x={5} y={3} fill='#0a0a0a' />
           <P x={4} y={3} fill='#ffffff' w={1} h={1} opacity={0.9} />
         </g>
@@ -268,10 +315,14 @@ const PixelAccessory: React.FC<{ archetype: Archetype }> = ({ archetype }) => {
     case 'tie':
       return (
         <g>
-          <P x={5} y={7} fill='#b91c1c' /><P x={6} y={7} fill='#b91c1c' />
-          <P x={5} y={8} fill='#7f1d1d' /><P x={6} y={8} fill='#7f1d1d' />
-          <P x={5} y={9} fill='#b91c1c' /><P x={6} y={9} fill='#b91c1c' />
-          <P x={5} y={10} fill='#7f1d1d' /><P x={6} y={10} fill='#7f1d1d' />
+          <P x={5} y={7} fill='#b91c1c' />
+          <P x={6} y={7} fill='#b91c1c' />
+          <P x={5} y={8} fill='#7f1d1d' />
+          <P x={6} y={8} fill='#7f1d1d' />
+          <P x={5} y={9} fill='#b91c1c' />
+          <P x={6} y={9} fill='#b91c1c' />
+          <P x={5} y={10} fill='#7f1d1d' />
+          <P x={6} y={10} fill='#7f1d1d' />
         </g>
       );
     case 'badge':
@@ -294,46 +345,147 @@ const PixelCharacter: React.FC<{
   const beardColor = palette.beard ?? '#4a2e17';
 
   const hairTop = [
-    [3, 0], [4, 0], [5, 0], [6, 0], [7, 0], [8, 0],
-    [2, 1], [3, 1], [4, 1], [5, 1], [6, 1], [7, 1], [8, 1], [9, 1],
-    [2, 2], [9, 2],
+    [3, 0],
+    [4, 0],
+    [5, 0],
+    [6, 0],
+    [7, 0],
+    [8, 0],
+    [2, 1],
+    [3, 1],
+    [4, 1],
+    [5, 1],
+    [6, 1],
+    [7, 1],
+    [8, 1],
+    [9, 1],
+    [2, 2],
+    [9, 2],
   ];
   const face = [
-    [3, 2], [4, 2], [5, 2], [6, 2], [7, 2], [8, 2],
-    [2, 3], [3, 3], [4, 3], [5, 3], [6, 3], [7, 3], [8, 3], [9, 3],
-    [2, 4], [3, 4], [4, 4], [5, 4], [6, 4], [7, 4], [8, 4], [9, 4],
-    [3, 5], [4, 5], [5, 5], [6, 5], [7, 5], [8, 5],
+    [3, 2],
+    [4, 2],
+    [5, 2],
+    [6, 2],
+    [7, 2],
+    [8, 2],
+    [2, 3],
+    [3, 3],
+    [4, 3],
+    [5, 3],
+    [6, 3],
+    [7, 3],
+    [8, 3],
+    [9, 3],
+    [2, 4],
+    [3, 4],
+    [4, 4],
+    [5, 4],
+    [6, 4],
+    [7, 4],
+    [8, 4],
+    [9, 4],
+    [3, 5],
+    [4, 5],
+    [5, 5],
+    [6, 5],
+    [7, 5],
+    [8, 5],
   ];
-  const eyes = [[4, 3], [7, 3]];
-  const mouth = [[5, 5], [6, 5]];
+  const eyes = [
+    [4, 3],
+    [7, 3],
+  ];
+  const mouth = [
+    [5, 5],
+    [6, 5],
+  ];
   const beardPixels = beardEnabled
     ? [
-        [3, 5], [4, 5], [5, 5], [6, 5], [7, 5], [8, 5],
-        [4, 6], [5, 6], [6, 6], [7, 6],
+        [3, 5],
+        [4, 5],
+        [5, 5],
+        [6, 5],
+        [7, 5],
+        [8, 5],
+        [4, 6],
+        [5, 6],
+        [6, 6],
+        [7, 6],
       ]
     : [];
-  const neck = [[5, 6], [6, 6]];
-  const shirtRow = [
-    [2, 7], [3, 7], [4, 7], [5, 7], [6, 7], [7, 7], [8, 7], [9, 7],
-    [1, 8], [2, 8], [3, 8], [4, 8], [5, 8], [6, 8], [7, 8], [8, 8], [9, 8], [10, 8],
-    [1, 9], [2, 9], [3, 9], [4, 9], [5, 9], [6, 9], [7, 9], [8, 9], [9, 9], [10, 9],
+  const neck = [
+    [5, 6],
+    [6, 6],
   ];
-  const armsRest = [[0, 9], [11, 9], [0, 10], [11, 10]];
-  const armsType = [[0, 8], [11, 8], [1, 9], [10, 9]];
+  const shirtRow = [
+    [2, 7],
+    [3, 7],
+    [4, 7],
+    [5, 7],
+    [6, 7],
+    [7, 7],
+    [8, 7],
+    [9, 7],
+    [1, 8],
+    [2, 8],
+    [3, 8],
+    [4, 8],
+    [5, 8],
+    [6, 8],
+    [7, 8],
+    [8, 8],
+    [9, 8],
+    [10, 8],
+    [1, 9],
+    [2, 9],
+    [3, 9],
+    [4, 9],
+    [5, 9],
+    [6, 9],
+    [7, 9],
+    [8, 9],
+    [9, 9],
+    [10, 9],
+  ];
+  const armsRest = [
+    [0, 9],
+    [11, 9],
+    [0, 10],
+    [11, 10],
+  ];
+  const armsType = [
+    [0, 8],
+    [11, 8],
+    [1, 9],
+    [10, 9],
+  ];
   const arms = typing ? armsType : armsRest;
 
   return (
     <g style={{ animation: pending ? 'pixel-bounce 0.7s ease-in-out infinite' : undefined }}>
-      {hairTop.map(([x, y], i) => <P key={`h${i}`} x={x} y={y} fill={hair} />)}
-      {face.map(([x, y], i) => <P key={`f${i}`} x={x} y={y} fill={skin} />)}
-      {beardPixels.map(([x, y], i) => <P key={`bd${i}`} x={x} y={y} fill={beardColor} />)}
-      {eyes.map(([x, y], i) => <P key={`e${i}`} x={x} y={y} fill='#0a0a0a' />)}
+      {hairTop.map(([x, y], i) => (
+        <P key={`h${i}`} x={x} y={y} fill={hair} />
+      ))}
+      {face.map(([x, y], i) => (
+        <P key={`f${i}`} x={x} y={y} fill={skin} />
+      ))}
+      {beardPixels.map(([x, y], i) => (
+        <P key={`bd${i}`} x={x} y={y} fill={beardColor} />
+      ))}
+      {eyes.map(([x, y], i) => (
+        <P key={`e${i}`} x={x} y={y} fill='#0a0a0a' />
+      ))}
       {!beardEnabled && mouth.map(([x, y], i) => <P key={`m${i}`} x={x} y={y} fill='#7a4a3a' />)}
       {!beardEnabled && neck.map(([x, y], i) => <P key={`n${i}`} x={x} y={y} fill={skin} />)}
-      {shirtRow.map(([x, y], i) => <P key={`s${i}`} x={x} y={y} fill={shirt} />)}
+      {shirtRow.map(([x, y], i) => (
+        <P key={`s${i}`} x={x} y={y} fill={shirt} />
+      ))}
       <PixelAccessory archetype={archetype} />
       <g style={{ animation: typing ? 'pixel-type 0.28s steps(2) infinite' : undefined, transformOrigin: '6px 8px' }}>
-        {arms.map(([x, y], i) => <P key={`a${i}`} x={x} y={y} fill={skin} />)}
+        {arms.map(([x, y], i) => (
+          <P key={`a${i}`} x={x} y={y} fill={skin} />
+        ))}
       </g>
       <PixelHat archetype={archetype} />
     </g>
@@ -361,7 +513,12 @@ const AgentWorkstation: React.FC<{
   const xpIntoLevel = xp % 100;
 
   return (
-    <g transform={`translate(${position.x}, ${position.y})`} style={{ cursor: 'pointer' }} onClick={onClick} opacity={isFailed ? 0.55 : 1}>
+    <g
+      transform={`translate(${position.x}, ${position.y})`}
+      style={{ cursor: 'pointer' }}
+      onClick={onClick}
+      opacity={isFailed ? 0.55 : 1}
+    >
       {/* Area rug beneath workstation */}
       <rect x={6} y={30} width={DESK_W - 12} height={DESK_H - 36} fill='#7c2d12' shapeRendering='crispEdges' />
       <rect x={6} y={30} width={DESK_W - 12} height={5} fill='#b45309' shapeRendering='crispEdges' />
@@ -501,13 +658,7 @@ const AgentWorkstation: React.FC<{
         <rect x={-60} y={0} width={120} height={18} rx={2} fill='rgba(10,14,26,0.92)' shapeRendering='crispEdges' />
         <rect x={-60} y={0} width={3} height={18} fill={rarityColor} shapeRendering='crispEdges' />
         <rect x={57} y={0} width={3} height={18} fill={rarityColor} shapeRendering='crispEdges' />
-        <text
-          x={-48}
-          y={13}
-          textAnchor='start'
-          fontFamily='ui-monospace, monospace'
-          fontSize={10}
-        >
+        <text x={-48} y={13} textAnchor='start' fontFamily='ui-monospace, monospace' fontSize={10}>
           {archetype.emoji}
         </text>
         <text
@@ -568,7 +719,14 @@ const AgentWorkstation: React.FC<{
               fill={isFailed ? '#ef4444' : '#22c55e'}
               shapeRendering='crispEdges'
             />
-            <rect x={3} y={19} width={4} height={4} fill={isFailed ? '#ef4444' : '#22c55e'} shapeRendering='crispEdges' />
+            <rect
+              x={3}
+              y={19}
+              width={4}
+              height={4}
+              fill={isFailed ? '#ef4444' : '#22c55e'}
+              shapeRendering='crispEdges'
+            />
             <text
               x={11}
               y={15}
@@ -609,7 +767,9 @@ const AgentWorkstation: React.FC<{
         r={5}
         fill={isTyping ? '#22c55e' : isPending ? '#f59e0b' : isFailed ? '#ef4444' : isDone ? '#3b82f6' : '#78716c'}
       >
-        {(isTyping || isPending) && <animate attributeName='opacity' values='1;0.3;1' dur='1s' repeatCount='indefinite' />}
+        {(isTyping || isPending) && (
+          <animate attributeName='opacity' values='1;0.3;1' dur='1s' repeatCount='indefinite' />
+        )}
       </circle>
 
       {/* Hover outline */}
@@ -636,7 +796,14 @@ const EmptyWorkstation: React.FC<{ position: { x: number; y: number } }> = ({ po
     <rect x={20} y={46} width={DESK_W - 40} height={66} fill='#5a3a17' shapeRendering='crispEdges' />
     <rect x={20} y={46} width={DESK_W - 40} height={2} fill='#78350f' shapeRendering='crispEdges' />
     {/* Plaque */}
-    <rect x={DESK_W / 2 - 70} y={DESK_H / 2 - 10} width={140} height={20} fill='rgba(10,14,26,0.75)' shapeRendering='crispEdges' />
+    <rect
+      x={DESK_W / 2 - 70}
+      y={DESK_H / 2 - 10}
+      width={140}
+      height={20}
+      fill='rgba(10,14,26,0.75)'
+      shapeRendering='crispEdges'
+    />
     <text
       x={DESK_W / 2}
       y={DESK_H / 2 + 4}
@@ -700,7 +867,16 @@ const BackWall: React.FC = () => (
       const y = row * 35 + 10;
       return (
         <g key={`st-${i}`}>
-          <rect x={x} y={y} width={120} height={30} fill='none' stroke='#334155' strokeWidth={1} shapeRendering='crispEdges' />
+          <rect
+            x={x}
+            y={y}
+            width={120}
+            height={30}
+            fill='none'
+            stroke='#334155'
+            strokeWidth={1}
+            shapeRendering='crispEdges'
+          />
           <rect x={x + 4} y={y + 4} width={2} height={2} fill='#64748b' shapeRendering='crispEdges' />
           <rect x={x + 30} y={y + 16} width={3} height={2} fill='#64748b' shapeRendering='crispEdges' />
           <rect x={x + 80} y={y + 8} width={2} height={3} fill='#334155' shapeRendering='crispEdges' />
@@ -808,7 +984,16 @@ const Fireplace: React.FC<{ stoked: boolean; onStoke: () => void }> = ({ stoked,
           const y = 50 + r * 28;
           return (
             <g key={`fs-${r}-${c}`}>
-              <rect x={x} y={y} width={60} height={26} fill='none' stroke='#334155' strokeWidth={1.5} shapeRendering='crispEdges' />
+              <rect
+                x={x}
+                y={y}
+                width={60}
+                height={26}
+                fill='none'
+                stroke='#334155'
+                strokeWidth={1.5}
+                shapeRendering='crispEdges'
+              />
               <rect x={x + 6} y={y + 6} width={3} height={2} fill='#475569' shapeRendering='crispEdges' />
               <rect x={x + 40} y={y + 12} width={3} height={3} fill='#475569' shapeRendering='crispEdges' />
             </g>
@@ -1032,7 +1217,17 @@ const FloorPlant: React.FC<{ x: number; y: number; variant?: 'tall' | 'bushy' }>
 
 /** Tall bookshelf */
 const Bookshelf: React.FC<{ x: number; y: number }> = ({ x, y }) => {
-  const shelfColors = ['#7f1d1d', '#1e3a8a', '#14532d', '#78350f', '#581c87', '#064e3b', '#b45309', '#be123c', '#365314'];
+  const shelfColors = [
+    '#7f1d1d',
+    '#1e3a8a',
+    '#14532d',
+    '#78350f',
+    '#581c87',
+    '#064e3b',
+    '#b45309',
+    '#be123c',
+    '#365314',
+  ];
   return (
     <g transform={`translate(${x}, ${y})`}>
       {/* Cabinet frame */}
@@ -1055,9 +1250,32 @@ const Bookshelf: React.FC<{ x: number; y: number }> = ({ x, y }) => {
             const h = 26 + ((bi + shelfIdx) % 3) * 2;
             return (
               <g key={`b-${shelfIdx}-${bi}`}>
-                <rect x={6 + bi * 9} y={shelfY + (30 - h)} width={8} height={h} fill={color} shapeRendering='crispEdges' />
-                <rect x={6 + bi * 9} y={shelfY + (30 - h)} width={8} height={2} fill='#fde047' shapeRendering='crispEdges' opacity={0.4} />
-                <rect x={6 + bi * 9} y={shelfY + 28} width={8} height={2} fill='#fde047' shapeRendering='crispEdges' opacity={0.4} />
+                <rect
+                  x={6 + bi * 9}
+                  y={shelfY + (30 - h)}
+                  width={8}
+                  height={h}
+                  fill={color}
+                  shapeRendering='crispEdges'
+                />
+                <rect
+                  x={6 + bi * 9}
+                  y={shelfY + (30 - h)}
+                  width={8}
+                  height={2}
+                  fill='#fde047'
+                  shapeRendering='crispEdges'
+                  opacity={0.4}
+                />
+                <rect
+                  x={6 + bi * 9}
+                  y={shelfY + 28}
+                  width={8}
+                  height={2}
+                  fill='#fde047'
+                  shapeRendering='crispEdges'
+                  opacity={0.4}
+                />
               </g>
             );
           })}
@@ -1113,7 +1331,17 @@ const SleepingCat: React.FC<{ x: number; y: number; meowing: boolean; onClick: (
     {/* Z's or MEOW */}
     {meowing ? (
       <g style={{ animation: 'pixel-bubble-float 0.4s ease-in-out infinite' }}>
-        <rect x={44} y={-10} width={34} height={14} rx={2} fill='#fef3c7' stroke='#b45309' strokeWidth={1} shapeRendering='crispEdges' />
+        <rect
+          x={44}
+          y={-10}
+          width={34}
+          height={14}
+          rx={2}
+          fill='#fef3c7'
+          stroke='#b45309'
+          strokeWidth={1}
+          shapeRendering='crispEdges'
+        />
         <text x={61} y={0} textAnchor='middle' fontFamily='monospace' fontSize={9} fontWeight='bold' fill='#b45309'>
           MEOW!
         </text>
@@ -1121,8 +1349,12 @@ const SleepingCat: React.FC<{ x: number; y: number; meowing: boolean; onClick: (
       </g>
     ) : (
       <g style={{ animation: 'pixel-bubble-float 2.5s ease-in-out infinite' }}>
-        <text x={44} y={4} fontFamily='monospace' fontSize={8} fontWeight='bold' fill='#cbd5e1'>z</text>
-        <text x={48} y={-2} fontFamily='monospace' fontSize={10} fontWeight='bold' fill='#cbd5e1'>Z</text>
+        <text x={44} y={4} fontFamily='monospace' fontSize={8} fontWeight='bold' fill='#cbd5e1'>
+          z
+        </text>
+        <text x={48} y={-2} fontFamily='monospace' fontSize={10} fontWeight='bold' fill='#cbd5e1'>
+          Z
+        </text>
       </g>
     )}
   </g>
@@ -1227,10 +1459,7 @@ const PixelOfficeView: React.FC<Props> = ({ agents, statusMap, onAgentClick }) =
   }, []);
 
   // Team-level stats
-  const totalXp = useMemo(
-    () => Object.values(xpMap).reduce((a, b) => a + b, 0),
-    [xpMap]
-  );
+  const totalXp = useMemo(() => Object.values(xpMap).reduce((a, b) => a + b, 0), [xpMap]);
   const teamLevel = Math.floor(totalXp / 500) + 1;
   const teamXpIntoLevel = totalXp % 500;
 
@@ -1257,10 +1486,7 @@ const PixelOfficeView: React.FC<Props> = ({ agents, statusMap, onAgentClick }) =
         <div className='flex items-center gap-16px text-12px' style={{ fontFamily: 'ui-monospace, monospace' }}>
           {/* Team level + XP bar */}
           <div className='flex items-center gap-6px'>
-            <span
-              className='px-6px py-2px text-11px font-bold'
-              style={{ background: '#fbbf24', color: '#0a0a0a' }}
-            >
+            <span className='px-6px py-2px text-11px font-bold' style={{ background: '#fbbf24', color: '#0a0a0a' }}>
               LVL {teamLevel}
             </span>
             <div className='relative' style={{ width: 80, height: 8, background: '#0f172a' }}>
@@ -1276,19 +1502,23 @@ const PixelOfficeView: React.FC<Props> = ({ agents, statusMap, onAgentClick }) =
             <span style={{ color: '#fde68a' }}>{totalXp} XP</span>
           </div>
           {fireStoked && (
-            <span style={{ color: '#f97316', animation: 'pixel-blink 0.5s steps(2) infinite' }}>
-              🔥 x3 XP BOOST
-            </span>
+            <span style={{ color: '#f97316', animation: 'pixel-blink 0.5s steps(2) infinite' }}>🔥 x3 XP BOOST</span>
           )}
           {activeCount > 0 && (
             <div className='flex items-center gap-4px'>
-              <span className='w-8px h-8px' style={{ background: '#22c55e', animation: 'pixel-blink 0.8s steps(2) infinite' }} />
+              <span
+                className='w-8px h-8px'
+                style={{ background: '#22c55e', animation: 'pixel-blink 0.8s steps(2) infinite' }}
+              />
               <span style={{ color: '#4ade80' }}>{activeCount} WORKING</span>
             </div>
           )}
           {pendingCount > 0 && (
             <div className='flex items-center gap-4px'>
-              <span className='w-8px h-8px' style={{ background: '#f59e0b', animation: 'pixel-blink 0.8s steps(2) infinite' }} />
+              <span
+                className='w-8px h-8px'
+                style={{ background: '#f59e0b', animation: 'pixel-blink 0.8s steps(2) infinite' }}
+              />
               <span style={{ color: '#fbbf24' }}>{pendingCount} BOOTING</span>
             </div>
           )}
@@ -1370,7 +1600,11 @@ const PixelOfficeView: React.FC<Props> = ({ agents, statusMap, onAgentClick }) =
             if (idx < 0 || idx >= DESK_POSITIONS.length) return null;
             const pos = DESK_POSITIONS[idx];
             return (
-              <g key={fly.id} transform={`translate(${pos.x + DESK_W / 2}, ${pos.y + 60})`} style={{ pointerEvents: 'none' }}>
+              <g
+                key={fly.id}
+                transform={`translate(${pos.x + DESK_W / 2}, ${pos.y + 60})`}
+                style={{ pointerEvents: 'none' }}
+              >
                 <g style={{ animation: 'pixel-xp-flyout 1.4s ease-out forwards' }}>
                   <rect x={-22} y={-10} width={44} height={16} rx={2} fill='#22c55e' shapeRendering='crispEdges' />
                   <text

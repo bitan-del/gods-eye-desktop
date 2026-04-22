@@ -376,9 +376,7 @@ export function spawnNpxBackend(
   // Required for backends (e.g. CodeBuddy) that write to /dev/tty — without it, SIGTTOU
   // would suspend the entire Electron process group and freeze the UI.
   // On Windows, prefix with chcp 65001 to switch console to UTF-8, preventing GBK garbling.
-  const effectiveCommand = isWindows
-    ? `chcp 65001 >nul && ${formatWindowsCommandForShell(npxCommand)}`
-    : npxCommand;
+  const effectiveCommand = isWindows ? `chcp 65001 >nul && ${formatWindowsCommandForShell(npxCommand)}` : npxCommand;
   const child = spawn(effectiveCommand, spawnArgs, {
     cwd: workingDir,
     stdio: ['pipe', 'pipe', 'pipe'],
@@ -425,10 +423,7 @@ async function prepareClaude(): Promise<NpxPrepareResult> {
   // Remove ANTHROPIC_BASE_URL inherited from parent unless user explicitly
   // set it (loadFullShellEnvironment would have it from .zshrc). If the
   // value matches the default Anthropic URL we can safely drop it.
-  if (
-    cleanEnv.ANTHROPIC_BASE_URL === 'https://api.anthropic.com' ||
-    !cleanEnv.ANTHROPIC_BASE_URL
-  ) {
+  if (cleanEnv.ANTHROPIC_BASE_URL === 'https://api.anthropic.com' || !cleanEnv.ANTHROPIC_BASE_URL) {
     delete cleanEnv.ANTHROPIC_BASE_URL;
   }
 

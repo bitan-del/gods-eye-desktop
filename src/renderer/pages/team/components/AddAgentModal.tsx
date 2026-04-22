@@ -235,13 +235,7 @@ const AddAgentModal: React.FC<Props> = ({ visible, onClose, onConfirm }) => {
           {selectedSkills.length > 0 && (
             <div className='flex flex-wrap gap-6px mb-4px'>
               {selectedSkills.map((skill) => (
-                <Tag
-                  key={skill}
-                  closable
-                  onClose={() => toggleSkill(skill)}
-                  color='arcoblue'
-                  className='text-13px'
-                >
+                <Tag key={skill} closable onClose={() => toggleSkill(skill)} color='arcoblue' className='text-13px'>
                   {skill}
                 </Tag>
               ))}

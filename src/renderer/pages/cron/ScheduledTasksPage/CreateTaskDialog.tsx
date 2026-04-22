@@ -183,7 +183,9 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
       setModelId(editModelId);
       setConfigOptions(editConfigOptions);
       setWorkspace(editWorkspace);
-      setAdvancedOpen(Boolean(editModelId || editWorkspace || (editConfigOptions && Object.keys(editConfigOptions).length > 0)));
+      setAdvancedOpen(
+        Boolean(editModelId || editWorkspace || (editConfigOptions && Object.keys(editConfigOptions).length > 0))
+      );
     } else {
       form.resetFields();
       setFrequency('manual');

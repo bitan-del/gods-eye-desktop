@@ -242,12 +242,12 @@
 
 ## 需要新增的模块清单
 
-| #   | 模块                  | 位置                                               | 职责                                                    |
-| --- | --------------------- | -------------------------------------------------- | ------------------------------------------------------- |
-| 1   | **Team Guide Prompt** | `src/process/resources/prompts/teamGuidePrompt.ts` | 注入 solo agent 的团队引导规则                          |
-| 2   | **GodsEye MCP Server**   | `src/process/services/godseyeMcpServer.ts`            | 主进程内 MCP，提供 `godseye_create_team` + `godseye_navigate` |
-| 3   | **MCP 注册**          | `src/process/agent/acp/mcpSessionConfig.ts`        | 将 GodsEye MCP 注册到 solo agent session                   |
-| 4   | **DeepLink 扩展**     | `src/renderer/hooks/system/useDeepLink.ts`         | 处理 `navigate` action，支持任意路由跳转                |
+| #   | 模块                   | 位置                                               | 职责                                                          |
+| --- | ---------------------- | -------------------------------------------------- | ------------------------------------------------------------- |
+| 1   | **Team Guide Prompt**  | `src/process/resources/prompts/teamGuidePrompt.ts` | 注入 solo agent 的团队引导规则                                |
+| 2   | **GodsEye MCP Server** | `src/process/services/godseyeMcpServer.ts`         | 主进程内 MCP，提供 `godseye_create_team` + `godseye_navigate` |
+| 3   | **MCP 注册**           | `src/process/agent/acp/mcpSessionConfig.ts`        | 将 GodsEye MCP 注册到 solo agent session                      |
+| 4   | **DeepLink 扩展**      | `src/renderer/hooks/system/useDeepLink.ts`         | 处理 `navigate` action，支持任意路由跳转                      |
 
 ## 边界与约束
 

@@ -399,19 +399,11 @@ const TeamPageContent: React.FC<TeamPageContentProps> = ({ team, onAddAgent, onR
         <div className='relative flex h-full'>
           {showOfficeView ? (
             <div className='flex-1 h-full'>
-              <AgentOfficeView
-                agents={agents}
-                statusMap={statusMap}
-                onAgentClick={handleOfficeAgentClick}
-              />
+              <AgentOfficeView agents={agents} statusMap={statusMap} onAgentClick={handleOfficeAgentClick} />
             </div>
           ) : showPixelView ? (
             <div className='flex-1 h-full'>
-              <PixelOfficeView
-                agents={agents}
-                statusMap={statusMap}
-                onAgentClick={handleOfficeAgentClick}
-              />
+              <PixelOfficeView agents={agents} statusMap={statusMap} onAgentClick={handleOfficeAgentClick} />
             </div>
           ) : fullscreenSlotId ? (
             // Fullscreen: single agent fills the entire content area

@@ -81,10 +81,7 @@ export function useWakeWord({ enabled, onWake }: WakeWordOptions): void {
       // Pick a real mic (skip virtual devices)
       const devices = await navigator.mediaDevices.enumerateDevices();
       const realMic = devices.find(
-        (d) =>
-          d.kind === 'audioinput' &&
-          d.label &&
-          !VIRTUAL_KEYWORDS.some((kw) => d.label.toLowerCase().includes(kw)),
+        (d) => d.kind === 'audioinput' && d.label && !VIRTUAL_KEYWORDS.some((kw) => d.label.toLowerCase().includes(kw))
       );
       const audioConstraints: MediaStreamConstraints['audio'] = realMic
         ? { deviceId: { exact: realMic.deviceId } }
@@ -128,11 +125,7 @@ export function useWakeWord({ enabled, onWake }: WakeWordOptions): void {
        * downsample to TARGET_SAMPLE_RATE, and convert to Int16.
        */
       const extractAndDownsample = (durationMs: number): Int16Array => {
-        const nativeSamples = Math.min(
-          Math.round((durationMs / 1000) * nativeSR),
-          totalWritten,
-          maxSamples,
-        );
+        const nativeSamples = Math.min(Math.round((durationMs / 1000) * nativeSR), totalWritten, maxSamples);
 
         // Read from circular buffer
         const float32 = new Float32Array(nativeSamples);

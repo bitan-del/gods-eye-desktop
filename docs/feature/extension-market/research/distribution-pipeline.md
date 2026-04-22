@@ -494,15 +494,15 @@ ext-claude-code-1.2.0.tgz
 
 #### 客户端下载实现要点
 
-| 要点        | 方案                                                              |
-| ----------- | ----------------------------------------------------------------- |
-| HTTP 客户端 | Electron 内置 `net.request` (支持代理) 或 Node.js `https`         |
-| 超时        | 连接 10s, 下载 60s                                                |
-| 重试        | 3 次, 指数退避 (1s, 2s, 4s), 自动切换备选源                       |
-| 断点续传    | P0 不做 (extension 包通常 <1MB); P1 可用 `Range` header           |
+| 要点        | 方案                                                               |
+| ----------- | ------------------------------------------------------------------ |
+| HTTP 客户端 | Electron 内置 `net.request` (支持代理) 或 Node.js `https`          |
+| 超时        | 连接 10s, 下载 60s                                                 |
+| 重试        | 3 次, 指数退避 (1s, 2s, 4s), 自动切换备选源                        |
+| 断点续传    | P0 不做 (extension 包通常 <1MB); P1 可用 `Range` header            |
 | 缓存        | `~/.godseye/cache/<name>-<version>.tgz`, 安装成功后保留 (方便回退) |
-| 进度展示    | 下载进度通过 IPC 推送到 renderer, UI 显示进度条                   |
-| 并发        | 单个 extension 串行下载; 多个 extension 可并行 (限 3 并发)        |
+| 进度展示    | 下载进度通过 IPC 推送到 renderer, UI 显示进度条                    |
+| 并发        | 单个 extension 串行下载; 多个 extension 可并行 (限 3 并发)         |
 
 #### 安装流程
 
@@ -542,7 +542,7 @@ Gods Eye 内置了 bun 运行时，extension 的 `onInstall` 钩子通过 `bun a
 | 差异                       | 影响                                                                                                                           | 应对                                                                                                                 |
 | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------- |
 | **lifecycle 脚本默认阻止** | `bun add` 默认不运行依赖的 `postinstall` 等脚本（安全考虑）。部分 CLI 包依赖 postinstall 做二进制下载（如 `esbuild`、`sharp`） | extension 的 `package.json` 中声明 `trustedDependencies` 白名单；或在 `onInstall` 钩子中显式 `bun add --trust <pkg>` |
-| **全局安装路径**           | `bun add -g` 装到 `~/.bun/install/global/`，bin 链接到 `~/.bun/bin/`，不在系统默认 PATH                                        | APP 启动时将内置 bun 的 globalBinDir 加入 PATH 环境变量；或用 `--globalBinDir` 指向 Gods Eye 管理的目录                |
+| **全局安装路径**           | `bun add -g` 装到 `~/.bun/install/global/`，bin 链接到 `~/.bun/bin/`，不在系统默认 PATH                                        | APP 启动时将内置 bun 的 globalBinDir 加入 PATH 环境变量；或用 `--globalBinDir` 指向 Gods Eye 管理的目录              |
 | **缓存机制**               | bun 用 hardlink/COW 而非复制，缓存在 `~/.bun/install/cache/`，跨项目共享                                                       | 无需特殊处理，利好磁盘占用                                                                                           |
 | **无显式 --offline**       | bun 没有 `npm --offline` 等价选项                                                                                              | 不影响：缓存命中时自动不走网络；离线场景由 APP 内置 extension 兜底                                                   |
 | **registry 镜像**          | 支持 `BUN_CONFIG_REGISTRY` 环境变量、`.npmrc`、`bunfig.toml` 配置                                                              | APP 设置页提供 registry 切换选项（默认 npm 官方，可选 npmmirror 等）；`onInstall` 执行时继承 APP 配置的 registry     |
@@ -636,7 +636,7 @@ flowchart TD
 
 | 现有模块               | 对接方式                                                    |
 | ---------------------- | ----------------------------------------------------------- |
-| `ExtensionLoader`      | 安装到 `~/.godseye/extensions/` 后, 现有扫描逻辑自动发现     |
+| `ExtensionLoader`      | 安装到 `~/.godseye/extensions/` 后, 现有扫描逻辑自动发现    |
 | `ExtensionRegistry`    | 安装完成后触发 `hotReload()`, 新 extension 自动注入         |
 | `lifecycle.ts`         | 安装后自动运行 `onInstall()` + `onActivate()`               |
 | `extensionsBridge.ts`  | 新增 `extensions.install` / `extensions.uninstall` IPC 通道 |
@@ -648,16 +648,16 @@ flowchart TD
 
 ### Phase 1 — MVP (Agent Hub)
 
-| 步骤 | 内容                                                                                          | 依赖     |
-| ---- | --------------------------------------------------------------------------------------------- | -------- |
+| 步骤 | 内容                                                                                           | 依赖     |
+| ---- | ---------------------------------------------------------------------------------------------- | -------- |
 | 1.1  | 创建 `godseye/hub` GitHub 仓库, 迁入官方 extension                                             | —        |
-| 1.2  | 编写 `scripts/build.ts`: 扫描 → 打包 .tgz → 计算 SHA-512 → 生成 index.json                    | —        |
-| 1.3  | 配置 GitHub Actions CI: PR merge → build → commit dist/                                       | 1.2      |
-| 1.4  | APP 内置 `dist/` 快照 (构建时从 hub 仓库拷贝)                                                 | 1.3      |
-| 1.5  | 客户端: IndexManager — 加载内置 index + 拉取远程 index + 合并                                 | —        |
+| 1.2  | 编写 `scripts/build.ts`: 扫描 → 打包 .tgz → 计算 SHA-512 → 生成 index.json                     | —        |
+| 1.3  | 配置 GitHub Actions CI: PR merge → build → commit dist/                                        | 1.2      |
+| 1.4  | APP 内置 `dist/` 快照 (构建时从 hub 仓库拷贝)                                                  | 1.3      |
+| 1.5  | 客户端: IndexManager — 加载内置 index + 拉取远程 index + 合并                                  | —        |
 | 1.6  | 客户端: ExtensionInstaller — 下载 .tgz → 验证 integrity → 解压 → 安装到 ~/.godseye/extensions/ | —        |
-| 1.7  | IPC: 新增 `extensions.install` / `extensions.uninstall` / `extensions.check-updates` 通道     | 1.6      |
-| 1.8  | UI: 在 Local Agent 页融入 Hub 列表, Install/Update 按钮                                       | 1.5, 1.7 |
+| 1.7  | IPC: 新增 `extensions.install` / `extensions.uninstall` / `extensions.check-updates` 通道      | 1.6      |
+| 1.8  | UI: 在 Local Agent 页融入 Hub 列表, Install/Update 按钮                                        | 1.5, 1.7 |
 
 ### Phase 2 — 签名 + 多 Hub
 

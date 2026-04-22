@@ -84,7 +84,11 @@ const AgentDesk: React.FC<{
             background: 'var(--color-bg-2)',
             border: `2.5px solid ${isActive ? 'var(--color-success-6)' : isFailed ? 'var(--color-danger-6)' : isPending ? 'var(--warning)' : 'var(--color-border-2)'}`,
             boxShadow: `0 0 ${isActive ? '16px' : '6px'} ${glowColor}`,
-            animation: isActive ? 'office-pulse 2s ease-in-out infinite' : isPending ? 'office-pending 1.5s ease-in-out infinite' : undefined,
+            animation: isActive
+              ? 'office-pulse 2s ease-in-out infinite'
+              : isPending
+                ? 'office-pending 1.5s ease-in-out infinite'
+                : undefined,
           }}
         >
           {logo ? (
@@ -110,9 +114,18 @@ const AgentDesk: React.FC<{
           {/* Typing animation for active agents */}
           {isActive && (
             <div className='absolute -bottom-2px left-1/2 -translate-x-1/2 flex gap-2px'>
-              <span className='w-4px h-4px rd-full bg-[var(--color-success-6)]' style={{ animation: 'office-typing 1s ease-in-out infinite' }} />
-              <span className='w-4px h-4px rd-full bg-[var(--color-success-6)]' style={{ animation: 'office-typing 1s ease-in-out 0.2s infinite' }} />
-              <span className='w-4px h-4px rd-full bg-[var(--color-success-6)]' style={{ animation: 'office-typing 1s ease-in-out 0.4s infinite' }} />
+              <span
+                className='w-4px h-4px rd-full bg-[var(--color-success-6)]'
+                style={{ animation: 'office-typing 1s ease-in-out infinite' }}
+              />
+              <span
+                className='w-4px h-4px rd-full bg-[var(--color-success-6)]'
+                style={{ animation: 'office-typing 1s ease-in-out 0.2s infinite' }}
+              />
+              <span
+                className='w-4px h-4px rd-full bg-[var(--color-success-6)]'
+                style={{ animation: 'office-typing 1s ease-in-out 0.4s infinite' }}
+              />
             </div>
           )}
         </div>
@@ -132,12 +145,24 @@ const AgentDesk: React.FC<{
           {/* Screen content indicator */}
           {isActive ? (
             <div className='flex flex-col gap-2px w-full px-6px'>
-              <div className='h-2px rd-1px bg-[var(--color-primary-5)] w-full' style={{ animation: 'office-line 2s ease-in-out infinite' }} />
-              <div className='h-2px rd-1px bg-[var(--color-primary-4)] w-75%' style={{ animation: 'office-line 2s ease-in-out 0.3s infinite' }} />
-              <div className='h-2px rd-1px bg-[var(--color-primary-3)] w-50%' style={{ animation: 'office-line 2s ease-in-out 0.6s infinite' }} />
+              <div
+                className='h-2px rd-1px bg-[var(--color-primary-5)] w-full'
+                style={{ animation: 'office-line 2s ease-in-out infinite' }}
+              />
+              <div
+                className='h-2px rd-1px bg-[var(--color-primary-4)] w-75%'
+                style={{ animation: 'office-line 2s ease-in-out 0.3s infinite' }}
+              />
+              <div
+                className='h-2px rd-1px bg-[var(--color-primary-3)] w-50%'
+                style={{ animation: 'office-line 2s ease-in-out 0.6s infinite' }}
+              />
             </div>
           ) : isPending ? (
-            <div className='w-12px h-12px rd-full border-2 border-[var(--warning)] border-t-transparent' style={{ animation: 'spin 1s linear infinite' }} />
+            <div
+              className='w-12px h-12px rd-full border-2 border-[var(--warning)] border-t-transparent'
+              style={{ animation: 'spin 1s linear infinite' }}
+            />
           ) : isFailed ? (
             <span className='text-10px text-[var(--color-danger-6)]'>x</span>
           ) : (
@@ -184,7 +209,10 @@ const AgentDesk: React.FC<{
         {agent.skills && agent.skills.length > 0 && (
           <div className='absolute -bottom-18px left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap flex gap-2px'>
             {agent.skills.slice(0, 2).map((s) => (
-              <span key={s} className='text-8px px-4px py-1px rd-2px bg-[var(--color-primary-1)] text-[var(--color-primary-6)]'>
+              <span
+                key={s}
+                className='text-8px px-4px py-1px rd-2px bg-[var(--color-primary-1)] text-[var(--color-primary-6)]'
+              >
                 {s}
               </span>
             ))}
@@ -203,7 +231,13 @@ const OfficeFloor: React.FC = () => (
   <svg className='absolute inset-0 w-full h-full' preserveAspectRatio='none'>
     <defs>
       <pattern id='office-grid' width='60' height='60' patternUnits='userSpaceOnUse'>
-        <path d='M 60 0 L 0 0 0 60' fill='none' stroke='var(--color-border-1)' strokeWidth='0.5' strokeDasharray='4 4' />
+        <path
+          d='M 60 0 L 0 0 0 60'
+          fill='none'
+          stroke='var(--color-border-1)'
+          strokeWidth='0.5'
+          strokeDasharray='4 4'
+        />
       </pattern>
     </defs>
     <rect width='100%' height='100%' fill='url(#office-grid)' />
@@ -216,10 +250,11 @@ const AgentOfficeView: React.FC<Props> = ({ agents, statusMap, onAgentClick }) =
     [agents, statusMap]
   );
   const idleCount = useMemo(
-    () => agents.filter((a) => {
-      const s = statusMap.get(a.slotId)?.status ?? a.status;
-      return s === 'idle' || s === 'completed';
-    }).length,
+    () =>
+      agents.filter((a) => {
+        const s = statusMap.get(a.slotId)?.status ?? a.status;
+        return s === 'idle' || s === 'completed';
+      }).length,
     [agents, statusMap]
   );
 

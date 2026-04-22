@@ -7,7 +7,7 @@
  * Checks CLI status on launch and supports opening from settings.
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { ipcBridge } from '@/common';
 
 type WizardInitialStep = 'installing' | 'setup';
@@ -15,32 +15,10 @@ type WizardInitialStep = 'installing' | 'setup';
 export function useCliSetupWizard() {
   const [wizardVisible, setWizardVisible] = useState(false);
   const [initialStep, setInitialStep] = useState<WizardInitialStep>('installing');
-  const [checked, setChecked] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      void (async () => {
-        try {
-          const result = await ipcBridge.cliInstaller.checkInstalled.invoke();
-          if (result?.data?.installed) {
-            setChecked(true);
-            return;
-          }
-          // CLI not installed — show wizard from install step
-          setInitialStep('installing');
-          setWizardVisible(true);
-        } catch (err) {
-          console.warn('[SetupWizard] CLI check failed, showing wizard:', err);
-          setInitialStep('installing');
-          setWizardVisible(true);
-        } finally {
-          setChecked(true);
-        }
-      })();
-    }, 2500);
-
-    return () => clearTimeout(timer);
-  }, []);
+  // The auto-popup that ran the online installer (curl … | bash) on every
+  // launch when the `godseye` CLI was missing has been removed. CLI setup is
+  // now strictly opt-in via the "Run Setup" button in Settings → System.
+  const [checked] = useState(true);
 
   const closeWizard = useCallback(() => {
     setWizardVisible(false);

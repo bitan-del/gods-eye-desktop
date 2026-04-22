@@ -549,7 +549,7 @@ AcpConnection.disconnect()
 | `AcpAgent`              | `index.ts`                 | 编排连接/认证/会话/消息流程；权限、模型切换       |
 | `AcpConnection`         | `AcpConnection.ts`         | 核心协议：子进程管理、JSON-RPC 收发、session 状态 |
 | `acpConnectors`         | `acpConnectors.ts`         | 各 backend 的 spawn 逻辑、环境准备、npx Phase 1/2 |
-| `AcpAdapter`            | `AcpAdapter.ts`            | ACP session update → Gods Eye TMessage 格式转换     |
+| `AcpAdapter`            | `AcpAdapter.ts`            | ACP session update → Gods Eye TMessage 格式转换   |
 | `ApprovalStore`         | `ApprovalStore.ts`         | 会话级 "always allow" 权限缓存                    |
 | `utils`                 | `utils.ts`                 | JSON-RPC stdin 写入、进程终止、文件 I/O           |
 | `mcpSessionConfig`      | `mcpSessionConfig.ts`      | 构建 session/new 的 MCP server 列表               |

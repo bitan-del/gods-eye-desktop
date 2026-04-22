@@ -22,13 +22,7 @@ import { ACP_METHODS, JSONRPC_VERSION } from '@/common/types/acpTypes';
 import type { ChildProcess } from 'child_process';
 import type { AcpSessionMcpServer } from './mcpSessionConfig';
 import path from 'path';
-import {
-  ACP_PERF_LOG,
-  connectClaude,
-  connectCodebuddy,
-  connectCodex,
-  spawnGenericBackend,
-} from './acpConnectors';
+import { ACP_PERF_LOG, connectClaude, connectCodebuddy, connectCodex, spawnGenericBackend } from './acpConnectors';
 import type { SpawnResult } from './acpConnectors';
 import { killChild, readTextFile, writeJsonRpcMessage, writeTextFile } from './utils';
 
@@ -271,9 +265,7 @@ export class AcpConnection {
         if (cliPath) {
           await this.connectGenericBackend(backend, cliPath, workingDir, acpArgs, customEnv);
         } else {
-          throw new Error(
-            `${backend} uses WebSocket gateway, not ACP CLI. Please create a new conversation.`
-          );
+          throw new Error(`${backend} uses WebSocket gateway, not ACP CLI. Please create a new conversation.`);
         }
         break;
 

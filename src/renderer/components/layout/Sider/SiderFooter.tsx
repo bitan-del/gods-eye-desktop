@@ -75,8 +75,14 @@ const SiderFooter: React.FC<SiderFooterProps> = ({
             )}
             aria-label='Jarvis'
           >
-            <span className='w-28px h-24px flex items-center justify-center shrink-0'>
-              <Robot theme='outline' size='20' fill='currentColor' className='block leading-none' style={{ lineHeight: 0 }} />
+            <span className='w-28px h-28px flex items-center justify-center shrink-0'>
+              <Robot
+                theme='outline'
+                size='20'
+                fill='currentColor'
+                className='block leading-none'
+                style={{ lineHeight: 0 }}
+              />
             </span>
           </div>
         </Tooltip>
@@ -93,7 +99,7 @@ const SiderFooter: React.FC<SiderFooterProps> = ({
               }
             )}
           >
-            <span className='w-28px h-24px flex items-center justify-center shrink-0'>{settingsIcon}</span>
+            <span className='w-28px h-28px flex items-center justify-center shrink-0'>{settingsIcon}</span>
             <span className='collapsed-hidden text-t-primary text-14px font-medium leading-24px truncate'>
               {isSettings ? t('common.back') : t('common.settings')}
             </span>

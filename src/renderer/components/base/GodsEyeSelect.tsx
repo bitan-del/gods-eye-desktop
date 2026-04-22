@@ -105,7 +105,9 @@ const mapSizeToNative = (size?: GodsEyeSelectSize): NativeSelectSize | undefined
   return size;
 };
 
-type GodsEyeSelectComponent = React.ForwardRefExoticComponent<GodsEyeSelectProps & React.RefAttributes<SelectHandle>> & {
+type GodsEyeSelectComponent = React.ForwardRefExoticComponent<
+  GodsEyeSelectProps & React.RefAttributes<SelectHandle>
+> & {
   Option: typeof Select.Option;
   OptGroup: typeof Select.OptGroup;
 };

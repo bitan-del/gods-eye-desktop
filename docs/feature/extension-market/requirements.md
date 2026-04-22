@@ -38,9 +38,9 @@ Hub 中展示的 Agent ──── 对应 ──── 一个 Extension (godsey
 
 ### 2.2 Extension 来源
 
-| 来源     | 说明                                                                                    | 网络依赖 |
-| -------- | --------------------------------------------------------------------------------------- | -------- |
-| **内置** | 打包在 APP 资源目录中的 .tgz 包。确保核心 agent（Claude Code、Kimi 等）零网络可见       | 无       |
+| 来源     | 说明                                                                                     | 网络依赖 |
+| -------- | ---------------------------------------------------------------------------------------- | -------- |
+| **内置** | 打包在 APP 资源目录中的 .tgz 包。确保核心 agent（Claude Code、Kimi 等）零网络可见        | 无       |
 | **远程** | 从 GitHub `godseye/hub` 仓库拉取的 index.json 中，存在于远程但不在内置列表中的 extension | 需要网络 |
 
 ### 2.3 Extension 状态
@@ -152,7 +152,7 @@ extension 的唯一标识由 `name` 字段定义.
 
 | 状态信号           | 数据来源                                         | 说明           |
 | ------------------ | ------------------------------------------------ | -------------- |
-| extension 是否存在 | `ExtensionLoader` 扫描 `~/.godseye/extensions/`   | 已有能力       |
+| extension 是否存在 | `ExtensionLoader` 扫描 `~/.godseye/extensions/`  | 已有能力       |
 | CLI 是否可用       | `AcpDetector` 扫描 `which <command>`             | 已有能力       |
 | 启用/禁用          | `extension-states.json`（`statePersistence.ts`） | 已有能力       |
 | 安装错误信息       | `extension-states.json` 新增 `installError` 字段 | 唯一需要扩展的 |

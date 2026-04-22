@@ -27,12 +27,12 @@ Gods Eye Desktop is a cross-platform desktop application that serves as the prim
 
 Get the latest release for your platform:
 
-| Platform | Download |
-|----------|----------|
-| macOS (Apple Silicon) | [Gods Eye-mac-arm64.dmg](https://github.com/bitan-del/gods-eye/releases) |
-| macOS (Intel) | [Gods Eye-mac-x64.dmg](https://github.com/bitan-del/gods-eye/releases) |
-| Windows (x64) | [Gods Eye-win-x64.exe](https://github.com/bitan-del/gods-eye/releases) |
-| Linux (amd64) | [Gods Eye-linux-amd64.deb](https://github.com/bitan-del/gods-eye/releases) |
+| Platform              | Download                                                                   |
+| --------------------- | -------------------------------------------------------------------------- |
+| macOS (Apple Silicon) | [Gods Eye-mac-arm64.dmg](https://github.com/bitan-del/gods-eye/releases)   |
+| macOS (Intel)         | [Gods Eye-mac-x64.dmg](https://github.com/bitan-del/gods-eye/releases)     |
+| Windows (x64)         | [Gods Eye-win-x64.exe](https://github.com/bitan-del/gods-eye/releases)     |
+| Linux (amd64)         | [Gods Eye-linux-amd64.deb](https://github.com/bitan-del/gods-eye/releases) |
 
 Or install via the one-liner:
 
@@ -103,14 +103,14 @@ scripts/           Build and packaging scripts
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Framework | Electron |
-| UI | React + TypeScript |
-| Build | Vite + electron-vite |
-| Styling | UnoCSS |
-| Packaging | electron-builder |
-| Testing | Vitest + Playwright |
+| Layer     | Technology           |
+| --------- | -------------------- |
+| Framework | Electron             |
+| UI        | React + TypeScript   |
+| Build     | Vite + electron-vite |
+| Styling   | UnoCSS               |
+| Packaging | electron-builder     |
+| Testing   | Vitest + Playwright  |
 
 ---
 

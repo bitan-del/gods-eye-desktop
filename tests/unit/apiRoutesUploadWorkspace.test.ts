@@ -67,7 +67,9 @@ describe('resolveUploadWorkspace', () => {
       },
     });
 
-    await expect(resolveUploadWorkspace('conv-3', '/tmp/godseye/other-workspace')).rejects.toThrow('Workspace mismatch');
+    await expect(resolveUploadWorkspace('conv-3', '/tmp/godseye/other-workspace')).rejects.toThrow(
+      'Workspace mismatch'
+    );
   });
 
   it('rejects uploads when the conversation has no workspace', async () => {

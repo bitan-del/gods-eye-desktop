@@ -369,8 +369,8 @@ sudo /usr/libexec/ApplicationFirewall/socketfilterfw --unblockapp /Applications/
 
 ### 配置文件位置
 
-| 平台    | 配置文件位置                                             |
-| ------- | -------------------------------------------------------- |
+| 平台    | 配置文件位置                                               |
+| ------- | ---------------------------------------------------------- |
 | Windows | `%APPDATA%/Gods Eye/webui.config.json`                     |
 | macOS   | `~/Library/Application Support/Gods Eye/webui.config.json` |
 | Linux   | `~/.config/Gods Eye/webui.config.json`                     |

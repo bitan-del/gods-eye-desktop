@@ -31,11 +31,11 @@ const LOG_TAG = '[WakeWord]';
  *   jarbis → jarb (b/v confusion)
  */
 const WAKE_FRAGMENTS = [
-  'jarv',   // jarvis, jarvins, jarves, jarvus, jarvas
-  'jerv',   // jervis (accent)
-  'gerv',   // gervis (g/j confusion)
-  'jarb',   // jarbis (b/v confusion)
-  'j.a.r',  // spelled out with dots
+  'jarv', // jarvis, jarvins, jarves, jarvus, jarvas
+  'jerv', // jervis (accent)
+  'gerv', // gervis (g/j confusion)
+  'jarb', // jarbis (b/v confusion)
+  'j.a.r', // spelled out with dots
   'j a r v', // spelled out with spaces
 ];
 
@@ -142,9 +142,7 @@ export class WakeWordService {
     try {
       const providers: IProvider[] | undefined = await ProcessConfig.get('model.config');
       if (providers && Array.isArray(providers)) {
-        const geminiProvider = providers.find(
-          (p) => p.platform === 'gemini' && p.apiKey && p.apiKey.trim().length > 0,
-        );
+        const geminiProvider = providers.find((p) => p.platform === 'gemini' && p.apiKey && p.apiKey.trim().length > 0);
         if (geminiProvider?.apiKey) return geminiProvider.apiKey.trim();
       }
     } catch {

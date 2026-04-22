@@ -173,6 +173,16 @@ const ConversationSearchPopover: React.FC<ConversationSearchPopoverProps> = ({
     }
   }, []);
 
+  // Aurora Pro: allow a global ⌘K/Ctrl+K shortcut (dispatched from the home
+  // page) to open the search popover. Keeps the existing trigger button as the
+  // single source of truth for open/close state while enabling a keyboard path.
+  useEffect(() => {
+    if (disabled) return;
+    const open = () => setVisible(true);
+    window.addEventListener('gods-eye:open-search', open);
+    return () => window.removeEventListener('gods-eye:open-search', open);
+  }, [disabled]);
+
   useEffect(() => {
     const timer = window.setTimeout(() => {
       setDebouncedKeyword(keyword.trim());

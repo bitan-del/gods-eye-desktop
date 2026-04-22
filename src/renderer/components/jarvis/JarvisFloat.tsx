@@ -97,14 +97,20 @@ const JarvisFloat: React.FC = () => {
     const src = ctx.createBufferSource();
     src.buffer = buf;
     src.connect(ctx.destination);
-    src.onended = () => { isPlayingRef.current = false; playNext(); };
+    src.onended = () => {
+      isPlayingRef.current = false;
+      playNext();
+    };
     src.start();
   }, []);
 
-  const enqueue = useCallback((samples: number[]) => {
-    audioQueueRef.current.push(new Int16Array(samples));
-    playNext();
-  }, [playNext]);
+  const enqueue = useCallback(
+    (samples: number[]) => {
+      audioQueueRef.current.push(new Int16Array(samples));
+      playNext();
+    },
+    [playNext]
+  );
 
   const clearQueue = useCallback(() => {
     audioQueueRef.current = [];
@@ -117,7 +123,7 @@ const JarvisFloat: React.FC = () => {
     try {
       const devices = await navigator.mediaDevices.enumerateDevices();
       const mic = devices.find(
-        (d) => d.kind === 'audioinput' && d.label && !VIRTUAL_KEYWORDS.some((k) => d.label.toLowerCase().includes(k)),
+        (d) => d.kind === 'audioinput' && d.label && !VIRTUAL_KEYWORDS.some((k) => d.label.toLowerCase().includes(k))
       );
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: mic ? { deviceId: { exact: mic.deviceId } } : true,
@@ -143,8 +149,14 @@ const JarvisFloat: React.FC = () => {
   const stopMic = useCallback(() => {
     processorRef.current?.disconnect();
     processorRef.current = null;
-    if (micCtxRef.current) { void micCtxRef.current.close().catch(() => {}); micCtxRef.current = null; }
-    if (micStreamRef.current) { micStreamRef.current.getTracks().forEach((t) => t.stop()); micStreamRef.current = null; }
+    if (micCtxRef.current) {
+      void micCtxRef.current.close().catch(() => {});
+      micCtxRef.current = null;
+    }
+    if (micStreamRef.current) {
+      micStreamRef.current.getTracks().forEach((t) => t.stop());
+      micStreamRef.current = null;
+    }
   }, []);
 
   // ── Show bubble temporarily ──
@@ -157,63 +169,72 @@ const JarvisFloat: React.FC = () => {
 
   // ── Gemini Live event handler ──
 
-  const handleEvent = useCallback((event: JarvisLiveEvent) => {
-    switch (event.type) {
-      case 'connected':
-        updateState('listening');
-        break;
-      case 'audio':
-        if (event.audio) {
-          if (stateRef.current !== 'speaking') updateState('speaking');
-          enqueue(event.audio);
-        }
-        break;
-      case 'input_transcript':
-        if (event.text) {
-          setTranscript((p) => p + event.text);
-          flashBubble(6000);
-        }
-        break;
-      case 'output_transcript':
-      case 'text':
-        if (event.text) {
-          setResponse((p) => p + event.text);
-          flashBubble(6000);
-        }
-        break;
-      case 'interrupted':
-        clearQueue();
-        updateState('listening');
-        break;
-      case 'turn_complete':
-        updateState('listening');
-        setTimeout(() => { setTranscript(''); setResponse(''); }, 4000);
-        break;
-      case 'action':
-        if (event.action) {
-          void handleJarvisAction(event.action, navigate);
-        }
-        break;
-      case 'error':
-        if (event.message) {
-          setResponse(event.message);
-          flashBubble(5000);
-        }
-        break;
-      case 'disconnected':
-        stopMic();
-        clearQueue();
-        updateState('sleeping');
-        break;
-    }
-  }, [clearQueue, enqueue, flashBubble, navigate, stopMic, updateState]);
+  const handleEvent = useCallback(
+    (event: JarvisLiveEvent) => {
+      switch (event.type) {
+        case 'connected':
+          updateState('listening');
+          break;
+        case 'audio':
+          if (event.audio) {
+            if (stateRef.current !== 'speaking') updateState('speaking');
+            enqueue(event.audio);
+          }
+          break;
+        case 'input_transcript':
+          if (event.text) {
+            setTranscript((p) => p + event.text);
+            flashBubble(6000);
+          }
+          break;
+        case 'output_transcript':
+        case 'text':
+          if (event.text) {
+            setResponse((p) => p + event.text);
+            flashBubble(6000);
+          }
+          break;
+        case 'interrupted':
+          clearQueue();
+          updateState('listening');
+          break;
+        case 'turn_complete':
+          updateState('listening');
+          setTimeout(() => {
+            setTranscript('');
+            setResponse('');
+          }, 4000);
+          break;
+        case 'action':
+          if (event.action) {
+            void handleJarvisAction(event.action, navigate);
+          }
+          break;
+        case 'error':
+          if (event.message) {
+            setResponse(event.message);
+            flashBubble(5000);
+          }
+          break;
+        case 'disconnected':
+          stopMic();
+          clearQueue();
+          updateState('sleeping');
+          break;
+      }
+    },
+    [clearQueue, enqueue, flashBubble, navigate, stopMic, updateState]
+  );
 
   // Subscribe to events
   useEffect(() => {
     if (isOnJarvisPage) return; // JarvisPage handles events
     const unsub = ipcBridge.jarvisLive.event.on(handleEvent);
     eventUnsubRef.current = unsub;
-    return () => { unsub(); eventUnsubRef.current = null; };
+    return () => {
+      unsub();
+      eventUnsubRef.current = null;
+    };
   }, [handleEvent, isOnJarvisPage]);
 
   // ── Connect / Disconnect ──
@@ -262,10 +283,13 @@ const JarvisFloat: React.FC = () => {
 
   // ── Drag handling ──
 
-  const onMouseDown = useCallback((e: React.MouseEvent) => {
-    dragRef.current = { dragging: true, startX: e.clientX, startY: e.clientY, origX: position.x, origY: position.y };
-    e.preventDefault();
-  }, [position]);
+  const onMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      dragRef.current = { dragging: true, startX: e.clientX, startY: e.clientY, origX: position.x, origY: position.y };
+      e.preventDefault();
+    },
+    [position]
+  );
 
   useEffect(() => {
     const onMove = (e: MouseEvent) => {
@@ -303,11 +327,16 @@ const JarvisFloat: React.FC = () => {
   const orbClass = useMemo(() => {
     const base = styles.orb;
     switch (state) {
-      case 'sleeping': return `${base} ${styles.orbSleeping}`;
-      case 'connecting': return `${base} ${styles.orbConnecting}`;
-      case 'listening': return `${base} ${styles.orbListening}`;
-      case 'speaking': return `${base} ${styles.orbSpeaking}`;
-      default: return base;
+      case 'sleeping':
+        return `${base} ${styles.orbSleeping}`;
+      case 'connecting':
+        return `${base} ${styles.orbConnecting}`;
+      case 'listening':
+        return `${base} ${styles.orbListening}`;
+      case 'speaking':
+        return `${base} ${styles.orbSpeaking}`;
+      default:
+        return base;
     }
   }, [state]);
 
@@ -315,11 +344,7 @@ const JarvisFloat: React.FC = () => {
   if (isOnJarvisPage) return null;
 
   return (
-    <div
-      ref={containerRef}
-      className={styles.floatContainer}
-      style={{ left: position.x, top: position.y }}
-    >
+    <div ref={containerRef} className={styles.floatContainer} style={{ left: position.x, top: position.y }}>
       {/* Speech bubble */}
       {showBubble && (transcript || response) && (
         <div className={styles.bubble}>

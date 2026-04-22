@@ -80,7 +80,7 @@ export const useClapDetection = ({
             d.label &&
             !d.label.toLowerCase().includes('blackhole') &&
             !d.label.toLowerCase().includes('virtual') &&
-            !d.label.toLowerCase().includes('soundflower'),
+            !d.label.toLowerCase().includes('soundflower')
         );
         if (realMic) {
           audioConstraints = { deviceId: { exact: realMic.deviceId } };

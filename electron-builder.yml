@@ -139,10 +139,24 @@ mac:
   icon: resources/app.icns
   artifactName: ${productName}-${version}-${os}-${arch}.${ext}
   category: public.app-category.productivity
-  hardenedRuntime: true
+  # Hardened runtime REQUIRES a valid Apple Developer ID. With ad-hoc
+  # signing ("-") plus hardenedRuntime:true, macOS kernel kills the
+  # process on launch on any machine other than the build machine and
+  # shows a generic "cannot install / cannot be opened" popup.
+  # Keep this false until we have a Developer ID cert + notarization.
+  hardenedRuntime: false
   gatekeeperAssess: false
-  entitlements: entitlements.plist
-  entitlementsInherit: entitlements.plist
+  # identity: null forces electron-builder to apply an ad-hoc signature
+  # ("codesign --sign -") consistently on every file in the bundle,
+  # instead of leaving some helpers unsigned which also produces the
+  # "cannot install" popup on first launch.
+  identity: null
+  # Strip the quarantine xattr from the bundle before it gets copied
+  # into the DMG so first-launch Gatekeeper is less aggressive.
+  # (DMG itself will still get quarantined when the user downloads it;
+  # this only affects the contents inside the DMG.)
+  extendInfo:
+    NSRequiresAquaSystemAppearance: false
 
 dmg:
   # Use UDZO format which is more reliable on CI

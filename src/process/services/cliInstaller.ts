@@ -178,12 +178,7 @@ export function runSetup(): Promise<{ success: boolean; error?: string }> {
 }
 
 function detectAndEmitPrompts(buffer: string): void {
-  const promptPatterns = [
-    /([^\n]*\?)\s*$/m,
-    /([^\n]*:)\s*$/m,
-    /([^\n]*>\s*)$/m,
-    /\(([^)]+)\)\s*$/m,
-  ];
+  const promptPatterns = [/([^\n]*\?)\s*$/m, /([^\n]*:)\s*$/m, /([^\n]*>\s*)$/m, /\(([^)]+)\)\s*$/m];
 
   const lines = buffer.split('\n');
   const lastLine = lines[lines.length - 1]?.trim();
@@ -256,12 +251,16 @@ export function sendSetupAnswer(promptId: string, answer: string): void {
 export function openSetupInTerminal(): void {
   const platform = process.platform;
   if (platform === 'darwin') {
-    spawn('osascript', [
-      '-e',
-      'tell application "Terminal" to do script "godseye onboard"',
-      '-e',
-      'tell application "Terminal" to activate',
-    ], { detached: true, stdio: 'ignore' }).unref();
+    spawn(
+      'osascript',
+      [
+        '-e',
+        'tell application "Terminal" to do script "godseye onboard"',
+        '-e',
+        'tell application "Terminal" to activate',
+      ],
+      { detached: true, stdio: 'ignore' }
+    ).unref();
   } else if (platform === 'win32') {
     spawn('cmd.exe', ['/c', 'start', 'cmd', '/k', 'godseye onboard'], {
       detached: true,

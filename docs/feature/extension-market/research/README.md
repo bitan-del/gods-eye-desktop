@@ -105,7 +105,7 @@ godseye-extension.json
 | `src/process/extensions/resolvers/utils/*.ts` | 5 个              | 依赖解析、引擎校验、环境变量、文件引用、入口点           |
 | `src/process/extensions/lifecycle/*.ts`       | 4 个              | 生命周期钩子、事件总线、状态持久化、热重载               |
 | `src/process/extensions/sandbox/*.ts`         | 5 个              | Worker 沙箱、权限分析、路径安全、扩展存储                |
-| `src/process/extensions/protocol/*.ts`        | 2 个              | godseye-asset:// 协议、iframe UI 通信桥                     |
+| `src/process/extensions/protocol/*.ts`        | 2 个              | godseye-asset:// 协议、iframe UI 通信桥                  |
 | `src/process/bridge/extensionsBridge.ts`      | 265               | IPC Bridge, 16 个通道                                    |
 | `src/common/adapter/ipcBridge.ts`             | ~120 行(ext 部分) | IPC 类型定义                                             |
 

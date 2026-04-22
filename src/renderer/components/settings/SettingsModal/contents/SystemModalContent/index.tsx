@@ -368,7 +368,7 @@ const SystemModalContent: React.FC = () => {
               bordered={false}
               activeKey={notificationEnabled ? ['notification'] : []}
               onChange={(_, keys) => {
-                const shouldExpand = (keys).includes('notification');
+                const shouldExpand = keys.includes('notification');
                 if (shouldExpand && !notificationEnabled) {
                   handleNotificationEnabledChange(true);
                 } else if (!shouldExpand && notificationEnabled) {
@@ -438,10 +438,7 @@ const SystemModalContent: React.FC = () => {
 
           {/* CLI Setup & Gateway section */}
           <div className='px-[12px] md:px-[32px] py-16px bg-2 rd-16px space-y-12px'>
-            <PreferenceRow
-              label='CLI Setup'
-              description='Run or re-run the Gods Eye CLI setup wizard in Terminal'
-            >
+            <PreferenceRow label='CLI Setup' description='Run or re-run the Gods Eye CLI setup wizard in Terminal'>
               <Button
                 type='outline'
                 size='small'
@@ -495,7 +492,14 @@ const GatewayConnectButton: React.FC = () => {
     setTimeout(() => setStatus('idle'), 4000);
   }, []);
 
-  const label = status === 'loading' ? 'Restarting...' : status === 'success' ? 'Connected' : status === 'error' ? 'Failed' : 'Reconnect Gateway';
+  const label =
+    status === 'loading'
+      ? 'Restarting...'
+      : status === 'success'
+        ? 'Connected'
+        : status === 'error'
+          ? 'Failed'
+          : 'Reconnect Gateway';
   const btnType = status === 'success' ? 'primary' : 'outline';
 
   return (

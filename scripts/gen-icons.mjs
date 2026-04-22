@@ -109,7 +109,10 @@ async function main() {
     writeFileSync(join(iconsetDir, `icon_${s}x${s}.png`), buf);
     // Retina variants (e.g., icon_16x16@2x.png = 32px)
     if (s <= 512) {
-      const buf2x = await sharp(iconSvg).resize(s * 2, s * 2).png().toBuffer();
+      const buf2x = await sharp(iconSvg)
+        .resize(s * 2, s * 2)
+        .png()
+        .toBuffer();
       writeFileSync(join(iconsetDir, `icon_${s}x${s}@2x.png`), buf2x);
     }
   }
@@ -157,10 +160,10 @@ function createIco(pngBuffers) {
 
   for (const png of pngBuffers) {
     const entry = Buffer.alloc(dirEntrySize);
-    entry.writeUInt8(0, 0);    // width (0 = 256)
-    entry.writeUInt8(0, 1);    // height (0 = 256)
-    entry.writeUInt8(0, 2);    // color palette
-    entry.writeUInt8(0, 3);    // reserved
+    entry.writeUInt8(0, 0); // width (0 = 256)
+    entry.writeUInt8(0, 1); // height (0 = 256)
+    entry.writeUInt8(0, 2); // color palette
+    entry.writeUInt8(0, 3); // reserved
     entry.writeUInt16LE(1, 4); // color planes
     entry.writeUInt16LE(32, 6); // bits per pixel
     entry.writeUInt32LE(png.length, 8); // data size

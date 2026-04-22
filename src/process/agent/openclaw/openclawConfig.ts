@@ -40,7 +40,10 @@ interface OpenClawConfig {
  * Resolve the state directory (default: ~/.openclaw)
  */
 function resolveStateDir(): string {
-  const override = process.env.GODSEYE_STATE_DIR?.trim() || process.env.OPENCLAW_STATE_DIR?.trim() || process.env.CLAWDBOT_STATE_DIR?.trim();
+  const override =
+    process.env.GODSEYE_STATE_DIR?.trim() ||
+    process.env.OPENCLAW_STATE_DIR?.trim() ||
+    process.env.CLAWDBOT_STATE_DIR?.trim();
   if (override) {
     return resolveUserPath(override);
   }

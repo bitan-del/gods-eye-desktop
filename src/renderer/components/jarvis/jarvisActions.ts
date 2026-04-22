@@ -52,10 +52,7 @@ export async function handleJarvisAction(action: JarvisAction, navigate: Navigat
             extra: {},
           });
 
-          sessionStorage.setItem(
-            `gemini_initial_message_${conv.id}`,
-            JSON.stringify({ input: prompt, files: [] }),
-          );
+          sessionStorage.setItem(`gemini_initial_message_${conv.id}`, JSON.stringify({ input: prompt, files: [] }));
 
           navigate(`/conversation/${conv.id}`);
           console.log(`[JARVIS] Created Gemini task "${title}" → ${conv.id}`);
@@ -166,9 +163,7 @@ async function resolveDefaultModel(): Promise<TProviderWithModel> {
   try {
     const providers = await ConfigStorage.get('model.config');
     if (providers && Array.isArray(providers)) {
-      const gemini = providers.find(
-        (p) => p.platform === 'gemini' && p.apiKey && p.model?.length,
-      );
+      const gemini = providers.find((p) => p.platform === 'gemini' && p.apiKey && p.model?.length);
       if (gemini?.model?.[0]) {
         const { model: _models, ...rest } = gemini;
         return { ...rest, useModel: gemini.model[0] };

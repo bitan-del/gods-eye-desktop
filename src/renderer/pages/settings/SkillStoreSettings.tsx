@@ -27,34 +27,139 @@ type RegistrySkill = {
  */
 const BUNDLED_CATALOG: RegistrySkill[] = [
   // ── Document ──
-  { name: 'pdf', description: 'Extract text, tables, create, merge, split PDFs and fill forms.', category: 'Document', url: '' },
-  { name: 'officecli-xlsx', description: 'Create and edit Excel spreadsheets with formulas, charts, and formatting.', category: 'Document', url: '' },
-  { name: 'officecli-docx', description: 'Create, read, edit Word documents — reports, letters, memos, proposals.', category: 'Document', url: '' },
-  { name: 'officecli-pptx', description: 'Create and edit PowerPoint slide decks, pitch decks, and presentations.', category: 'Document', url: '' },
-  { name: 'morph-ppt', description: 'Generate beautiful morph-animated PowerPoint presentations.', category: 'Document', url: '' },
-  { name: 'officecli-academic-paper', description: 'Create academic papers, research papers, and technical reports.', category: 'Document', url: '' },
+  {
+    name: 'pdf',
+    description: 'Extract text, tables, create, merge, split PDFs and fill forms.',
+    category: 'Document',
+    url: '',
+  },
+  {
+    name: 'officecli-xlsx',
+    description: 'Create and edit Excel spreadsheets with formulas, charts, and formatting.',
+    category: 'Document',
+    url: '',
+  },
+  {
+    name: 'officecli-docx',
+    description: 'Create, read, edit Word documents — reports, letters, memos, proposals.',
+    category: 'Document',
+    url: '',
+  },
+  {
+    name: 'officecli-pptx',
+    description: 'Create and edit PowerPoint slide decks, pitch decks, and presentations.',
+    category: 'Document',
+    url: '',
+  },
+  {
+    name: 'morph-ppt',
+    description: 'Generate beautiful morph-animated PowerPoint presentations.',
+    category: 'Document',
+    url: '',
+  },
+  {
+    name: 'officecli-academic-paper',
+    description: 'Create academic papers, research papers, and technical reports.',
+    category: 'Document',
+    url: '',
+  },
   // ── Business ──
-  { name: 'officecli-pitch-deck', description: 'Create investor pitch decks, fundraising decks, and business proposals.', category: 'Business', url: '' },
-  { name: 'officecli-financial-model', description: 'Build financial models, projections, and analysis spreadsheets.', category: 'Business', url: '' },
-  { name: 'officecli-data-dashboard', description: 'Create data dashboards, KPI reports, and analytics summaries.', category: 'Business', url: '' },
+  {
+    name: 'officecli-pitch-deck',
+    description: 'Create investor pitch decks, fundraising decks, and business proposals.',
+    category: 'Business',
+    url: '',
+  },
+  {
+    name: 'officecli-financial-model',
+    description: 'Build financial models, projections, and analysis spreadsheets.',
+    category: 'Business',
+    url: '',
+  },
+  {
+    name: 'officecli-data-dashboard',
+    description: 'Create data dashboards, KPI reports, and analytics summaries.',
+    category: 'Business',
+    url: '',
+  },
   // ── Coding ──
-  { name: 'code-review', description: 'Automated code review — find bugs, security issues, and suggest improvements.', category: 'Coding', url: '' },
-  { name: 'testing', description: 'Write and run tests — unit, integration, and end-to-end test generation.', category: 'Coding', url: '' },
-  { name: 'refactoring', description: 'Refactor code for readability, performance, and maintainability.', category: 'Coding', url: '' },
+  {
+    name: 'code-review',
+    description: 'Automated code review — find bugs, security issues, and suggest improvements.',
+    category: 'Coding',
+    url: '',
+  },
+  {
+    name: 'testing',
+    description: 'Write and run tests — unit, integration, and end-to-end test generation.',
+    category: 'Coding',
+    url: '',
+  },
+  {
+    name: 'refactoring',
+    description: 'Refactor code for readability, performance, and maintainability.',
+    category: 'Coding',
+    url: '',
+  },
   // ── Creative ──
-  { name: 'story-roleplay', description: 'Interactive story roleplay with character cards and narrative management.', category: 'Creative', url: '' },
-  { name: 'mermaid', description: 'Render Mermaid diagrams as SVG or ASCII — flowcharts, sequence, ER diagrams.', category: 'Utility', url: '' },
+  {
+    name: 'story-roleplay',
+    description: 'Interactive story roleplay with character cards and narrative management.',
+    category: 'Creative',
+    url: '',
+  },
+  {
+    name: 'mermaid',
+    description: 'Render Mermaid diagrams as SVG or ASCII — flowcharts, sequence, ER diagrams.',
+    category: 'Utility',
+    url: '',
+  },
   // ── Social Media ──
-  { name: 'x-recruiter', description: 'Publish and manage recruitment content on X (Twitter).', category: 'Social Media', url: '' },
-  { name: 'xiaohongshu-recruiter', description: 'Create and publish recruitment content on Xiaohongshu.', category: 'Social Media', url: '' },
+  {
+    name: 'x-recruiter',
+    description: 'Publish and manage recruitment content on X (Twitter).',
+    category: 'Social Media',
+    url: '',
+  },
+  {
+    name: 'xiaohongshu-recruiter',
+    description: 'Create and publish recruitment content on Xiaohongshu.',
+    category: 'Social Media',
+    url: '',
+  },
   // ── Research ──
-  { name: 'web-research', description: 'Deep web research — search, summarise, and synthesise information.', category: 'Research', url: '' },
-  { name: 'data-analysis', description: 'Analyse datasets, generate insights, charts, and statistical reports.', category: 'Research', url: '' },
+  {
+    name: 'web-research',
+    description: 'Deep web research — search, summarise, and synthesise information.',
+    category: 'Research',
+    url: '',
+  },
+  {
+    name: 'data-analysis',
+    description: 'Analyse datasets, generate insights, charts, and statistical reports.',
+    category: 'Research',
+    url: '',
+  },
   // ── Utility ──
-  { name: 'cron', description: 'Create, query, and manage scheduled tasks for automated operations.', category: 'Utility', url: '' },
+  {
+    name: 'cron',
+    description: 'Create, query, and manage scheduled tasks for automated operations.',
+    category: 'Utility',
+    url: '',
+  },
   // ── Integration ──
-  { name: 'moltbook', description: 'The social network for AI agents — post, comment, upvote, create communities.', category: 'Integration', url: '' },
-  { name: 'godseye-skills', description: 'Access the Gods Eye Skills registry — discover and download community skills.', category: 'Integration', url: '' },
+  {
+    name: 'moltbook',
+    description: 'The social network for AI agents — post, comment, upvote, create communities.',
+    category: 'Integration',
+    url: '',
+  },
+  {
+    name: 'godseye-skills',
+    description: 'Access the Gods Eye Skills registry — discover and download community skills.',
+    category: 'Integration',
+    url: '',
+  },
 ];
 
 const categoryColors: Record<string, string> = {
@@ -123,10 +228,7 @@ const SkillStoreSettings: React.FC<SkillStoreSettingsProps> = () => {
 
   const allSkills = useMemo(() => [...BUNDLED_CATALOG, ...externalSkills], [externalSkills]);
 
-  const categories = useMemo(
-    () => ['All', ...Array.from(new Set(allSkills.map((s) => s.category)))],
-    [allSkills]
-  );
+  const categories = useMemo(() => ['All', ...Array.from(new Set(allSkills.map((s) => s.category)))], [allSkills]);
 
   const installedNames = useMemo(() => new Set(installedSkills.map((s) => s.name)), [installedSkills]);
 
@@ -137,9 +239,7 @@ const SkillStoreSettings: React.FC<SkillStoreSettingsProps> = () => {
     }
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      skills = skills.filter(
-        (s) => s.name.toLowerCase().includes(q) || s.description.toLowerCase().includes(q)
-      );
+      skills = skills.filter((s) => s.name.toLowerCase().includes(q) || s.description.toLowerCase().includes(q));
     }
     // Sort: not-installed first, then alphabetical
     return [...skills].sort((a, b) => {
@@ -178,7 +278,9 @@ const SkillStoreSettings: React.FC<SkillStoreSettingsProps> = () => {
               }
             }
           }
-          Message.info(`"${skill.name}" — install a CLI agent (Claude, Gemini) to discover this skill, or import it manually from the My Skills tab.`);
+          Message.info(
+            `"${skill.name}" — install a CLI agent (Claude, Gemini) to discover this skill, or import it manually from the My Skills tab.`
+          );
         }
       } catch (error) {
         console.error('Failed to install skill:', error);
@@ -207,7 +309,8 @@ const SkillStoreSettings: React.FC<SkillStoreSettingsProps> = () => {
           </div>
           <span className='text-13px text-[var(--color-text-3)] mt-4px'>
             {t('settings.skillStore.subtitle', {
-              defaultValue: 'Browse and install skills to specialise your agents. Skills from Claude CLI and Gemini CLI are detected automatically.',
+              defaultValue:
+                'Browse and install skills to specialise your agents. Skills from Claude CLI and Gemini CLI are detected automatically.',
             })}
           </span>
         </div>
@@ -251,9 +354,7 @@ const SkillStoreSettings: React.FC<SkillStoreSettingsProps> = () => {
                 onClick={() => setActiveCategory(cat)}
               >
                 {cat}
-                <span className={`text-11px ${activeCategory === cat ? 'opacity-70' : 'opacity-50'}`}>
-                  {count}
-                </span>
+                <span className={`text-11px ${activeCategory === cat ? 'opacity-70' : 'opacity-50'}`}>{count}</span>
               </button>
             );
           })}
@@ -264,9 +365,7 @@ const SkillStoreSettings: React.FC<SkillStoreSettingsProps> = () => {
       <div className='flex items-center gap-16px text-12px text-[var(--color-text-3)]'>
         <span>{filteredCatalog.length} skills</span>
         <span>{installedCount} installed</span>
-        {externalSkills.length > 0 && (
-          <span>{externalSkills.length} discovered from CLI agents</span>
-        )}
+        {externalSkills.length > 0 && <span>{externalSkills.length} discovered from CLI agents</span>}
       </div>
 
       {/* Skill Grid */}
@@ -290,9 +389,7 @@ const SkillStoreSettings: React.FC<SkillStoreSettingsProps> = () => {
                     <Tag size='small' color={categoryColors[skill.category] || 'gray'}>
                       {skill.category}
                     </Tag>
-                    {skill.source && (
-                      <span className='text-11px text-[var(--color-text-4)]'>from {skill.source}</span>
-                    )}
+                    {skill.source && <span className='text-11px text-[var(--color-text-4)]'>from {skill.source}</span>}
                   </div>
                   <span className='text-13px text-[var(--color-text-3)] line-clamp-2'>{skill.description}</span>
                 </div>
@@ -330,8 +427,8 @@ const SkillStoreSettings: React.FC<SkillStoreSettingsProps> = () => {
       {/* Footer tip */}
       <div className='flex items-start gap-10px p-16px bg-[var(--color-fill-1)] rd-12px text-[var(--color-text-3)] text-13px'>
         <span>
-          Installed skills appear when adding agents to a team. Install Claude CLI or Gemini CLI to discover more skills automatically.
-          You can also ask the leader agent to search the Gods Eye Skills registry for community skills.
+          Installed skills appear when adding agents to a team. Install Claude CLI or Gemini CLI to discover more skills
+          automatically. You can also ask the leader agent to search the Gods Eye Skills registry for community skills.
         </span>
       </div>
     </div>

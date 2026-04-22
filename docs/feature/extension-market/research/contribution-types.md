@@ -5,18 +5,18 @@
 
 ## 速查总表
 
-| #   | 类型             | Hub 映射      | ID 规则            | 解析方式                  | 备注                                    |
-| --- | ---------------- | ------------- | ------------------ | ------------------------- | --------------------------------------- |
+| #   | 类型             | Hub 映射      | ID 规则            | 解析方式                  | 备注                                       |
+| --- | ---------------- | ------------- | ------------------ | ------------------------- | ------------------------------------------ |
 | 1   | `acpAdapters`    | Agent Hub     | 原始 `id`          | 同步, 平铺                | icon→godseye-asset://, connectionType 分支 |
-| 2   | `mcpServers`     | MCP Hub       | `ext-{ext}-{name}` | 同步, 平铺                | transport 4 种类型, 保留 originalJson   |
-| 3   | `assistants`     | Assistant Hub | `ext-{id}`         | **异步**, 读文件          | 读 contextFile 内容, path 安全检查      |
-| 4   | ~~`agents`~~     | —             | `ext-{id}`         | **异步**, 读文件          | **冗余, 待废弃** — 见下方分析           |
-| 5   | `skills`         | Skill Hub     | 原始 `name`        | 同步, 仅验证路径          | 不读文件, 只验证存在性                  |
+| 2   | `mcpServers`     | MCP Hub       | `ext-{ext}-{name}` | 同步, 平铺                | transport 4 种类型, 保留 originalJson      |
+| 3   | `assistants`     | Assistant Hub | `ext-{id}`         | **异步**, 读文件          | 读 contextFile 内容, path 安全检查         |
+| 4   | ~~`agents`~~     | —             | `ext-{id}`         | **异步**, 读文件          | **冗余, 待废弃** — 见下方分析              |
+| 5   | `skills`         | Skill Hub     | 原始 `name`        | 同步, 仅验证路径          | 不读文件, 只验证存在性                     |
 | 6   | `themes`         | Theme Hub     | `ext-{ext}-{id}`   | 同步, **readFileSync**    | 内联 CSS 内容, cover→godseye-asset://      |
-| 7   | `channelPlugins` | Channel Hub   | `type`             | 同步, **dynamic require** | duck-typing + wrapper, eval('require')  |
-| 8   | `webui`          | —             | 路径命名空间       | 同步, 路径校验            | 强制 `/{extName}/` 前缀, 保留路径黑名单 |
-| 9   | `settingsTabs`   | —             | `ext-{ext}-{id}`   | 同步, URL 解析            | 位置锚定系统 (anchor + before/after)    |
-| 10  | `modelProviders` | Model Hub     | `ext-{ext}-{id}`   | 同步, logo 解析           | 强类型输出 ResolvedModelProvider        |
+| 7   | `channelPlugins` | Channel Hub   | `type`             | 同步, **dynamic require** | duck-typing + wrapper, eval('require')     |
+| 8   | `webui`          | —             | 路径命名空间       | 同步, 路径校验            | 强制 `/{extName}/` 前缀, 保留路径黑名单    |
+| 9   | `settingsTabs`   | —             | `ext-{ext}-{id}`   | 同步, URL 解析            | 位置锚定系统 (anchor + before/after)       |
+| 10  | `modelProviders` | Model Hub     | `ext-{ext}-{id}`   | 同步, logo 解析           | 强类型输出 ResolvedModelProvider           |
 
 ## 各类型详解
 
@@ -105,7 +105,7 @@ flowchart TD
 | `models[]`        | 否   | 推荐模型列表                                                                  |
 | `enabledSkills[]` | 否   | 启用的 skill 名称                                                             |
 | `prompts[]`       | 否   | 提示词列表                                                                    |
-| `avatar`          | 否   | 头像路径 (godseye-asset:// 或 HTTP)                                              |
+| `avatar`          | 否   | 头像路径 (godseye-asset:// 或 HTTP)                                           |
 
 **特殊:** 这是少数异步 resolver 之一, 因为需要读取 contextFile 文件内容。
 
@@ -162,7 +162,7 @@ flowchart TD
 | `id`    | 是   | 主题 ID                                             |
 | `name`  | 是   | 主题名称 (输出时追加扩展名)                         |
 | `file`  | 是   | CSS 文件相对路径 (**resolve 时 readFileSync 读取**) |
-| `cover` | 否   | 封面图相对路径 → godseye-asset://                      |
+| `cover` | 否   | 封面图相对路径 → godseye-asset://                   |
 
 **解析逻辑:**
 
@@ -257,7 +257,7 @@ flowchart TD
 | `name`     | 是   | 显示名称                                                        |
 | `baseUrl`  | 否   | API 基础 URL                                                    |
 | `models[]` | 否   | 默认模型列表                                                    |
-| `logo`     | 否   | Logo 文件路径 → godseye-asset://                                   |
+| `logo`     | 否   | Logo 文件路径 → godseye-asset://                                |
 
 **特殊:** 唯一使用强类型输出 (`ResolvedModelProvider` 接口) 的 resolver (多数 resolver 输出 `Record<string, unknown>`)。
 
@@ -272,7 +272,7 @@ flowchart TD
 | `entryPointResolver` | `utils/entryPointResolver.ts` | dist-first 入口点解析 (src→dist, .ts→.js 回退) |
 | `envResolver`        | `utils/envResolver.ts`        | `${env:VAR}` 模板替换 (支持 strict mode)       |
 | `dependencyResolver` | `utils/dependencyResolver.ts` | 扩展间依赖校验 + 拓扑排序 (semver ^/~/exact)   |
-| `engineValidator`    | `utils/engineValidator.ts`    | Gods Eye 版本 + API 版本兼容性校验               |
+| `engineValidator`    | `utils/engineValidator.ts`    | Gods Eye 版本 + API 版本兼容性校验             |
 | `fileResolver`       | `utils/fileResolver.ts`       | `$file:` 引用展开 (递归, 防循环, 支持 JSONC)   |
 
 ### 跨 Resolver 共性模式

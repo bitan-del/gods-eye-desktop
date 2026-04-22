@@ -419,11 +419,11 @@ Host 处理方式     onUIMessage 回调                   extensionEventBus
 
 ## 10. 剩余 TODO
 
-| 项目                         | 现状                              | 说明                                                                     |
-| ---------------------------- | --------------------------------- | ------------------------------------------------------------------------ |
-| ChannelPlugin 迁移到 Sandbox | 主进程 `eval('require')`          | 代码已标 TODO，待迁移到 `createSandbox()`                                |
-| ~~Lifecycle hooks 迁移~~     | ~~已迁移到 child_process.fork()~~ | ~~PR #2004, 进程级隔离 + 差异化超时 + 开发者可配置~~                     |
-| `createSandbox()` 实际调用   | 无调用方                          | ChannelPlugin 迁移后才会有调用方                                         |
-| `ExtensionStorage` 接入      | 已实现，未接入                    | 等 `createSandbox()` 有调用方后通过 `apiHandlers` 注入                   |
-| `onUIMessage` IPC 通道       | 回调机制已就位                    | 需要实现从主进程到渲染进程的 IPC bridge                                  |
+| 项目                         | 现状                              | 说明                                                                        |
+| ---------------------------- | --------------------------------- | --------------------------------------------------------------------------- |
+| ChannelPlugin 迁移到 Sandbox | 主进程 `eval('require')`          | 代码已标 TODO，待迁移到 `createSandbox()`                                   |
+| ~~Lifecycle hooks 迁移~~     | ~~已迁移到 child_process.fork()~~ | ~~PR #2004, 进程级隔离 + 差异化超时 + 开发者可配置~~                        |
+| `createSandbox()` 实际调用   | 无调用方                          | ChannelPlugin 迁移后才会有调用方                                            |
+| `ExtensionStorage` 接入      | 已实现，未接入                    | 等 `createSandbox()` 有调用方后通过 `apiHandlers` 注入                      |
+| `onUIMessage` IPC 通道       | 回调机制已就位                    | 需要实现从主进程到渲染进程的 IPC bridge                                     |
 | Extension 开发者 Wiki        | 未开始                            | 需编写扩展开发文档：贡献类型、manifest 规范、`godseye` API 说明、发布流程等 |

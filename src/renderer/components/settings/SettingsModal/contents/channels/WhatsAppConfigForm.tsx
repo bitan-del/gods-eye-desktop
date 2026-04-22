@@ -472,9 +472,7 @@ const WhatsAppConfigForm: React.FC<WhatsAppConfigFormProps> = ({ pluginStatus, m
                 <div key={pairing.code} className='flex items-center justify-between bg-fill-2 rd-8px p-12px'>
                   <div className='flex-1'>
                     <div className='flex items-center gap-8px'>
-                      <span className='text-14px font-500 text-t-primary'>
-                        {pairing.displayName || 'Unknown User'}
-                      </span>
+                      <span className='text-14px font-500 text-t-primary'>{pairing.displayName || 'Unknown User'}</span>
                       <Tooltip content={t('settings.assistant.copyCode', 'Copy pairing code')}>
                         <Button
                           type='text'

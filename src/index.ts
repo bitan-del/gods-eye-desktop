@@ -308,8 +308,16 @@ const createWindow = ({ showOnReady = true }: { showOnReady?: boolean } = {}): v
   // Initialize auto-updater service (skip when disabled via env, e.g. E2E / CI)
   // 初始化自动更新服务（通过环境变量禁用时跳过，例如 E2E / CI 场景）
   const isCiRuntime = process.env.CI === 'true' || process.env.CI === '1' || process.env.GITHUB_ACTIONS === 'true';
+  // HOTFIX: auto-updater hard-disabled in-binary. The previous GitHub release
+  // channel was shipping unsigned/ad-hoc DMGs which electron-updater would
+  // download, queue for install-on-quit, then fail with a native macOS
+  // "Cannot install" dialog when the signature check could not be satisfied.
+  // Keeping the env-guard below as a secondary switch for E2E / CI.
   const disableAutoUpdater =
-    process.env.GODSEYE_DISABLE_AUTO_UPDATE === '1' || process.env.GODSEYE_E2E_TEST === '1' || isCiRuntime;
+    true ||
+    process.env.GODSEYE_DISABLE_AUTO_UPDATE === '1' ||
+    process.env.GODSEYE_E2E_TEST === '1' ||
+    isCiRuntime;
   if (!disableAutoUpdater) {
     Promise.all([import('./process/services/autoUpdaterService'), import('./process/bridge/updateBridge')])
       .then(([{ autoUpdaterService }, { createAutoUpdateStatusBroadcast }]) => {

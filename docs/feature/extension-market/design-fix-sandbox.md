@@ -11,7 +11,7 @@
 
 | #   | 问题                     | 性质     | 影响                                 |
 | --- | ------------------------ | -------- | ------------------------------------ |
-| 1   | Worker→Host RPC 静默丢弃 | 功能 bug | `godseye.storage.*` 调用永远 hang       |
+| 1   | Worker→Host RPC 静默丢弃 | 功能 bug | `godseye.storage.*` 调用永远 hang    |
 | 2   | Worker→Host 事件静默丢弃 | 功能 bug | `emitEvent()` / `postToUI()` 无效    |
 | 3   | Worker→Host 调用无超时   | 缺陷     | hang 后无法自行恢复                  |
 | 4   | 生命周期钩子在主进程裸跑 | 架构问题 | `onInstall` 阻塞主线程，崩溃影响全局 |
@@ -101,8 +101,8 @@ class ExtensionStorage {
 
 `createApiHandlers()` 返回的 key 与 `sandboxWorker.ts` 中 `callMainThread()` 的 method 名精确对应：
 
-| Worker 端调用                  | callMainThread method | apiHandlers key    |
-| ------------------------------ | --------------------- | ------------------ |
+| Worker 端调用                     | callMainThread method | apiHandlers key    |
+| --------------------------------- | --------------------- | ------------------ |
 | `godseye.storage.get(key)`        | `'storage.get'`       | `'storage.get'`    |
 | `godseye.storage.set(key, value)` | `'storage.set'`       | `'storage.set'`    |
 | `godseye.storage.delete(key)`     | `'storage.delete'`    | `'storage.delete'` |
@@ -127,8 +127,8 @@ class ExtensionStorage {
 
 Worker 端两个 API 复用同一个 `{type:'event'}` 消息类型，通过 `name` 区分目标：
 
-| Worker API                   | 消息 name                   | Host 路由目标       |
-| ---------------------------- | --------------------------- | ------------------- |
+| Worker API                      | 消息 name                   | Host 路由目标       |
+| ------------------------------- | --------------------------- | ------------------- |
 | `godseye.postToUI(data)`        | `'ui-message'`（固定）      | `onUIMessage` 回调  |
 | `godseye.emitEvent(name, data)` | `'ext:{eventName}'`（动态） | `extensionEventBus` |
 
