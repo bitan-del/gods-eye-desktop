@@ -924,7 +924,7 @@
     "notFound": "未找到",
     "version": "版本",
     "path": "路径",
-    "providerNote": "服务商和 API 密钥设置在模型页面管理。Aion CLI 支持：Anthropic、OpenAI、AWS Bedrock。"
+    "providerNote": "服务商和 API 密钥设置在模型页面管理。Gods Eye CLI 支持：Anthropic、OpenAI、AWS Bedrock。"
   },
   "brain": "Brain"
 }

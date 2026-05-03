@@ -47,7 +47,7 @@ export async function checkCliInstalled(): Promise<{
 
 /**
  * Install Gods Eye CLI using the official install script:
- *   curl -fsSL https://gods-eye.org/install.sh | bash
+ *   curl -fsSL https://github.com/bitan-del/gods-eye-desktop/install.sh | bash
  *
  * Streams stdout/stderr to the renderer in real time.
  */
@@ -74,7 +74,7 @@ export function installCli(): Promise<{ success: boolean; error?: string }> {
       // Use HTTP/1.1 to avoid HTTP/2 stream errors
       'git config --global http.version HTTP/1.1',
       // Run the official install script
-      'curl -fsSL https://gods-eye.org/install.sh | bash',
+      'curl -fsSL https://github.com/bitan-del/gods-eye-desktop/install.sh | bash',
     ].join(' && ');
 
     const child = spawn('bash', ['-c', script], {

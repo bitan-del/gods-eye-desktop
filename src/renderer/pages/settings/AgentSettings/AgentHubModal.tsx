@@ -13,7 +13,7 @@ interface AgentHubModalProps {
   onCancel: () => void;
 }
 
-const GODS_EYE_HUB_REPO_URL = 'https://github.com/bitan-del/gods-eye';
+const GODS_EYE_HUB_REPO_URL = 'https://github.com/bitan-del/gods-eye-desktop';
 
 /** Replace "AionUi" / "AionUI" with "Gods Eye" in remote hub descriptions */
 const sanitizeDescription = (desc: string): string =>
