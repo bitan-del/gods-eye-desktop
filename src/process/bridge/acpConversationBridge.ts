@@ -60,10 +60,10 @@ export function initAcpConversationBridge(workerTaskManager: IWorkerTaskManager)
       }));
 
       // Detect aionrs binary (non-ACP, uses JSON Lines protocol)
-      // Insert at front so Aion CLI appears before other agents (including Gemini)
+      // Insert at front so Gods Eye CLI appears before other agents (including Gemini)
       const aionrs = detectAionrs();
       if (aionrs.available) {
-        const aionrsAgent = { backend: 'aionrs' as const, name: 'Aion CLI', cliPath: aionrs.path };
+        const aionrsAgent = { backend: 'aionrs' as const, name: 'Gods Eye CLI', cliPath: aionrs.path };
         enriched.unshift({
           ...aionrsAgent,
           supportedTransports: mcpService.getSupportedTransportsForAgent(aionrsAgent),

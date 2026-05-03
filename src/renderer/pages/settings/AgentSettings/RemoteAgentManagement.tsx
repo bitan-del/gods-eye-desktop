@@ -32,7 +32,7 @@ const FormItem = Form.Item;
 
 const PAIRING_POLL_INTERVAL = 5_000;
 const PAIRING_TIMEOUT = 5 * 60 * 1000;
-const REMOTE_AGENT_GUIDE_URL = 'https://github.com/bitan-del/gods-eye/wiki/Remote-Agent-Guide-Chinese';
+const REMOTE_AGENT_GUIDE_URL = 'https://github.com/bitan-del/gods-eye-desktop/wiki/Remote-Agent-Guide-Chinese';
 
 type PairingState = 'idle' | 'handshaking' | 'pending' | 'timeout';
 

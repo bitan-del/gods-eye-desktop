@@ -843,7 +843,7 @@ const ToolsModalContent: React.FC = () => {
                         <div>
                           {t('settings.needHelpTooltip')}
                           <a
-                            href='https://github.com/bitan-del/gods-eye/wiki/Gods Eye-Image-Generation-Tool-Model-Configuration-Guide'
+                            href='https://github.com/bitan-del/gods-eye-desktop/wiki/Gods Eye-Image-Generation-Tool-Model-Configuration-Guide'
                             target='_blank'
                             rel='noopener noreferrer'
                             className='text-[rgb(var(--primary-6))] hover:text-[rgb(var(--primary-5))] underline ml-4px'
@@ -855,7 +855,7 @@ const ToolsModalContent: React.FC = () => {
                       }
                     >
                       <a
-                        href='https://github.com/bitan-del/gods-eye/wiki/Gods Eye-Image-Generation-Tool-Model-Configuration-Guide'
+                        href='https://github.com/bitan-del/gods-eye-desktop/wiki/Gods Eye-Image-Generation-Tool-Model-Configuration-Guide'
                         target='_blank'
                         rel='noopener noreferrer'
                         className='ml-8px text-[rgb(var(--primary-6))] hover:text-[rgb(var(--primary-5))] cursor-pointer'

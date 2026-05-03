@@ -92,7 +92,7 @@ export class McpService {
       ['godseye', new AionuiMcpAgent()], // Gods Eye 本地 @office-ai/aioncli-core
       ['codex', new CodexMcpAgent()],
       ['opencode', new OpencodeMcpAgent()],
-      ['aionrs', new AionrsMcpAgent()], // Aion CLI (Rust binary, TOML config)
+      ['aionrs', new AionrsMcpAgent()], // Gods Eye CLI (Rust binary, TOML config)
     ]);
   }
 

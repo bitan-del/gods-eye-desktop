@@ -54,17 +54,17 @@ const AboutModalContent: React.FC = () => {
   const linkItems: LinkItem[] = [
     {
       title: t('settings.helpDocumentation'),
-      url: 'https://github.com/bitan-del/gods-eye/wiki',
+      url: 'https://github.com/bitan-del/gods-eye-desktop/wiki',
       icon: <Right theme='outline' size='16' />,
     },
     {
       title: t('settings.updateLog'),
-      url: 'https://github.com/bitan-del/gods-eye/releases',
+      url: 'https://github.com/bitan-del/gods-eye-desktop/releases',
       icon: <Right theme='outline' size='16' />,
     },
     {
       title: t('settings.feedback'),
-      url: 'https://github.com/bitan-del/gods-eye/issues',
+      url: 'https://github.com/bitan-del/gods-eye-desktop/issues',
       icon: <Right theme='outline' size='16' />,
     },
     {
@@ -79,7 +79,7 @@ const AboutModalContent: React.FC = () => {
     },
     {
       title: t('settings.officialWebsite'),
-      url: 'https://www.gods-eye.org',
+      url: 'https://github.com/bitan-del/gods-eye-desktop',
       icon: <Right theme='outline' size='16' />,
     },
   ];
@@ -109,7 +109,7 @@ const AboutModalContent: React.FC = () => {
               <div
                 className='text-t-primary cursor-pointer hover:text-t-secondary transition-colors p-4px'
                 onClick={() =>
-                  openLink('https://github.com/bitan-del/gods-eye').catch((error) =>
+                  openLink('https://github.com/bitan-del/gods-eye-desktop').catch((error) =>
                     console.error('Failed to open link:', error)
                   )
                 }

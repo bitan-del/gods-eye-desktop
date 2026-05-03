@@ -124,6 +124,6 @@ description: 'Gods Eye WebUI configuration expert: Helps users configure Gods Ey
 
 ## 参考资源
 
-- [Gods Eye Wiki - Remote Internet Access Guide](https://github.com/bitan-del/gods-eye/wiki/Remote-Internet-Access-Guide)
-- [Gods Eye Wiki - WebUI Configuration Guide](https://github.com/bitan-del/gods-eye/wiki/WebUI-Configuration-Guide)
+- [Gods Eye Wiki - Remote Internet Access Guide](https://github.com/bitan-del/gods-eye-desktop/wiki/Remote-Internet-Access-Guide)
+- [Gods Eye Wiki - WebUI Configuration Guide](https://github.com/bitan-del/gods-eye-desktop/wiki/WebUI-Configuration-Guide)
 - [Tailscale 官方文档](https://tailscale.com/kb/)

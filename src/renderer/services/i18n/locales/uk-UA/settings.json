@@ -864,7 +864,7 @@
     "notFound": "Не знайдений",
     "version": "Версія",
     "path": "Шлях",
-    "providerNote": "Налаштування провайдера та API-ключів керуються на сторінці моделей. Aion CLI підтримує: Anthropic, OpenAI, AWS Bedrock."
+    "providerNote": "Налаштування провайдера та API-ключів керуються на сторінці моделей. Gods Eye CLI підтримує: Anthropic, OpenAI, AWS Bedrock."
   },
   "brain": "Brain",
   "bugReport": "Отчёт об ошибке",

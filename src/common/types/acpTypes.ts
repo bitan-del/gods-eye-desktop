@@ -77,7 +77,7 @@ export type AcpBackendAll =
   | 'hermes' // Hermes Agent CLI (Nous Research)
   | 'snow' // Snow AI CLI
   | 'remote' // Remote agent (WebSocket, no local CLI)
-  | 'aionrs' // Aion CLI agent (Rust binary, JSON Lines protocol)
+  | 'aionrs' // Gods Eye CLI agent (Rust binary, JSON Lines protocol)
   | 'custom'; // User-configured custom ACP agent
 
 /**
@@ -551,7 +551,7 @@ export const ACP_BACKENDS_ALL: Record<AcpBackendAll, AcpBackendConfig> = {
   },
   aionrs: {
     id: 'aionrs',
-    name: 'Aion CLI',
+    name: 'Gods Eye CLI',
     cliCommand: 'aionrs',
     authRequired: false, // Auth handled via env vars from model config
     enabled: true,

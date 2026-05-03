@@ -138,7 +138,7 @@ function toAionrsConfig(server: IMcpServer): AionrsServerConfig {
 }
 
 /**
- * Aion CLI (aionrs) MCP agent implementation
+ * Gods Eye CLI (aionrs) MCP agent implementation
  *
  * Manages MCP server configuration in the platform config directory (see getAionrsConfigPath())
  * aionrs uses TOML format with [mcp.servers.*] sections

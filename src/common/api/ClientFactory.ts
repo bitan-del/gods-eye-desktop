@@ -77,7 +77,7 @@ export class ClientFactory {
           baseURL: baseUrl,
           timeout: options.timeout,
           defaultHeaders: {
-            'HTTP-Referer': 'https://gods-eye.org',
+            'HTTP-Referer': 'https://github.com/bitan-del/gods-eye-desktop',
             'X-Title': 'Gods Eye',
           },
           ...(options.baseConfig as OpenAIClientConfig),
@@ -129,7 +129,7 @@ export class ClientFactory {
           baseURL: baseUrl,
           timeout: options.timeout,
           defaultHeaders: {
-            'HTTP-Referer': 'https://gods-eye.org',
+            'HTTP-Referer': 'https://github.com/bitan-del/gods-eye-desktop',
             'X-Title': 'Gods Eye',
           },
           ...(options.baseConfig as OpenAIClientConfig),

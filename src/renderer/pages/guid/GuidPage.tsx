@@ -421,7 +421,7 @@ const GuidPage: React.FC = () => {
     [agentSelection, currentPresetAgentType, t]
   );
 
-  // Determine if model selector should use provider-based mode (Gemini & Aion CLI)
+  // Determine if model selector should use provider-based mode (Gemini & Gods Eye CLI)
   // Both gemini and aionrs use configured model providers, not ACP probe-based models
   const PROVIDER_BASED_AGENTS = new Set(['gemini', 'aionrs']);
   const isGeminiMode =

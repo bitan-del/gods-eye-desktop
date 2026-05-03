@@ -910,7 +910,7 @@
     "notFound": "見つかりません",
     "version": "バージョン",
     "path": "パス",
-    "providerNote": "プロバイダーとAPIキーの設定はモデルページで管理します。Aion CLIは以下をサポート：Anthropic、OpenAI、AWS Bedrock。"
+    "providerNote": "プロバイダーとAPIキーの設定はモデルページで管理します。Gods Eye CLIは以下をサポート：Anthropic、OpenAI、AWS Bedrock。"
   },
   "brain": "Brain"
 }

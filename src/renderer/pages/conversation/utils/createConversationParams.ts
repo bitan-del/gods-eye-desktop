@@ -31,7 +31,7 @@ export async function getDefaultAionrsModel(): Promise<TProviderWithModel> {
   // aionrs supports all platforms via OpenAI-compatible protocol
   const provider = providers.find((p) => p.enabled !== false);
   if (!provider) {
-    throw new Error('No enabled model provider for Aion CLI');
+    throw new Error('No enabled model provider for Gods Eye CLI');
   }
 
   const enabledModel = provider.model.find((m) => provider.modelEnabled?.[m] !== false);

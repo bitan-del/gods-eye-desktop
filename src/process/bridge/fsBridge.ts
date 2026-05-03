@@ -374,7 +374,7 @@ export function initFsBridge(): void {
           {
             headers: {
               'User-Agent': 'Gods Eye-Preview',
-              Referer: 'https://github.com/bitan-del/gods-eye',
+              Referer: 'https://github.com/bitan-del/gods-eye-desktop',
             },
           },
           (response) => {
